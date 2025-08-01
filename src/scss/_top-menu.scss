@@ -1,0 +1,25 @@
+@use 'mixins' as *;
+@use 'variables' as *;
+
+.top-menu {
+  display: flex;
+  justify-content: space-between;
+  background: $content-bg;
+  padding: 8px;
+  border-bottom: 1px solid $border-color;
+  align-items: center;
+
+  #logo {
+    display: flex;
+
+    img {
+      max-width: 32px;
+      display: block;
+    }
+  }
+
+  svg {
+    width: 32px;
+    fill: white;
+  }
+}

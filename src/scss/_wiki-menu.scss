@@ -1,0 +1,197 @@
+@use 'mixins' as *;
+@use 'variables' as *;
+
+.wiki-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  z-index: 1;
+  position: relative;
+  list-style: none;
+  margin: 0;
+
+  @include min-768 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  input {
+    display: none;
+  }
+
+  &:has(input[name=menu]:checked) {
+    @include max-767 {
+      li:nth-child(n+4) {
+        display: block;
+        position: absolute;
+        width: 100%;
+        background: $content-bg;
+        border: 1px solid $border-color;
+        z-index: 2;
+
+        label {
+          flex-direction: row;
+          padding: 8px 12px;
+        }
+      }
+
+      li:nth-child(4) {
+        top: 78px;
+      }
+
+      li:nth-child(5) {
+        top: 128px;
+      }
+
+      li:nth-child(6) {
+        top: 178px;
+      }
+
+      li:nth-child(7) {
+        top: 228px;
+      }
+
+      li:nth-child(8) {
+        top: 278px;
+      }
+
+      li:last-child {
+        border: 0;
+        position: relative;
+
+        label {
+          flex-direction: column;
+        }
+      }
+
+      li:has(input[name=wiki-menu]:checked) {
+        border: 0;
+        z-index: 1;
+        background: #222;
+
+        label {
+          padding: 12px;
+        }
+
+        img {
+          max-width: 36px;
+          max-height: 36px;
+          margin-left: 0;
+        }
+      }
+    }
+  }
+
+  li {
+    order: 2;
+    width: 100%;
+    position: relative;
+
+    &:nth-child(n+4) {
+      display: none;
+    }
+
+    &:last-child {
+      display: block;
+    }
+
+    @include min-768 {
+      &:nth-child(n+4) {
+        display: block;
+      }
+
+      &:last-child {
+        display: none;
+      }
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      column-gap: 8px;
+      padding: 12px;
+      text-decoration: none;
+      flex-direction: column;
+      row-gap: 4px;
+
+      @include min-768 {
+        flex-direction: row;
+        min-width: 160px;
+      }
+
+      span {
+        text-align: center;
+
+        @include min-768 {
+          white-space: nowrap;
+        }
+      }
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    &:has(input[name=wiki-menu]:checked) {
+      color: $selected-menu-color;
+      border: 1px solid $border-color;
+      border-bottom: 0;
+      background: $content-bg;
+
+      @include min-768 {
+        border-right: 0;
+        border-bottom: 1px solid $border-color;
+      }
+
+      &:after {
+        content: '';
+        position: absolute;
+        background: $content-bg;
+        width: 100%;
+        height: 4px;
+        bottom: -2px;
+        right: 0;
+
+        @include min-768 {
+          width: 4px;
+          height: 100%;
+          top: 0;
+          right: -2px;
+        }
+      }
+
+      &:nth-child(n+4) {
+        @include max-767 {
+          display: block;
+          order: 1;
+        }
+      }
+
+      img {
+        width: 100%;
+        max-width: 42px;
+        max-height: 42px;
+        margin-left: 0;
+      }
+    }
+  }
+
+  img {
+    width: 100%;
+    max-width: 36px;
+    max-height: 36px;
+    object-fit: contain;
+  }
+
+  label {
+    color: $menu-color;
+  }
+}
