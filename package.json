@@ -18,6 +18,9 @@
     "webpack-dev-server": "^5.2.2"
   },
   "scripts": {
+    "build:ts:prod": "webpack --config webpack.config.mjs --mode production",
+    "build:scss:prod": "webpack --config webpack.styles.mjs --mode production",
+    "build:prod": "npm run build:ts:prod && npm run build:scss:prod",
     "build:ts": "webpack --config webpack.config.mjs",
     "build:scss": "webpack --config webpack.styles.mjs",
     "build": "npm run build:ts && npm run build:scss",
