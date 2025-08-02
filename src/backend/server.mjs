@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import ejs from 'ejs';
+import { rateLimiterMiddleware } from './components/rate-limiter.mjs';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,11 +23,11 @@ app.use('/css', express.static(path.join(__dirname, '..', '..', 'public', 'dist'
 app.use('/js', express.static(path.join(__dirname, '..', '..', 'public', 'dist', 'js')));
 app.use('/img', express.static(path.join(__dirname, '..', '..', 'public', 'img')));
 
-app.get(['/', '/:path'], (req, res) => {
+app.get(['/', '/:path'], rateLimiterMiddleware, (req, res) => {
   res.render('index');
 });
 
-app.get(['/wiki/:path'], (req, res) => {
+app.get(['/wiki/:path'], rateLimiterMiddleware, (req, res) => {
   const baseDir = path.join(__dirname, '..', 'html', 'wiki');
   const safePath = path.join(baseDir, req.params.path, 'index.html');
   const normalizedPath = path.normalize(safePath);
@@ -49,6 +50,10 @@ app.get(['/wiki/:path'], (req, res) => {
   } else {
     res.status(404).send('Page not found');
   }
+});
+
+app.use((req, res) => {
+  res.status(404).send('Not Found');
 });
 
 app.listen(port, () => {

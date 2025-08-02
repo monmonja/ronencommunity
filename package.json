@@ -30,6 +30,8 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "nodemon": "^3.1.10",
+    "rate-limiter-flexible": "^7.2.0",
+    "request-ip": "^3.3.0",
     "sass-migrator": "^2.3.3"
   }
 }
