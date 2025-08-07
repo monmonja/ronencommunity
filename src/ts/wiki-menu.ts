@@ -1,23 +1,3 @@
-async function loadPage(url: string): Promise<string> {
-  try {
-    const response: Response = await fetch(url, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.text();
-  } catch (error) {
-    console.error('Failed to load page:', error);
-
-    throw error;
-  }
-}
-
 export default function (): void {
   const wikiMenu:HTMLElement | null = document.querySelector('.wiki-menu');
   const wikiMenuLabels: Element[] = wikiMenu
@@ -37,18 +17,9 @@ export default function (): void {
       }
 
       if (input) {
-        loadPage(input.value ?? '/wiki/ronen')
-          .then((html) => {
-            const content: HTMLElement | null = document.getElementById('content');
+        location.href = input.value;
 
-            history.pushState({}, '', input.value ?? '/wiki/ronen');
-
-            if (content) {
-              content.innerHTML = html;
-            } else {
-              console.warn('Element with ID "content" not found.');
-            }
-          });
+        return;
       }
     });
   });
@@ -62,27 +33,4 @@ export default function (): void {
       }
     });
   }
-
-  window.addEventListener('popstate', (event) => {
-    const path:string = location.pathname;
-
-    const radioToCheck: HTMLInputElement | null = document.querySelector<HTMLInputElement>(
-      `input[name="wiki-menu"][value="${path}"]`
-    );
-
-    if (radioToCheck) {
-      radioToCheck.checked = true;
-    }
-
-    loadPage(path)
-      .then((html) => {
-        const content:HTMLElement | null = document.getElementById('content');
-
-        if (content) {
-          content.innerHTML = html;
-        } else {
-          console.warn('Element with ID "content" not found.');
-        }
-      });
-  });
 }
