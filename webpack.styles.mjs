@@ -11,10 +11,13 @@ export default (env, argv) => {
   const isProduction = argv.mode === 'production';
 
   return {
-    entry: './src/scss/index.scss',
+    entry: {
+      index: './src/scss/index.scss',
+      wiki: './src/scss/wiki.scss',
+    },
     output: {
       path: path.resolve(__dirname, 'public/dist'),
-      // no JS output
+      clean: true, // Optional: clears old output
     },
     module: {
       rules: [
@@ -30,7 +33,7 @@ export default (env, argv) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: 'css/styles.css',
+        filename: 'css/[name].css',
       }),
       new RemoveJSPlugin(),
     ],

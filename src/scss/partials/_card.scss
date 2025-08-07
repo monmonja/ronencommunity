@@ -1,0 +1,29 @@
+@use './mixins' as *;
+@use './variables' as *;
+
+.card {
+  background: $content-bg;
+  border: 1px solid $border-color;
+  flex: 1;
+  color: white;
+  padding: 24px;
+  text-align: center;
+
+  a {
+    text-decoration: none;
+    color: $border-color;
+  }
+
+  svg {
+    max-width: 128px;
+    display: block;
+    margin: 0 auto 10px;
+    fill: $border-color;
+  }
+
+  label {
+    font-size: 2rem;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+}
