@@ -17,7 +17,6 @@ export default (env, argv) => {
     },
     output: {
       path: path.resolve(__dirname, 'public/dist'),
-      clean: true, // Optional: clears old output
     },
     module: {
       rules: [
