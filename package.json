@@ -4,17 +4,27 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@stylistic/stylelint-plugin": "^4.0.0",
     "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
     "concurrently": "^9.2.0",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
+    "eslint": "^9.32.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
     "html-webpack-plugin": "^5.6.3",
     "mini-css-extract-plugin": "^2.9.2",
     "nodemon": "^3.1.10",
     "sass": "^1.89.2",
     "sass-loader": "^16.0.5",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard-scss": "^15.0.1",
+    "stylelint-scss": "^6.12.1",
     "ts-loader": "^9.5.2",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
     "webpack": "^5.100.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
@@ -42,6 +52,9 @@
     "watch:ts": "webpack --config webpack.config.mjs --watch",
     "watch:scss": "webpack --config webpack.styles.mjs --watch",
     "watch": "concurrently -n TS,SCSS -c yellow,cyan \"npm:watch:ts\" \"npm:watch:scss\"",
+    "lint:ts": "npx eslint \"src/**/*.{ts,tsx,mjs}\"",
+    "lint:scss": "stylelint \"src/**/*.{scss,css}\"",
+    "lint": "npm run lint:ts && npm run lint:scss",
     "start": "node local.mjs"
   }
 }

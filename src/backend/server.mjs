@@ -1,24 +1,23 @@
 // server.mjs
-import express from 'express';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-import ejs from 'ejs';
-import cors from 'cors';
-import { verifyMessage } from 'ethers';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import { getConnection } from './components/db.mjs';
-import { rateLimiterMiddleware } from './components/rate-limiter.mjs';
+import cors from "cors";
+import ejs from "ejs";
+import { verifyMessage } from "ethers";
+import express from "express";
+
+import { getConnection } from "./components/db.mjs";
 import {
   csrfMiddleware,
   requireWalletSession,
   sessionMiddleWare,
   ejsVariablesMiddleware,
   validateCsrfMiddleware
-} from './components/middlewares.mjs';
-import config from './config/localhost.json' with { type: 'json' };
+} from "./components/middlewares.mjs";
+import { rateLimiterMiddleware } from "./components/rate-limiter.mjs";
+import config from "./config/localhost.json" with { type: "json" };
 
 const port = process.env.PORT || 3000;
 // Fix __dirname in ES Modules
@@ -34,49 +33,49 @@ app.use(csrfMiddleware);
 app.use(ejsVariablesMiddleware);
 
 // setup view engine
-app.engine('html', ejs.renderFile);
-app.set('view engine', 'html');
-app.set('views', path.join(__dirname, '..', 'html'));
+app.engine("html", ejs.renderFile);
+app.set("view engine", "html");
+app.set("views", path.join(__dirname, "..", "html"));
 
 // Serve static files in /public
-app.use('/css', express.static(path.join(__dirname, '..', '..', 'public', 'dist', 'css')));
-app.use('/js', express.static(path.join(__dirname, '..', '..', 'public', 'dist', 'js')));
-app.use('/img', express.static(path.join(__dirname, '..', '..', 'public', 'img')));
+app.use("/css", express.static(path.join(__dirname, "..", "..", "public", "dist", "css")));
+app.use("/js", express.static(path.join(__dirname, "..", "..", "public", "dist", "js")));
+app.use("/img", express.static(path.join(__dirname, "..", "..", "public", "img")));
 
-app.get('/games', rateLimiterMiddleware, requireWalletSession, (req, res) => {
-  return res.render('games/index');
+app.get("/games", rateLimiterMiddleware, requireWalletSession, (req, res) => {
+  return res.render("games/index");
 });
 
-app.get(['/', '/:path'], rateLimiterMiddleware, (req, res) => {
-  res.render('index');
+app.get(["/", "/:path"], rateLimiterMiddleware, (req, res) => {
+  res.render("index");
 });
 
-app.get(['/wiki/:path'], rateLimiterMiddleware, (req, res) => {
-  const baseDir = path.join(__dirname, '..', 'html', 'wiki');
-  const safePath = path.join(baseDir, req.params.path, 'index.html');
+app.get(["/wiki/:path"], rateLimiterMiddleware, (req, res) => {
+  const baseDir = path.join(__dirname, "..", "html", "wiki");
+  const safePath = path.join(baseDir, req.params.path, "index.html");
   const normalizedPath = path.normalize(safePath);
 
   // Ensure the normalized path starts with the base directory
   if (!normalizedPath.startsWith(baseDir)) {
-    return res.status(403).send('Access Denied');
+    return res.status(403).send("Access Denied");
   }
 
   if (fs.existsSync(normalizedPath)) {
     // send partial when its via ajax
     if (req.xhr) {
-      res.send(fs.readFileSync(normalizedPath, 'utf-8'));
+      res.send(fs.readFileSync(normalizedPath, "utf-8"));
     } else {
-      res.render('wiki/template', {
-        content: path.join('..', 'wiki', req.params.path, 'index.html'),
+      res.render("wiki/template", {
+        content: path.join("..", "wiki", req.params.path, "index.html"),
         selectedWiki: req.params.path,
       });
     }
   } else {
-    res.status(404).send('Page not found');
+    res.status(404).send("Page not found");
   }
 });
 
-app.post('/login', validateCsrfMiddleware, rateLimiterMiddleware, async (req, res) => {
+app.post("/login", validateCsrfMiddleware, rateLimiterMiddleware, async (req, res) => {
   const { address, message, signature } = req.body;
 
   try {
@@ -85,7 +84,7 @@ app.post('/login', validateCsrfMiddleware, rateLimiterMiddleware, async (req, re
     if (recoveredAddress.toLowerCase() === address.toLowerCase()) {
       // save to mongodb
       await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
-        { address: address.toLowerCase(), network: 'ronin' }, // match criteria
+        { address: address.toLowerCase(), network: "ronin" }, // match criteria
         {
           $setOnInsert: {
             createdAt: new Date()
@@ -108,23 +107,23 @@ app.post('/login', validateCsrfMiddleware, rateLimiterMiddleware, async (req, re
   }
 });
 
-app.post('/logout', validateCsrfMiddleware, (req, res) => {
+app.post("/logout", validateCsrfMiddleware, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      console.error('Failed to destroy session:', err);
+      console.error("Failed to destroy session:", err);
 
-      return res.status(500).json({ success: false, message: 'Logout failed' });
+      return res.status(500).json({ success: false, message: "Logout failed" });
     }
 
     // Optionally clear the cookie on the client side
-    res.clearCookie('connect.sid'); // Default cookie name
+    res.clearCookie("connect.sid"); // Default cookie name
 
-    res.json({ success: true, message: 'Logged out successfully' });
+    res.json({ success: true, message: "Logged out successfully" });
   });
 });
 
 app.use((req, res) => {
-  res.status(404).send('Not Found');
+  res.status(404).send("Not Found");
 });
 
 app.listen(port, () => {

@@ -1,5 +1,6 @@
-import { MongoClient } from 'mongodb';
-import config from '../config/localhost.json' with { type: 'json' };
+import { MongoClient } from "mongodb";
+
+import config from "../config/localhost.json" with { type: "json" };
 
 let client;
 
@@ -11,7 +12,7 @@ export async function getConnection () {
       throw new Error(error);
     }
 
-    client.on('serverClosed', () => {
+    client.on("serverClosed", () => {
       MongoClient.connect(config.mongo.connectionString)
         .then((clientResponse) => {
           client = clientResponse;

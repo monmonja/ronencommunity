@@ -40,12 +40,7 @@
 
   .short-wallet::before {
     content: attr(data-wallet);
-  }
-
-  .short-wallet::before {
-    content: attr(data-wallet);
     font-family: monospace;
-    /* Mask the middle part */
     display: inline-block;
     max-width: 12ch;
     overflow: hidden;

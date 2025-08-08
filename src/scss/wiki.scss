@@ -13,7 +13,7 @@
     flex-direction: row;
   }
 
-  &:has(input[name=menu]:checked) {
+  &:has(input[name="menu"]:checked) {
     @include max-767 {
       #content {
         filter: blur(5px);

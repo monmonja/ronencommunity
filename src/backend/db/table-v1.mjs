@@ -1,5 +1,6 @@
-import { MongoClient } from 'mongodb';
-import config from '../config/localhost.json' with { type: 'json' };
+import { MongoClient } from "mongodb";
+
+import config from "../config/localhost.json" with { type: "json" };
 
 const client = new MongoClient(config.mongo.connectionString);
 await client.connect();
@@ -16,22 +17,22 @@ await db.collection(config.mongo.table.transactions).createIndex({ txHash: 1 }, 
 
 // Insert sample wallet
 await db.collection(config.mongo.table.wallets).insertOne({
-  address: '0xABC123...',
-  network: 'ronin',
+  address: "0xABC123...",
+  network: "ronin",
   createdAt: new Date()
 });
 
 // Insert sample transaction
 await db.collection(config.mongo.table.transactions).insertOne({
-  walletAddress: '0xABC123...',
-  network: 'ronin',
-  txHash: '0xdeadbeef...',
-  type: 'mint',
-  amount: '0.1',
-  token: 'ETH',
-  from: '0x000...',
-  to: '0xABC123...',
-  status: 'confirmed',
+  walletAddress: "0xABC123...",
+  network: "ronin",
+  txHash: "0xdeadbeef...",
+  type: "mint",
+  amount: "0.1",
+  token: "ETH",
+  from: "0x000...",
+  to: "0xABC123...",
+  status: "confirmed",
   timestamp: new Date()
 });
 

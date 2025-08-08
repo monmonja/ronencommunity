@@ -1,5 +1,5 @@
-import requestIP from 'request-ip';
-import { RateLimiterMemory } from 'rate-limiter-flexible';
+import { RateLimiterMemory } from "rate-limiter-flexible";
+import requestIP from "request-ip";
 
 // Create once — shared across requests
 const rateLimiter = new RateLimiterMemory({
@@ -15,6 +15,6 @@ export function rateLimiterMiddleware(req, res, next) {
       next();
     })
     .catch(() => {
-      res.status(429).send('Too Many Requests');
+      res.status(429).send("Too Many Requests");
     });
 }
