@@ -1,6 +1,7 @@
 interface RoninWindow extends Window {
-    ronin?: { provider?: unknown };
-    ethereum?: unknown;
+  // eslint-disable-next-line
+  ronin?: { provider?: any };
+  ethereum?: unknown;
 }
 declare const window: RoninWindow;
 

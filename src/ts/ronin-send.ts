@@ -1,6 +1,7 @@
 // ronin-send.ts
 interface RoninWindow extends Window {
-  ronin?: { provider?: unknown };
+  // eslint-disable-next-line
+  ronin?: { provider?: any };
   ethereum?: unknown;
 }
 declare const window: RoninWindow;
