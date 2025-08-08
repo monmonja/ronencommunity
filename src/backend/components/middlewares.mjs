@@ -49,6 +49,7 @@ export function csrfMiddleware(req, res, next) {
 // ✅ Add session vars to templates
 export function ejsVariablesMiddleware(req, res, next) {
   res.locals.wallet = req.session.wallet || null;
+  res.locals.config = config || {};
 
   next();
 }
