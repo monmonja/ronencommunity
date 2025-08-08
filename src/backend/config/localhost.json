@@ -1,0 +1,13 @@
+{
+  "isProd": false,
+  "session": {
+    "secret": "localhost"
+  },
+  "mongo" : {
+    "connectionString": "mongodb://localhost:27017/ronen_community",
+    "table": {
+      "wallets": "wallets",
+      "transactions": "transactions"
+    }
+  }
+}

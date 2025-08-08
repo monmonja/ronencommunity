@@ -1,17 +1,37 @@
 // server.mjs
 import express from 'express';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import ejs from 'ejs';
+import cors from 'cors';
+import { verifyMessage } from 'ethers';
+
+import { getConnection } from './components/db.mjs';
 import { rateLimiterMiddleware } from './components/rate-limiter.mjs';
+import {
+  csrfMiddleware,
+  requireWalletSession,
+  sessionMiddleWare,
+  ejsVariablesMiddleware,
+  validateCsrfMiddleware
+} from './components/middlewares.mjs';
+import config from './config/localhost.json' with { type: 'json' };
 
-const app = express();
 const port = process.env.PORT || 3000;
-
 // Fix __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const app = express();
+const mongoDbConnection = await getConnection();
+
+app.use(cors());
+app.use(express.json());
+app.use(await sessionMiddleWare());
+app.use(csrfMiddleware);
+app.use(ejsVariablesMiddleware);
 
 // setup view engine
 app.engine('html', ejs.renderFile);
@@ -22,6 +42,10 @@ app.set('views', path.join(__dirname, '..', 'html'));
 app.use('/css', express.static(path.join(__dirname, '..', '..', 'public', 'dist', 'css')));
 app.use('/js', express.static(path.join(__dirname, '..', '..', 'public', 'dist', 'js')));
 app.use('/img', express.static(path.join(__dirname, '..', '..', 'public', 'img')));
+
+app.get('/games', rateLimiterMiddleware, requireWalletSession, (req, res) => {
+  return res.render('games/index');
+});
 
 app.get(['/', '/:path'], rateLimiterMiddleware, (req, res) => {
   res.render('index');
@@ -50,6 +74,53 @@ app.get(['/wiki/:path'], rateLimiterMiddleware, (req, res) => {
   } else {
     res.status(404).send('Page not found');
   }
+});
+
+app.post('/login', validateCsrfMiddleware, rateLimiterMiddleware, async (req, res) => {
+  const { address, message, signature } = req.body;
+
+  try {
+    const recoveredAddress = verifyMessage(message, signature);
+
+    if (recoveredAddress.toLowerCase() === address.toLowerCase()) {
+      // save to mongodb
+      await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
+        { address: address.toLowerCase(), network: 'ronin' }, // match criteria
+        {
+          $setOnInsert: {
+            createdAt: new Date()
+          }
+        },
+        { upsert: true }
+      );
+
+      // save to session
+      req.session.wallet = {
+        address: address.toLowerCase(),
+      };
+
+      res.json({ success: true, message: "Signature verified" });
+    } else {
+      res.status(401).json({ success: false, message: "Signature does not match" });
+    }
+  } catch (err) {
+    res.status(400).json({ success: false, message: "Invalid signature", error: err.message });
+  }
+});
+
+app.post('/logout', validateCsrfMiddleware, (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Failed to destroy session:', err);
+
+      return res.status(500).json({ success: false, message: 'Logout failed' });
+    }
+
+    // Optionally clear the cookie on the client side
+    res.clearCookie('connect.sid'); // Default cookie name
+
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
 });
 
 app.use((req, res) => {

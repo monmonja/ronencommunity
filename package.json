@@ -4,18 +4,33 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@types/node": "^24.1.0",
     "concurrently": "^9.2.0",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.3",
     "mini-css-extract-plugin": "^2.9.2",
+    "nodemon": "^3.1.10",
     "sass": "^1.89.2",
     "sass-loader": "^16.0.5",
     "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "webpack": "^5.100.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.10",
+    "ethers": "^6.15.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mongodb": "^6.18.0",
+    "moralis": "^2.27.2",
+    "rate-limiter-flexible": "^7.2.0",
+    "request-ip": "^3.3.0",
+    "sass-migrator": "^2.3.3"
   },
   "scripts": {
     "build:ts:prod": "webpack --config webpack.config.mjs --mode production",
@@ -28,13 +43,5 @@
     "watch:scss": "webpack --config webpack.styles.mjs --watch",
     "watch": "concurrently -n TS,SCSS -c yellow,cyan \"npm:watch:ts\" \"npm:watch:scss\"",
     "start": "node local.mjs"
-  },
-  "dependencies": {
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "nodemon": "^3.1.10",
-    "rate-limiter-flexible": "^7.2.0",
-    "request-ip": "^3.3.0",
-    "sass-migrator": "^2.3.3"
   }
 }

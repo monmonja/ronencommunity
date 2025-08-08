@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= selectedWiki[0].toUpperCase() + selectedWiki.slice(1).toLowerCase() %> Wiki - Ronen Community</title>
-  <link rel="stylesheet" href="/css/wiki.css">
-  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+  <title>Games - Ronen Community</title>
+  <link rel="stylesheet" href="/css/index.css">
   <meta name="csrf-token" content="<%= csrfToken %>">
   <%- include('../partials/analytics.html') %>
   <%- include('../partials/adsense.html') %>
 </head>
 <body>
-<main>
   <%- include('../partials/top-menu.html') %>
   <%- include('../partials/ads-top-banner.html') %>
   <div class="page-content">
-    <%- include('../partials/wiki-menu.html') %>
-    <div id="content">
-      <%- include(content) %>
+    <p class="intro">
+      Here are some games
+    </p>
+    <div class="card">
+      <a href="/wiki/ronen">
+        Game 1
+        <label class="">Flappy Gronke</label>
+      </a>
     </div>
   </div>
-</main>
-<script src="/js/app.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>
