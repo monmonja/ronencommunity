@@ -3,10 +3,11 @@
 @use 'partials/variables' as *;
 @use 'partials/top-menu' as *;
 @use 'partials/wiki-menu' as *;
+@use 'partials/overlay' as *;
 
 .page-content {
   display: flex;
-  padding: 15px;
+  padding: $padding-side;
   flex-direction: column;
 
   @include min-768 {
@@ -32,10 +33,6 @@
 
   @include min-768 {
     margin-top: 0;
-  }
-
-  a {
-    color: $link-color;
   }
 
   table {

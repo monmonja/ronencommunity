@@ -16,12 +16,17 @@
     <p class="intro">
       Here are some games
     </p>
-    <div class="card">
-      <a href="/wiki/ronen">
-        Game 1
-        <label class="">Flappy Gronke</label>
-      </a>
-    </div>
+    <ul class="game-list">
+      <% for (game in games) { %>
+        <li class="card game-card">
+          <a href="/wiki/ronen">
+            Game 1
+            <label class="">Flappy Gronke</label>
+          </a>
+        </li>
+      <% } %>
+    </ul>
+
   </div>
   <script src="/js/app.js"></script>
 </body>

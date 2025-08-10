@@ -1,0 +1,41 @@
+@use './mixins' as *;
+@use './variables' as *;
+
+body:has(.overlay.show) {
+  overflow: hidden;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4);
+  z-index: 3;
+  display: none;
+
+  &.show {
+    display: block;
+  }
+
+  p {
+    margin-bottom: 16px;
+  }
+
+  .overlay-body {
+    background: $content-bg;
+    color: white;
+    display: inline-block;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-height: 100px;
+    padding: 32px;
+  }
+}
+
+#overlay-disconnect {
+  .wallet-address {
+    font-size: 12px;
+  }
+}

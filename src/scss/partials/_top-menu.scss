@@ -1,11 +1,11 @@
 @use './mixins' as *;
 @use './variables' as *;
 
-.top-menu {
+#top-menu {
   display: flex;
   justify-content: space-between;
   background: $content-bg;
-  padding: 8px;
+  padding: 8px $padding-side;
   border-bottom: 1px solid $border-color;
   align-items: center;
 
@@ -23,19 +23,27 @@
     fill: white;
   }
 
-  #connect-wallet,
-  #disconnect-wallet {
-    border-radius: 6px;
-    background: $menu-color;
-    padding: 5px 12px 4px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
   #right-menu {
     display: flex;
     align-items: center;
     column-gap: 12px;
+  }
+
+  #left-menu {
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+
+    ul {
+      display: flex;
+      margin: 0;
+      list-style: none;
+      column-gap: 12px;
+
+      li {
+        margin: 0;
+      }
+    }
   }
 
   .short-wallet::before {

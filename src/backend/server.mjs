@@ -17,7 +17,9 @@ import {
   validateCsrfMiddleware
 } from "./components/middlewares.mjs";
 import { rateLimiterMiddleware } from "./components/rate-limiter.mjs";
+import { getGames } from "./components/games.mjs";
 import config from "./config/localhost.json" with { type: "json" };
+
 
 const port = process.env.PORT || 3000;
 // Fix __dirname in ES Modules
@@ -43,7 +45,17 @@ app.use("/js", express.static(path.join(__dirname, "..", "..", "public", "dist",
 app.use("/img", express.static(path.join(__dirname, "..", "..", "public", "img")));
 
 app.get("/games", rateLimiterMiddleware, requireWalletSession, (req, res) => {
-  return res.render("games/index");
+  return res.render("games/index", {
+    games: getGames()
+  });
+});
+
+app.get(["/start-session"], rateLimiterMiddleware, (req, res) => {
+  req.session.wallet = {
+    address: '0xdBf31761A886CA3d8B207b787FD925A95dB997b5',
+  };
+
+  res.json({ success: true, message: "Session okay" });
 });
 
 app.get(["/", "/:path"], rateLimiterMiddleware, (req, res) => {

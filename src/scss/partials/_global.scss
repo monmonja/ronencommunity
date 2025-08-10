@@ -1,3 +1,5 @@
+@use './variables' as *;
+
 /* latin */
 @font-face {
   font-family: Newsreader;
@@ -24,8 +26,14 @@ body {
   line-height: 1.35em;
 }
 
+a {
+  text-decoration: none;
+  color: $link-color;
+}
+
 ol, ul {
   margin-left: 20px;
+  list-style: none;
 
   li {
     margin-bottom: 0.8rem;
@@ -38,5 +46,15 @@ ol, ul {
 
 #top-banner {
   padding: 15px 0 0;
+  text-align: center;
+}
+
+.button {
+  border-radius: 6px;
+  background: $menu-color;
+  padding: 6px 12px 5px;
+  font-weight: 500;
+  cursor: pointer;
+  color: $content-bg;
   text-align: center;
 }

@@ -26,7 +26,7 @@
   &:has(input[name="menu"]:checked) {
     @include max-767 {
       li:nth-child(n+4) {
-        display: block;
+        display: block !important;
         position: absolute;
         width: 100%;
         background: $content-bg;
@@ -40,24 +40,24 @@
       }
 
       li:nth-child(4) {
-        top: 78px;
+        top: 82px;
       }
 
       li:nth-child(5) {
-        top: 128px;
+        top: 132px;
       }
 
       li:nth-child(6) {
-        top: 178px;
+        top: 182px;
       }
 
       li:nth-child(7) {
-        top: 228px;
+        top: 232px;
       }
-
-      li:nth-child(8) {
-        top: 278px;
-      }
+      //
+      //li:nth-child(8) {
+      //  top: 278px;
+      //}
 
       li:last-child {
         border: 0;
