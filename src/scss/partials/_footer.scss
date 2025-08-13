@@ -1,0 +1,28 @@
+@use './mixins' as *;
+@use './variables' as *;
+
+#footer {
+  background: $content-bg;
+  flex: 1;
+  color: white;
+  padding: 24px;
+  text-align: center;
+  margin-top: 48px;
+
+  a {
+    color: $link-color;
+  }
+
+  svg {
+    width: 32px;
+    fill: white;
+  }
+
+  hr {
+    border: 0;
+    background: $border-color;
+    height: 1px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+}

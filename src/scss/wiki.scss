@@ -3,6 +3,7 @@
 @use 'partials/variables' as *;
 @use 'partials/top-menu' as *;
 @use 'partials/wiki-menu' as *;
+@use 'partials/footer' as *;
 
 .page-content {
   display: flex;

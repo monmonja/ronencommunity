@@ -3,6 +3,7 @@
 @use 'partials/variables' as *;
 @use 'partials/top-menu' as *;
 @use 'partials/card' as *;
+@use 'partials/footer' as *;
 
 .page-content {
   padding: 15px;
@@ -11,6 +12,7 @@
 .sub-section {
   margin-top: 32px;
 }
+
 
 .intro {
   color: white;
