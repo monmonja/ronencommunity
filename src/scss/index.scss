@@ -4,6 +4,7 @@
 @use 'partials/top-menu' as *;
 @use 'partials/card' as *;
 @use 'partials/overlay' as *;
+@use 'partials/footer' as *;
 
 .page-content {
   padding: $padding-side;
@@ -13,15 +14,3 @@
   margin-top: 32px;
 }
 
-.intro {
-  color: white;
-  margin-bottom: 32px;
-}
-
-.game-list {
-  margin: 0;
-
-  .game-card {
-    display: flex;
-  }
-}

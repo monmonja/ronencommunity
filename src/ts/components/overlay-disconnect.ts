@@ -5,6 +5,11 @@ interface RoninWindow extends Window {
 }
 declare const window: RoninWindow;
 
+interface LogoutResponse {
+  success: boolean;
+  error: string;
+}
+
 async function logout() {
   const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
   const res:Response = await fetch("/logout", {
@@ -13,7 +18,7 @@ async function logout() {
     body: JSON.stringify({ csrfToken }),
   });
 
-  const result:any = await res.json();
+  const result:LogoutResponse = await res.json();
 
   if (result.success) {
     window.location.href = "/";
@@ -28,12 +33,12 @@ export default function (): void {
   if (overlay) {
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
-      overlay.classList.remove('show');
+      overlay.classList.remove("show");
     });
 
     document.getElementById("disconnect-wallet")?.addEventListener("click", () => {
       console.log("fds");
-      overlay.classList.toggle('show');
+      overlay.classList.toggle("show");
     });
 
     overlay.querySelector(".button")?.addEventListener("click", async () => {

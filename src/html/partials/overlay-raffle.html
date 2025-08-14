@@ -1,0 +1,42 @@
+<% if (wallet) { %>
+  <div id="overlay-raffle" class="overlay">
+    <div class="overlay-body">
+      <h2>Raffle access</h2>
+      <p>
+        Playing games requires you to join the raffle, every raffle duration is 2 weeks. <br />
+      </p>
+      <div>Here is how the raffle funds will be used:</div>
+      <table>
+        <tr>
+          <td>50%</td>
+          <td>To buy $RONEN and burn</td>
+        </tr>
+        <tr>
+          <td>40%</td>
+          <td>One raffle winner</td>
+        </tr>
+        <tr>
+          <td>10%</td>
+          <td>Server cost</td>
+        </tr>
+      </table>
+      <p class="ron-amount">
+        1 $RON = 1 entry
+      </p>
+      <input
+        type="number"
+        min="1"
+        step="1"
+        id="raffle-amount"
+        value="0.1"
+        oninput="if(this.value.includes('.')) this.value = Math.floor(this.value);"
+        onkeydown="if(event.key === '.' || event.key === ',' || event.key === 'e') event.preventDefault();"
+      />
+      <p class="disclaimer">
+        We use $RON instead of $RONEN so the raffle winner won't dump on us.
+      </p>
+
+      <div class="button">Join raffle and play</div>
+    </div>
+  </div>
+<% } %>

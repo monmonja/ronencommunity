@@ -4,6 +4,7 @@
 @use 'partials/top-menu' as *;
 @use 'partials/wiki-menu' as *;
 @use 'partials/overlay' as *;
+@use 'partials/footer' as *;
 
 .page-content {
   display: flex;
@@ -21,6 +22,10 @@
       }
     }
   }
+
+  ol, ul {
+    margin-left: 0;
+  }
 }
 
 #content {
@@ -33,19 +38,6 @@
 
   @include min-768 {
     margin-top: 0;
-  }
-
-  table {
-    border-spacing: 0;
-    border-left: 1px solid $border-color;
-    border-top: 1px solid $border-color;
-
-    td,
-    th {
-      border-right: 1px solid $border-color;
-      border-bottom: 1px solid $border-color;
-      padding: 8px 12px;
-    }
   }
 
   section {

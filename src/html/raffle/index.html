@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raffle - Ronen Community</title>
+  <link rel="stylesheet" href="/css/raffle.css">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <%- include('../partials/analytics.html') %>
+  <%- include('../partials/adsense.html') %>
+</head>
+<body>
+<%- include('../partials/top-menu.html') %>
+<%- include('../partials/ads-top-banner.html') %>
+<div class="page-content">
+  <% if (currentRaffleId === raffleId) { %>
+    <%- include('../partials/raffle-card.html') %>
+  <% } %>
+  <div class="raffle-intro">
+    Raffle entries for <%= raffleId %>
+  </div>
+  <% if (entries?.length > 0) { %>
+    <table>
+      <tr>
+        <th>Time</th>
+        <th>TX Hash</th>
+        <th>From</th>
+        <th>Amount</th>
+      </tr>
+      <% for (i in entries) { %>
+        <tr>
+          <td>
+            <%
+              const date = new Date(entries[i].timestamp);
+              const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+              const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
+            %>
+            <%= formatted %>
+          </td>
+          <td>
+            <a href="https://app.roninchain.com/tx/<%= entries[i].txHash %>">
+              <%= entries[i].txHash.slice(0, 6) %>
+            </a>
+          </td>
+          <td>
+            <a href="https://app.roninchain.com/address/<%= entries[i].from %>">
+              <%= entries[i].from.slice(0, 4) + '••••' + entries[i].from.slice(-4) %>
+            </a>
+          </td>
+          <td><%= entries[i].amount %></td>
+        </tr>
+      <% } %>
+    </table>
+  <% } else { %>
+    <div class="no-entry">No entry yet.</div>
+  <% } %>
+
+  <% if (allRaffles?.length > 0) { %>
+    <div class="raffle-intro">
+      All raffles so far
+    </div>
+    <table>
+      <tr>
+        <th>Raffle Id</th>
+        <th>Total Amount</th>
+        <th>Winner</th>
+      </tr>
+      <% for (i in allRaffles) { %>
+        <tr>
+          <td>
+            <a href="/raffle/<%= allRaffles[i]._id %>">
+              <%= allRaffles[i]._id %>
+            </a>
+          </td>
+          <td><%= allRaffles[i].totalAmount %></td>
+          <td>
+            <%
+              const address = allRaffles[i].winners[0]?.winner;
+              const shortHand = address ? address.slice(0, 4) + '••••' + address.slice(-4) : '';
+            %>
+            <a href="https://app.roninchain.com/address/<%= address %>">
+              <%= shortHand %>
+            </a>
+          </td>
+        </tr>
+      <% } %>
+    </table>
+  <% } %>
+</div>
+<%- include('../partials/footer.html') %>
+<%- include('../partials/overlay-disconnect.html') %>
+<%- include('../partials/overlay-raffle.html') %>
+<script src="/js/games.js"></script>
+</body>
+</html>

@@ -9,10 +9,13 @@ export default (env, argv) => {
   const isProduction = argv.mode === 'production';
 
   return {
-    entry: './src/ts/index.ts',
+    entry: {
+      app: './src/ts/app.ts',
+      games: './src/ts/games.ts',
+      "flappy-baxie": './games/flappy-baxie/flappy-baxie.mjs',
+    },
     output: {
-      filename: 'js/app.js',
-      path: path.resolve(__dirname, 'public/dist'),
+      path: path.resolve(__dirname, 'public/dist/js'),
     },
     resolve: {
       extensions: ['.ts', '.js'],

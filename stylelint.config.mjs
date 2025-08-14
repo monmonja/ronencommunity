@@ -3,6 +3,7 @@ export default {
   plugins: ["stylelint-scss"],
   rules: {
     "no-descending-specificity": null,
+    "media-feature-range-notation": "prefix",
     'max-nesting-depth': [
       5,
       {

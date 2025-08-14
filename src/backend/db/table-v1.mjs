@@ -8,12 +8,13 @@ const db = client.db();
 
 // Create collections (not required — optional)
 await db.createCollection(config.mongo.table.wallets);
-await db.createCollection(config.mongo.table.transactions);
+await db.createCollection(config.mongo.table.raffles);
 
 // Create indexes
 await db.collection(config.mongo.table.wallets).createIndex({ address: 1, network: 1 }, { unique: true });
-await db.collection(config.mongo.table.transactions).createIndex({ walletAddress: 1, timestamp: -1 });
-await db.collection(config.mongo.table.transactions).createIndex({ txHash: 1 }, { unique: true });
+await db.collection(config.mongo.table.raffles).createIndex({ walletAddress: 1, timestamp: -1 });
+await db.collection(config.mongo.table.raffles).createIndex({ raffleId: 1, timestamp: -1 });
+await db.collection(config.mongo.table.raffles).createIndex({ txHash: 1, raffleId: 1 }, { unique: true });
 
 // Insert sample wallet
 await db.collection(config.mongo.table.wallets).insertOne({
@@ -23,7 +24,8 @@ await db.collection(config.mongo.table.wallets).insertOne({
 });
 
 // Insert sample transaction
-await db.collection(config.mongo.table.transactions).insertOne({
+await db.collection(config.mongo.table.raffles).insertOne({
+  raffleId: "01-2025",
   walletAddress: "0xABC123...",
   network: "ronin",
   txHash: "0xdeadbeef...",

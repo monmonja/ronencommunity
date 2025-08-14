@@ -41,22 +41,6 @@ export default [
       ],
       "no-multiple-empty-lines": ["error", { max: 1 }],
       "eol-last": ["error", "always"],
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",     // Node.js builtin modules like fs, path
-            "external",    // Packages from node_modules
-            "internal",    // Your internal modules (if you use path aliases)
-            ["parent", "sibling", "index"]  // Relative imports
-          ],
-          "newlines-between": "always",
-          alphabetize: {
-            order: "asc",  // Sort alphabetically within groups
-            caseInsensitive: true
-          }
-        }
-      ],
     },
   },
 ];

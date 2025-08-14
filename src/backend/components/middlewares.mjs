@@ -3,8 +3,9 @@ import crypto from "crypto";
 import MongoStore from "connect-mongo";
 import session from "express-session";
 
-import { getConnection } from "./db.mjs";
+import {getConnection, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/localhost.json" with { type: "json" };
+import {getRaffleId, getUtcNow} from "./utils.mjs";
 
 const mongoDbConnection = await getConnection();
 
@@ -63,4 +64,24 @@ export function validateCsrfMiddleware(req, res, next) {
   }
 
   next();
+}
+
+export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
+  return async (req, res, next) => {
+    const raffleId = getRaffleId(getUtcNow());
+    const wallet = req.session.wallet.address.toLowerCase();
+
+    const hasEntry = await walletHasRaffleEntry({
+      mongoDbConnection,
+      raffleId,
+      wallet
+    });
+
+    if (!hasEntry) {
+      res.clearCookie("has-raffle-entry", { path: "/" });
+      return res.redirect("/games");
+    }
+
+    next();
+  };
 }

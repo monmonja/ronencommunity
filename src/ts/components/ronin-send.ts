@@ -6,12 +6,12 @@ interface RoninWindow extends Window {
 }
 declare const window: RoninWindow;
 
-export async function sendRonSimple(toRoninAddress: string, amountRon: string): Promise<void> {
+export async function sendRonSimple(toRoninAddress: string, amountRon: string): Promise<{ txParams: object; txHash: string } | null> {
   const provider = window.ronin?.provider || window.ethereum;
 
   if (!provider) {
     alert("Ronin Wallet or compatible Ethereum wallet not found.");
-    return;
+    return null;
   }
 
   try {
@@ -20,7 +20,7 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
 
     if (!fromAddress) {
       alert("Please connect your wallet first");
-      return;
+      return null;
     }
 
     // Convert Ronin address (ronin:...) to Ethereum hex address (0x...)
@@ -34,7 +34,7 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
     if (isNaN(amountNum) || amountNum <= 0) {
       alert("Invalid amount");
       
-      return;
+      return null;
     }
 
     // Multiply by 1e18 and convert to hex
@@ -54,7 +54,7 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
     });
 
     console.log("Transaction sent. Hash:", txHash);
-    alert("Transaction sent! Hash: " + txHash);
+    return { txParams, txHash };
 
     // todo fetch to backend to verify ( https://chatgpt.com/c/688deeaf-0d24-800b-8291-789ac7cb15a3)
   } catch (error: unknown) {
@@ -63,4 +63,6 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
       alert("Transaction failed: " + (error?.message || error));
     }
   }
+
+  return null;
 }

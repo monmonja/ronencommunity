@@ -1,5 +1,6 @@
 {
   "isProd": false,
+  "cdnLink": "https://cdn.ronencommunity.com",
   "session": {
     "secret": "localhost"
   },
@@ -7,7 +8,15 @@
     "connectionString": "mongodb://localhost:27017/ronen_community",
     "table": {
       "wallets": "wallets",
-      "transactions": "transactions"
+      "raffles": "raffles",
+      "raffleWinners": "raffle-winners"
     }
+  },
+  "web3":  {
+    "rpcUrl": "https://saigon-testnet.roninchain.com/rpc",
+    "chainName": "ronin-saigon",
+    "chainId": 2021,
+    "raffleAddress": "0xdBf31761A886CA3d8B207b787FD925A95dB997b5",
+    "raffleStartDate": 1755129600000
   }
 }

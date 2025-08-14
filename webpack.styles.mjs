@@ -14,6 +14,8 @@ export default (env, argv) => {
     entry: {
       index: './src/scss/index.scss',
       wiki: './src/scss/wiki.scss',
+      games: './src/scss/games.scss',
+      raffle: './src/scss/raffle.scss',
     },
     output: {
       path: path.resolve(__dirname, 'public/dist'),

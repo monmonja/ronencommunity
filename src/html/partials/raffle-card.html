@@ -1,0 +1,16 @@
+<div class="card raffle-card">
+  <h2>Get a chance to win</h2>
+  <div class="raffle-infos">
+    <div class="raffle-info">
+      <strong><%= totalAmount ? totalAmount * 0.4 : 0 %></strong>
+      <label>Prize in $RON</label>
+    </div>
+    <div class="raffle-info">
+      <strong><%= totalAmount ?? 0 %></strong>
+      <label>Total Raised</label>
+    </div>
+  </div>
+  <div class="raffle-id">in raffle <%= raffleId %></div>
+  <div class="disclaimer">Ends in <%= days %> days, <%= hours %> hours, <%= minutes %> minutes</div>
+  <div class="button" id="join-raffle-button">Join Raffle <%= raffleId %></div>
+</div>

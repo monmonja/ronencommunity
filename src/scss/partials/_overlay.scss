@@ -8,7 +8,7 @@ body:has(.overlay.show) {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.4);
+  background: #FFF6;
   z-index: 3;
   display: none;
 
@@ -31,11 +31,41 @@ body:has(.overlay.show) {
     transform: translate(-50%, -50%);
     min-height: 100px;
     padding: 32px;
+    min-width: 320px;
   }
 }
 
 #overlay-disconnect {
   .wallet-address {
     font-size: 12px;
+  }
+}
+
+#overlay-raffle {
+  h2 {
+    margin-bottom: 12px;
+  }
+
+  .ron-amount {
+    margin-top: 20px;
+    margin-bottom: 4px;
+  }
+
+  input {
+    margin-bottom: 4px;
+    padding: 4px;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  .disclaimer {
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .button {
+    padding: 8px;
+    text-transform: uppercase;
+    font-weight: 600;
   }
 }

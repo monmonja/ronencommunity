@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Games - Ronen Community</title>
-  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/games.css">
   <meta name="csrf-token" content="<%= csrfToken %>">
   <%- include('../partials/analytics.html') %>
   <%- include('../partials/adsense.html') %>
@@ -13,21 +13,27 @@
   <%- include('../partials/top-menu.html') %>
   <%- include('../partials/ads-top-banner.html') %>
   <div class="page-content">
-    <p class="intro">
-      Here are some games
-    </p>
+    <%- include('../partials/raffle-card.html') %>
+    <div class="game-intro">
+      Game list
+    </div>
     <ul class="game-list">
-      <% for (game in games) { %>
+      <% for (i in games) { %>
         <li class="card game-card">
-          <a href="/wiki/ronen">
-            Game 1
-            <label class="">Flappy Gronke</label>
-          </a>
+          <picture>
+            <img src="/game-assets/<%= games[i].slug %>/banner.png" />
+          </picture>
+          <h3><%= games[i].name %></h3>
+          <p class="description"><%= games[i].description %></p>
+          <div class="button" data-slug="<%= games[i].slug %>">Play</div>
         </li>
       <% } %>
     </ul>
 
   </div>
-  <script src="/js/app.js"></script>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-raffle.html') %>
+  <script src="/js/games.js"></script>
 </body>
 </html>
