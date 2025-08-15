@@ -12,10 +12,13 @@ interface LogoutResponse {
 
 async function logout() {
   const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
+
   const res:Response = await fetch("/logout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ csrfToken }),
+    body: JSON.stringify({
+      csrfToken
+    }),
   });
 
   const result:LogoutResponse = await res.json();

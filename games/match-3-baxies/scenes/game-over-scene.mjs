@@ -1,8 +1,13 @@
-import {assets} from "../constants.mjs";
+import Phaser from 'phaser';
+import {assets} from "../../flappy-baxie/constants.mjs";
 
-export default class EndGameScene extends Phaser.Scene {
+export default class GameOverScene extends Phaser.Scene {
   constructor() {
-    super({key: 'EndGameScene'});
+    super("GameOverScene");
+  }
+
+  init(data) {
+    this.score = data.score || 0;
   }
 
   createRestartButton() {
@@ -10,7 +15,7 @@ export default class EndGameScene extends Phaser.Scene {
     const buttonWidth = 150;
     const buttonHeight = 50;
 
-    const button = this.add.container(center - (buttonWidth / 2), 240);
+    const button = this.add.container(center - (buttonWidth / 2), 280);
 
     const bg = this.add.graphics();
 
@@ -42,32 +47,32 @@ export default class EndGameScene extends Phaser.Scene {
       Phaser.Geom.Rectangle.Contains
     );
     button.on('pointerdown', () => {
-      this.scene.stop('GameScene');    // stop game scene
-      this.scene.stop();
-      this.scene.start('MainMenuScene');
+      this.events.emit("scoreChanged", 0);
+      this.scene.start("GameScene");
     });
 
     return button;
   }
 
+
   create() {
-    const center = this.sys.game.config.width / 2;
+    this.cameras.main.setBackgroundColor("#101018");
+    this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
 
-    const gameOver = this.add.text(center, 186, 'Game Over', {
-      fontFamily: 'troika',
-      fontSize: '42px',
-      color: '#f99502'
-    }).setOrigin(0.5, 0.2);
-
+    const gameOver = this.add.text(this.scale.width / 2, 150, "Game Over", {
+      fontFamily: "troika",
+      fontSize: 48,
+      color: "#ffffff",
+    }).setOrigin(0.5);
     gameOver.setShadow(2, 2, '#000', 4, true, true);
 
-    const restartButton = this.createRestartButton();
+    const score = this.add.text(this.scale.width / 2, 190, `Score: ${this.score}`, {
+      fontFamily: "troika",
+      fontSize: 32,
+      color: "#ffffff",
+    }).setOrigin(0.5);
+    score.setShadow(2, 2, '#000', 4, true, true);
 
-    restartButton.setDepth(20);
-
-    const container = this.add.container(0, 0, [gameOver, restartButton]);
-
-    container.setDepth(20);
-
+    this.createRestartButton();
   }
 }

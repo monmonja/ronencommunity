@@ -23,9 +23,13 @@ export async function loginWithRoninWallet() {
     }
 
     const address = accounts[0];
+
+    const nonceResponse = await fetch(`/nonce/${address}`, { credentials: "include" });
+    const { nonce } = await nonceResponse.json();
+
     const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
     const timestamp = Math.floor(Date.now() / 1000);
-    const message = `Login to Ronin Community\nWallet: ${address}\nNonce: ${csrfToken}\nTimestamp: ${timestamp}`;
+    const message = `Login to Ronin Community\nWallet: ${address}\nNonce: ${nonce}\nTimestamp: ${timestamp}`;
 
     const signature: string = await provider.request({
       method: "personal_sign",

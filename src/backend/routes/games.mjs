@@ -1,3 +1,4 @@
+import { param, validationResult } from "express-validator";
 import {requireWalletSession, walletRaffleEntryMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
@@ -7,45 +8,62 @@ import {
   walletHasRaffleEntry,
   getTotalAmountOnRaffleId,
 } from "../components/db.mjs";
-import {getGames} from "../components/games.mjs";
+import { getGames } from "../components/games.mjs";
+import config from "../config/default.json" with { type: "json" };
 
 export function initGamesRoutes(app, mongoDbConnection) {
-  app.get("/games", rateLimiterMiddleware, async (req, res) => {
-    const raffleId = getRaffleId(getUtcNow());
-
-    if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet) {
+  app.get(
+    "/games",
+    rateLimiterMiddleware,
+    async (req, res) => {
       const raffleId = getRaffleId(getUtcNow());
-      const wallet = req.session.wallet.address.toLowerCase();
 
-      const hasEntry = await walletHasRaffleEntry({
-        mongoDbConnection,
-        raffleId,
-        wallet
-      });
+      if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet) {
+        const wallet = req.session.wallet.address.toLowerCase();
 
-      if (hasEntry) {
-        res.cookie("has-raffle-entry", "true", {
-          maxAge: raffleEndingIn(getUtcNow())
+        const hasEntry = await walletHasRaffleEntry({
+          mongoDbConnection,
+          raffleId,
+          wallet
         });
-      }
-    }
 
-    return res.render("games/index", {
-      games: getGames(),
-      raffleId,
-      totalAmount: await getTotalAmountOnRaffleId({
-        mongoDbConnection, raffleId
-      }),
-      ...raffleEndsInDHM()
+        if (hasEntry) {
+          res.cookie("has-raffle-entry", "true", {
+            maxAge: raffleEndingIn(getUtcNow()),
+            httpOnly: false,
+            secure: config.isProd,
+            sameSite: "strict",
+            path: "/"
+          });
+        }
+      }
+
+      return res.render("games/index", {
+        games: getGames(),
+        raffleId,
+        totalAmount: await getTotalAmountOnRaffleId({
+          mongoDbConnection, raffleId
+        }),
+        ...raffleEndsInDHM()
+      });
     });
-  });
 
   app.get(
     "/game/:path",
+    param("path")
+      .matches(/^[a-z0-9-]+$/)
+      .withMessage("Invalid game"),
     rateLimiterMiddleware,
     requireWalletSession,
     walletRaffleEntryMiddleware({ mongoDbConnection }),
     (req, res) => {
+      // Handle validation errors
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
       return res.render("game/template", {
         gameId: req.params.path,
         games: getGames()

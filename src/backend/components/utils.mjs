@@ -1,4 +1,4 @@
-import config from "../config/localhost.json" with { type: "json" };
+import config from "../config/default.json" with { type: "json" };
 
 export function getRaffleId(date) {
   const anchor = new Date(config.web3.raffleStartDate); // from JSON, stored as timestamp
@@ -29,11 +29,11 @@ export function getRaffleId(date) {
     throw new Error("Date is before the anchor date");
   }
 
-  // How many fortnights since the year’s anchor
-  const fortnightIndex = Math.floor(diffDays / 14); // 0-based
-  const fortnightNumber = fortnightIndex + 1;       // 1-based
+  // How many nights since the year’s anchor
+  const daysIndex = Math.floor(diffDays / config.web3.raffleDuration); // 0-based
+  const nightNumber = daysIndex + 1;       // 1-based
 
-  return `${String(fortnightNumber).padStart(2, "0")}-${year}`;
+  return `${String(nightNumber).padStart(2, "0")}-${year}`;
 }
 
 export function getUtcNow() {
@@ -54,9 +54,9 @@ export function raffleEndingIn(date) {
   const anchor = new Date(config.web3.raffleStartDate); // first raffle start
   anchor.setUTCHours(0, 0, 0, 0); // Force UTC midnight
 
-  // Calculate target date +14 days as in getRaffleId
+  // Calculate target date + raffle days as in getRaffleId
   const targetDate = new Date(anchor);
-  targetDate.setUTCDate(anchor.getUTCDate() + 13); // Add 14 days in UTC
+  targetDate.setUTCDate(anchor.getUTCDate() + (config.web3.raffleDuration - 1));
   targetDate.setUTCHours(23, 59, 59, 999); // Set to end of day
 
   let year = targetDate.getUTCFullYear();
@@ -71,13 +71,13 @@ export function raffleEndingIn(date) {
   const a = new Date(Date.UTC(yearAnchor.getUTCFullYear(), yearAnchor.getUTCMonth(), yearAnchor.getUTCDate()));
 
   const diffDays = Math.floor((d - a) / (1000 * 60 * 60 * 24));
-  const fortnightIndex = Math.floor(diffDays / 14);
+  const daysIndex = Math.floor(diffDays / config.web3.raffleDuration);
 
   // Start of this raffle period in UTC
-  const raffleStartUTC = new Date(a.getTime() + fortnightIndex * 14 * 24 * 60 * 60 * 1000);
+  const raffleStartUTC = new Date(a.getTime() + daysIndex * config.web3.raffleDuration * 24 * 60 * 60 * 1000);
 
-  // End of this raffle period in UTC: add 14 days, set to 23:59:59.999
-  const raffleEndUTC = new Date(raffleStartUTC.getTime() + 14 * 24 * 60 * 60 * 1000 - 1);
+  // End of this raffle period in UTC: add duration days, set to 23:59:59.999
+  const raffleEndUTC = new Date(raffleStartUTC.getTime() + config.web3.raffleDuration * 24 * 60 * 60 * 1000 - 1);
 
   return raffleEndUTC.getTime() - date.getTime();
 }

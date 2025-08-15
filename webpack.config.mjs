@@ -14,6 +14,7 @@ export default (env, argv) => {
       games: './src/ts/games.ts',
       raffle: './src/ts/raffle.ts',
       "flappy-baxie": './games/flappy-baxie/flappy-baxie.mjs',
+      "match-3-baxies": './games/match-3-baxies/match-3-baxies.mjs',
     },
     output: {
       path: path.resolve(__dirname, 'public/dist/js'),

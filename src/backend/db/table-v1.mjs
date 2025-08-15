@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-import config from "../config/localhost.json" with { type: "json" };
+import config from "../config/default.json" with { type: "json" };
 
 const client = new MongoClient(config.mongo.connectionString);
 await client.connect();

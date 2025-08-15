@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-import config from "../config/localhost.json" with { type: "json" };
+import config from "../config/default.json" with { type: "json" };
 import { getRaffleId, getUtcNow } from "./utils.mjs";
 
 let client;
@@ -91,12 +91,21 @@ export async function getEntriesFromRaffleId({ mongoDbConnection, raffleId } = {
     .db()
     .collection(config.mongo.table.raffles)
     .find({ raffleId })
-    .sort({ timestamp: -1 })
+    .sort({ amount: -1 })
     .toArray();
 
   if (results.length > 0) {
     return results;
   }
+}
+
+export async function raffleRecordExists({ mongoDbConnection, txHash } = {}) {
+  const result = await mongoDbConnection
+    .db()
+    .collection(config.mongo.table.raffles)
+    .findOne({ txHash });
+
+  return !!result; // always returns true/false
 }
 
 export async function getAllRaffles({ mongoDbConnection } = {}) {

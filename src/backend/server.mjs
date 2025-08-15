@@ -36,8 +36,8 @@ app.use(forceHTTPSMiddleware);
 app.use(securityHeadersMiddleware);
 app.use(cookieParser());
 app.use(cors());
-app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ limit: "100kb", extended: true }));
+app.use(express.json({ limit: "5kb" }));
+app.use(express.urlencoded({ limit: "5kb", extended: true }));
 app.use(await sessionMiddleWare());
 app.use(csrfMiddleware);
 app.use(ejsVariablesMiddleware);
@@ -55,7 +55,7 @@ initRafflesRoutes(app, mongoDbConnection);
 initGamesRoutes(app, mongoDbConnection);
 initWikisRoutes(app, mongoDbConnection);
 
-app.get(["/", "/:path"], rateLimiterMiddleware, (req, res) => {
+app.get("/", rateLimiterMiddleware, (req, res) => {
   res.render("index");
 });
 

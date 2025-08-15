@@ -26,16 +26,17 @@ export function initOverlayRaffle (): void {
         const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
 
         if (result) {
-          const { txParams, txHash } = result;
+          const { txHash } = result;
+          const { nonce } = await fetch("/raffle/nonce", { credentials: "include" }).then(r => r.json());
 
-          const joinRafflePost = async function (verifyOnly:boolean = false) {
+          const joinRafflePost = async function () {
             const response = await fetch("/join-raffle", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                txParams, txHash, csrfToken, verifyOnly, amount,
+                txHash, csrfToken, amount, nonce,
               })
             });
 
