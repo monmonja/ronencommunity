@@ -131,7 +131,7 @@ export function securityHeadersMiddleware(req, res, next) {
 }
 
 export function adminAccessMiddleware(req, res, next) {
-  const adminWallet = config.web3.adminWallet;
+  const adminWallet = config.web3.adminWallet.toLowerCase();
 
   // If using session wallet
   const userWallet = req.session.wallet?.address?.toLowerCase();

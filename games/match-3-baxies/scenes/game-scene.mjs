@@ -287,11 +287,12 @@ export default class GameScene extends Phaser.Scene {
             const t = Phaser.Math.Between(0, BAXIE_KEYS.length - 1);
             this.board[r][c] = t;
             const key = BAXIE_KEYS[t];
-            console.log(key)
             const p = this.toWorld(r, c);
             const s = this.add.image(p.x, p.y - TILE_SIZE * 1.5, key).setScale(0).setAlpha(0);
+
             s.setData({ r, c, t }); this.sprites[r][c] = s;
             remaining++;
+
             this.tweens.add({ targets: s, alpha: 1, duration: 60, onComplete: () => {
                 this.tweens.add({ targets: s, y: p.y, duration: 160, ease: "Sine.easeOut", onComplete: () => {
                     this.tweens.add({ targets: s, scale: 0.55, duration: 100, ease: "Back.out", onComplete: () => {
