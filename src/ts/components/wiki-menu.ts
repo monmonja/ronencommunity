@@ -1,4 +1,4 @@
-export default function (): void {
+export function initWikiMenu (): void {
   const wikiMenu:HTMLElement | null = document.querySelector(".wiki-menu");
   const wikiMenuLabels: Element[] = wikiMenu
     ? Array.from(wikiMenu.querySelectorAll("li label"))

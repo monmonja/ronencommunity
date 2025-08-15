@@ -1,5 +1,14 @@
-import { baxies } from "../baxies.mjs";
-import {assets} from "../constants.mjs";
+import { assets } from "../constants.mjs";
+
+const baxies = {
+  'gronke': 'baxie-gronke',
+  'pink': 'baxie-pink',
+  'green': 'baxie-green',
+  'blue': 'baxie-blue',
+  'purple': 'baxie-purple',
+  'orange': 'baxie-orange',
+  'yellow': 'baxie-yellow',
+}
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -12,7 +21,7 @@ export default class MainMenuScene extends Phaser.Scene {
     this.load.image(assets.scene.background.night, '/game-assets/flappy-baxie/images/night.png')
 
     // baxies
-    Object.keys(baxies).forEach((key, index) => {
+    Object.keys(baxies).forEach((key) => {
       this.load.spritesheet(baxies[key], `/game-assets/flappy-baxie/images/${baxies[key]}.png`, {
         frameWidth: 61,
         frameHeight: 70,

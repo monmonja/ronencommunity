@@ -53,13 +53,9 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
       params: [txParams],
     });
 
-    console.log("Transaction sent. Hash:", txHash);
     return { txParams, txHash };
-
-    // todo fetch to backend to verify ( https://chatgpt.com/c/688deeaf-0d24-800b-8291-789ac7cb15a3)
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Send transaction failed", error);
       alert("Transaction failed: " + (error?.message || error));
     }
   }

@@ -27,18 +27,13 @@ async function logout() {
   }
 }
 
-export default function (): void {
+export function initOverlayDisconnect(): void {
   const overlay = document.getElementById("overlay-disconnect");
 
   if (overlay) {
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
       overlay.classList.remove("show");
-    });
-
-    document.getElementById("disconnect-wallet")?.addEventListener("click", () => {
-      console.log("fds");
-      overlay.classList.toggle("show");
     });
 
     overlay.querySelector(".button")?.addEventListener("click", async () => {

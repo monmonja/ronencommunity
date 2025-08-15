@@ -4,6 +4,7 @@
 @use 'partials/top-menu' as *;
 @use 'partials/overlay' as *;
 @use 'partials/card' as *;
+@use 'partials/raffle-card' as *;
 @use 'partials/footer' as *;
 
 .page-content {
@@ -13,58 +14,30 @@
 
 }
 
-.game-intro {
+.game-catalog {
   color: white;
   margin-top: 32px;
   margin-bottom: 8px;
-}
-
-.raffle-card {
-  h2 {
-    font-size: 32px;
-    margin-bottom: 12px;
-  }
-
-  .raffle-infos {
-    display: flex;
-    justify-content: center;
-    column-gap: 12px;
-  }
-
-  .raffle-info {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid $border-color;
-    padding: 20px 16px 12px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-
-    label {
-      font-size: 12px;
-    }
-
-    strong {
-      font-size: 32px;
-      display: block;
-      margin-bottom: 2px;
-    }
-  }
-
-  .disclaimer {
-    margin-bottom: 10px;
-    font-size: 12px;
-  }
-
-  .button {
-    display: inline-block;
-    margin-top: 12px;
-  }
+  text-transform: uppercase;
+  font-size: 20px;
 }
 
 .game-list {
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+
+  @include min-599 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include min-768 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  @include min-1024 {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 
   .game-card {
     display: flex;

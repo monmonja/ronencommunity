@@ -12,6 +12,7 @@ export default (env, argv) => {
     entry: {
       app: './src/ts/app.ts',
       games: './src/ts/games.ts',
+      raffle: './src/ts/raffle.ts',
       "flappy-baxie": './games/flappy-baxie/flappy-baxie.mjs',
     },
     output: {

@@ -31,7 +31,7 @@ export async function sessionMiddleWare() {
     cookie: {
       secure: config.isProd,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "strict",
     },
   });
 }
@@ -84,4 +84,48 @@ export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
 
     next();
   };
+}
+
+export function forceHTTPSMiddleware(req, res, next) {
+  if (config.isProd && req.headers["x-forwarded-proto"] !== "https") {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+
+  next();
+}
+
+export function securityHeadersMiddleware(req, res, next) {
+  // Prevent MIME sniffing
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // Prevent clickjacking
+  res.setHeader("X-Frame-Options", "DENY");
+
+  // Enable XSS protection in older browsers
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  // Referrer policy
+  res.setHeader("Referrer-Policy", "no-referrer");
+
+  // Cross-Origin policies
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+
+  // Strict CSP
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; " +
+    "img-src 'self' data: blob: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; " +
+    // eslint-disable-next-line quotes
+    `script-src 'self' https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google ${config.isProd ? '' : "'unsafe-eval'"};` +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://ep2.adtrafficquality.google; " +
+    "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google; " +
+    "frame-ancestors 'none'; " +
+    "object-src 'none'"
+  );
+
+  next();
 }

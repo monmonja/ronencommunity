@@ -83,8 +83,6 @@ export async function getTotalAmountOnRaffleId({ mongoDbConnection, raffleId } =
 
   if (result.length > 0) {
     return result[0].totalAmount;
-  } else {
-    console.log("No entries for this raffleId");
   }
 }
 
@@ -98,8 +96,6 @@ export async function getEntriesFromRaffleId({ mongoDbConnection, raffleId } = {
 
   if (results.length > 0) {
     return results;
-  } else {
-    console.log("No entries for this raffleId");
   }
 }
 
@@ -133,10 +129,7 @@ export async function getAllRaffles({ mongoDbConnection } = {}) {
     .toArray();
 
   if (results.length > 0) {
-    console.log(results);
     return results;
-  } else {
-    console.log("No entries for this raffleId");
   }
 }
 

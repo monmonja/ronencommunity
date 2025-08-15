@@ -1,48 +1,20 @@
 import { sendRonSimple } from "./ronin-send";
 
-function hasRaffleEntry(): boolean {
-  const cookies = document.cookie.split(";"); // split all cookies
-
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-
-    if (name === "has-raffle-entry" && value === "true") {
-      return true;
-    }
-  }
-  return false;
-}
-
-export default function (): void {
+export function initOverlayRaffle (): void {
   const overlay = document.getElementById("overlay-raffle");
-  const buttons: Element[] = Array.from(document.querySelectorAll(".game-card .button"));
-  const joinButton = document.getElementById("join-raffle-button");
   const raffleAmount: HTMLInputElement| null = document.getElementById("raffle-amount") as HTMLInputElement | null;
 
   if (overlay && raffleAmount) {
     const joinBtn = overlay.querySelector(".button") as HTMLElement | null;
+    const overlayBody = overlay.querySelector(".overlay-body")!;
 
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
       overlay.classList.remove("show");
     });
 
-    if (joinButton) {
-      joinButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        overlay.classList.toggle("show");
-      });
-    }
-
-    buttons.forEach((button: Element) => {
-      button.addEventListener("click", () => {
-        if (hasRaffleEntry()) {
-          location.href = `/game/${button.getAttribute("data-slug")}`;
-        } else {
-          overlay.classList.toggle("show");
-          overlay.setAttribute("data-slug", button.getAttribute("data-slug") ?? "");
-        }
-      });
+    overlayBody?.addEventListener("click", (e) => {
+      e.stopPropagation(); // prevents the overlay click handler from firing
     });
 
     joinBtn?.addEventListener("click", async (e) => {

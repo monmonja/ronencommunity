@@ -44,7 +44,7 @@
           </td>
           <td>
             <a href="https://app.roninchain.com/address/<%= entries[i].from %>">
-              <%= entries[i].from.slice(0, 4) + '••••' + entries[i].from.slice(-4) %>
+              <%= entries[i].from.slice(0, 4) + '••' + entries[i].from.slice(-4) %>
             </a>
           </td>
           <td><%= entries[i].amount %></td>
@@ -76,7 +76,7 @@
           <td>
             <%
               const address = allRaffles[i].winners[0]?.winner;
-              const shortHand = address ? address.slice(0, 4) + '••••' + address.slice(-4) : '';
+              const shortHand = address ? address.slice(0, 4) + '••' + address.slice(-4) : '';
             %>
             <a href="https://app.roninchain.com/address/<%= address %>">
               <%= shortHand %>
@@ -90,6 +90,6 @@
 <%- include('../partials/footer.html') %>
 <%- include('../partials/overlay-disconnect.html') %>
 <%- include('../partials/overlay-raffle.html') %>
-<script src="/js/games.js"></script>
+<script src="/js/raffle.js"></script>
 </body>
 </html>

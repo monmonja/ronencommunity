@@ -13,7 +13,7 @@
         <a href="/games">Games</a>
       </li>
       <li>
-        <a href="/raffle">Raffle</a>
+        <a href="/raffles">Raffles</a>
       </li>
     </ul>
   </div>
@@ -21,7 +21,7 @@
     <% if (!wallet) { %>
       <a id="connect-wallet" class="button">Connect Wallet</a>
     <% } else { %>
-      <a id="disconnect-wallet" class="button"><%= wallet.address.slice(0, 6) + '••••' + wallet.address.slice(-4) %></a>
+      <a id="disconnect-wallet" class="button"><%= wallet.address.slice(0, 6) + '••' + wallet.address.slice(-4) %></a>
     <% } %>
   </div>
 </div>

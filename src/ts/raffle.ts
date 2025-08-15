@@ -1,11 +1,9 @@
 import { initAuth } from "./components/auth";
-import { initGameItems } from "./components/game-items";
 import { initOverlayRaffle } from "./components/overlay-raffle";
 import { initRaffleCard } from "./components/raffle-card";
 
 document.addEventListener("DOMContentLoaded", () => {
   initAuth();
-  initGameItems();
   initOverlayRaffle();
   initRaffleCard();
 });
