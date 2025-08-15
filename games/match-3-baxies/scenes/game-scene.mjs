@@ -300,7 +300,7 @@ export default class GameScene extends Phaser.Scene {
                         if (remaining === 0) {
                           resolve();
                           // check if any moves left
-                          if (!this.hasValidMove() || this.score > 100) {
+                          if (!this.hasValidMove()) {
                             this.events.emit("scoreChanged", 0);
                             this.scene.launch("GameOverScene", { score: this.score });
                             this.score = 0;
