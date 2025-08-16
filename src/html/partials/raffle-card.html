@@ -3,7 +3,7 @@
     <h2>Get a chance to win</h2>
     <div class="raffle-infos">
       <div class="raffle-info">
-        <strong><%= totalAmount ? totalAmount * 0.4 : 0 %></strong>
+        <strong><%= totalAmount ? (totalAmount * 0.4).toFixed(2) : 0 %></strong>
         <label>Prize in $RON</label>
       </div>
       <div class="raffle-info">

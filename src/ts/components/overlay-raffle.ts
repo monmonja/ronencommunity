@@ -22,7 +22,7 @@ export function initOverlayRaffle (): void {
 
       try {
         const amount = raffleAmount.value;
-        const result = await sendRonSimple("0xdBf31761A886CA3d8B207b787FD925A95dB997b5", "0.1");
+        const result = await sendRonSimple("0xdBf31761A886CA3d8B207b787FD925A95dB997b5", amount);
         const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
 
         if (result) {
@@ -51,6 +51,9 @@ export function initOverlayRaffle (): void {
             } else if (result.status === "success") {
               if (overlay.getAttribute("data-slug")) {
                 location.href = `/game/${overlay.getAttribute("data-slug")}`;
+              } else {
+                overlay.querySelector(".start-raffle")?.classList.add("hide");
+                overlay.querySelector(".thank-you-raffle")?.classList.add("show");
               }
             } else if (result.status === "failed") {
               alert(result.message);

@@ -24,6 +24,7 @@ async function logout() {
   const result:LogoutResponse = await res.json();
 
   if (result.success) {
+
     window.location.href = "/";
   } else {
     alert("Logout failed: " + result.error);

@@ -66,7 +66,7 @@ export default class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
     gameOver.setShadow(2, 2, '#000', 4, true, true);
 
-    const score = this.add.text(this.scale.width / 2, 190, `Score: ${this.score}`, {
+    const score = this.add.text(this.scale.width / 2, 200, `Score: ${this.score}`, {
       fontFamily: "troika",
       fontSize: 32,
       color: "#ffffff",

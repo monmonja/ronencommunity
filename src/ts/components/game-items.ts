@@ -1,5 +1,4 @@
 import { getCookie } from "./cookies";
-import {loginWithRoninWallet} from "./ronin-login";
 
 export function initGameItems(): void {
   const overlay = document.getElementById("overlay-raffle");
@@ -16,7 +15,7 @@ export function initGameItems(): void {
             overlay.setAttribute("data-slug", button.getAttribute("data-slug") ?? "");
           }
         } else {
-          loginWithRoninWallet();
+          document.getElementById("connect-wallet")?.click();
         }
       });
     });

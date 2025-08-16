@@ -41,9 +41,29 @@ body:has(.overlay.show) {
   }
 }
 
+#overlay-login {
+  h2 {
+    margin-bottom: 12px;
+  }
+}
+
 #overlay-raffle {
   h2 {
     margin-bottom: 12px;
+  }
+
+  .start-raffle {
+    &.hide {
+      display: none;
+    }
+  }
+
+  .thank-you-raffle {
+    display: none;
+
+    &.show {
+      display: block;
+    }
   }
 
   .ron-amount {

@@ -11,6 +11,7 @@ import {
   getEntriesFromRaffleId,
   getAllRaffles, raffleRecordExists,
 } from "../components/db.mjs";
+import {logError} from "../components/logger.mjs";
 
 export function initRafflesRoutes(app, mongoDbConnection) {
   app.get(
@@ -33,6 +34,20 @@ export function initRafflesRoutes(app, mongoDbConnection) {
         }),
         ...raffleEndsInDHM()
       });
+    });
+
+  app.get(
+    "/raffle/nonce",
+    rateLimiterMiddleware,
+    (req, res) => {
+      if (!req.session.wallet?.address) {
+        return res.status(401).json({ message: "Not logged in" });
+      }
+
+      const nonce = crypto.randomBytes(16).toString("hex");
+      req.session.raffleNonce = nonce;
+
+      res.json({ nonce });
     });
 
   app.get(
@@ -169,7 +184,11 @@ export function initRafflesRoutes(app, mongoDbConnection) {
         } else {
           res.status(200).json({ verified: true, status: "failed" });
         }
-      } catch {
+      } catch (err) {
+        logError({
+          message: "Failed in join-raffle",
+          auditData: err,
+        });
         res.status(400).json({ status: "failed", message: "Invalid signature" });
       }
     });
@@ -182,7 +201,7 @@ export function initRafflesRoutes(app, mongoDbConnection) {
       try {
         const raffleId = getRaffleId(getUtcNow());
 
-        // 1️⃣ Check if a winner already exists
+        //  Check if a winner already exists
         const existingWinner = await mongoDbConnection
           .db()
           .collection(config.mongo.table.raffleWinners)
@@ -230,22 +249,12 @@ export function initRafflesRoutes(app, mongoDbConnection) {
           });
 
         res.send({ winner: winnerWallet });
-      } catch {
+      } catch (err) {
+        logError({
+          message: "Failed in pick-raffle-winner",
+          auditData: err,
+        });
         res.status(500).send("Server error");
       }
-    });
-
-  app.get(
-    "/raffle/nonce",
-    rateLimiterMiddleware,
-    (req, res) => {
-      if (!req.session.wallet?.address) {
-        return res.status(401).json({ message: "Not logged in" });
-      }
-
-      const nonce = crypto.randomBytes(16).toString("hex");
-      req.session.raffleNonce = nonce;
-
-      res.json({ nonce });
     });
 }

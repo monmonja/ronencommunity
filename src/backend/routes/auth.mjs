@@ -7,6 +7,7 @@ import config from "../config/default.json" with { type: "json" };
 import {
   addWalletRecord,
 } from "../components/db.mjs";
+import {logError} from "../components/logger.mjs";
 
 export function initAuthRoutes(app, mongoDbConnection) {
   app.post(
@@ -92,13 +93,17 @@ export function initAuthRoutes(app, mongoDbConnection) {
     (req, res) => {
       req.session.destroy((err) => {
         if (err) {
-          console.error("Failed to destroy session:", err);
+          logError({
+            message: "Failed to destroy session: ",
+            auditData: err,
+          });
 
           return res.status(500).json({ success: false, message: "Logout failed" });
         }
 
         // Optionally clear the cookie on the client side
         res.clearCookie("has-user");
+        res.clearCookie("has-raffle-entry");
         res.clearCookie("connect.sid");
 
         res.json({ success: true, message: "Logged out successfully" });

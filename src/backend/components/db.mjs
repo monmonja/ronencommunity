@@ -39,7 +39,7 @@ export async function addWalletRecord({ mongoDbConnection, address } = {}) {
   );
 }
 
-export async function addRaffleRecord({ mongoDbConnection, amount, txHash, to, from, status } = {}) {
+  export async function addRaffleRecord({ mongoDbConnection, amount, txHash, to, from, status } = {}) {
   const now = getUtcNow();
 
   await mongoDbConnection.db().collection(config.mongo.table.raffles).updateOne(

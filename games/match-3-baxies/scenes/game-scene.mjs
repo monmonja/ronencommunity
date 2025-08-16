@@ -1,11 +1,102 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
+import {createButton} from "../utils/buttons.mjs";
 
 // src/scenes/GameScene.js
-const BOARD_SIZE = 7;
-const TILE_SIZE = 50;
-const BAXIE_KEYS = ["gronke","pink","green","blue","purple","orange","yellow"];
-const BOARD_OFFSET = { x: 9, y: 115 };
+export const levels = [
+  {
+    maxScore: 200,
+    baxieKeys: ['gronke', 'pink', 'green'],
+    cellSize: 70,
+    offsetY: 150,
+    imageScale: 0.8,
+    columns: 4,
+    rows: 4,
+  },
+  {
+    maxScore: 500,
+    baxieKeys: ['gronke', 'pink', 'green'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 4,
+    rows: 5,
+  },
+  {
+    maxScore: 900,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 4,
+    rows: 5,
+  },
+  {
+    maxScore: 1400,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 5,
+    rows: 5,
+  },
+  {
+    maxScore: 2000,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 5,
+    rows: 5,
+  },
+  {
+    maxScore: 2700,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 5,
+    rows: 5,
+  },
+  {
+    maxScore: 3600,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
+    cellSize: 70,
+    imageScale: 0.8,
+    offsetY: 115,
+    columns: 5,
+    rows: 6,
+  },
+  {
+    maxScore: 5000,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
+    cellSize: 60,
+    imageScale: 0.65,
+    offsetY: 115,
+    columns: 5,
+    rows: 6,
+  },
+  {
+    maxScore: 6500,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
+    cellSize: 60,
+    imageScale: 0.65,
+    offsetY: 115,
+    columns: 6,
+    rows: 6,
+  },
+  {
+    maxScore: Infinity, // anything above 6500
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
+    cellSize: 50,
+    imageScale: 0.55,
+    offsetY: 120,
+    columns: 7, // 6x6
+    rows: 7, // 6x6
+  }
+];
+
+
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -13,53 +104,64 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init() {
+    this.score = 0;
+    this.setLevel();
     this.board = this.makeEmptyBoard();
     this.sprites = this.makeEmptyBoard();
     this.isBusy = false;
-    this.score = 0;
+  }
+
+  setLevel() {
+    for (let i = 0; i < levels.length; i++) {
+      if (this.score < levels[i].maxScore) {
+        const level = levels[i];
+
+        this.cellSize = level.cellSize;
+        this.imageScale = level.imageScale;
+        this.offsetY = level.offsetY;
+        this.columns = level.columns;
+        this.rows = level.rows;
+        this.baxieKeys = level.baxieKeys;
+
+        this.level = i + 1;
+        break;
+      }
+    }
   }
 
   create() {
     this.cameras.main.setBackgroundColor("#101018");
 
-    this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
-
-    // Draw static grid background
-    const g = this.add.graphics();
-    g.lineStyle(2, 0xffffff, 0.2);
-    g.fillStyle(0x000000, 0.5);
-    g.fillRoundedRect(
-      BOARD_OFFSET.x - 8,
-      BOARD_OFFSET.y - 8,
-      BOARD_SIZE * TILE_SIZE + 16,
-      BOARD_SIZE * TILE_SIZE + 16,
-      12
-    );
-    for (let r = 0; r < BOARD_SIZE; r++)
-      for (let c = 0; c < BOARD_SIZE; c++)
-        g.strokeRect(BOARD_OFFSET.x + c * TILE_SIZE, BOARD_OFFSET.y + r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    this.backgroundDay = this.add
+      .image(0, 0, assets.scene.background.day)
+      .setOrigin(0, 0)
+      .setInteractive();
+    this.gridGraphics = this.add.graphics();
 
     this.randomizeBoard();
     this.drawBoard();
+    this.drawGrid();
 
     this.input.on("pointerdown", this.onPointerDown, this);
     this.input.on("pointerup", this.onPointerUp, this);
   }
 
   makeEmptyBoard() {
-    return Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+    return Array.from({ length: this.rows }, () =>
+      Array(this.columns).fill(null)
+    );
   }
 
   inBounds(r, c) {
-    return r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE;
+    return r >= 0 && r < this.rows && c >= 0 && c < this.columns;
   }
 
   randomizeBoard() {
-    for (let r = 0; r < BOARD_SIZE; r++) {
-      for (let c = 0; c < BOARD_SIZE; c++) {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
         let t;
         do {
-          t = Phaser.Math.Between(0, BAXIE_KEYS.length - 1);
+          t = Phaser.Math.Between(0, this.baxieKeys.length - 1);
         } while (this.causesImmediateMatch(r, c, t));
         this.board[r][c] = t;
       }
@@ -78,18 +180,44 @@ export default class GameScene extends Phaser.Scene {
     return false;
   }
 
+  drawGrid() {
+    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
+    const offsetY = this.offsetY;
+
+    // clear previous grid
+    this.gridGraphics.clear();
+    this.gridGraphics.lineStyle(2, 0xffffff, 0.3);
+
+    for (let row = 0; row <= this.rows; row++) {
+      const y = offsetY + row * this.cellSize;
+      this.gridGraphics.moveTo(offsetX, y);
+      this.gridGraphics.lineTo(offsetX + this.columns * this.cellSize, y);
+    }
+
+    for (let col = 0; col <= this.columns; col++) {
+      const x = offsetX + col * this.cellSize;
+      this.gridGraphics.moveTo(x, offsetY);
+      this.gridGraphics.lineTo(x, offsetY + this.rows * this.cellSize);
+    }
+
+    this.gridGraphics.strokePath();
+  }
+
   drawBoard() {
-    for (let r = 0; r < BOARD_SIZE; r++) {
-      for (let c = 0; c < BOARD_SIZE; c++) {
+    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
+    const offsetY = this.offsetY;
+
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
         if (this.sprites[r][c]) {
           this.sprites[r][c].destroy();
           this.sprites[r][c] = null;
         }
         const t = this.board[r][c];
-        const key = BAXIE_KEYS[t];
-        const x = BOARD_OFFSET.x + c * TILE_SIZE + TILE_SIZE / 2;
-        const y = BOARD_OFFSET.y + r * TILE_SIZE + TILE_SIZE / 2;
-        const spr = this.add.image(x, y, key).setScale(0.55);
+        const key = this.baxieKeys[t];
+        const x = offsetX + c * this.cellSize + this.cellSize / 2;
+        const y = offsetY + r * this.cellSize + this.cellSize / 2;
+        const spr = this.add.image(x, y, key).setScale(this.imageScale);
         spr.setData({ r, c, t });
         this.sprites[r][c] = spr;
       }
@@ -97,7 +225,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   toWorld(r, c) {
-    return { x: BOARD_OFFSET.x + c * TILE_SIZE + TILE_SIZE / 2, y: BOARD_OFFSET.y + r * TILE_SIZE + TILE_SIZE / 2 };
+    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
+    const offsetY = this.offsetY;
+
+    return { x: offsetX + c * this.cellSize + this.cellSize / 2, y: offsetY + r * this.cellSize + this.cellSize / 2 };
   }
 
   onPointerDown(pointer) {
@@ -122,8 +253,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   screenToCell(x, y) {
-    const c = Math.floor((x - BOARD_OFFSET.x) / TILE_SIZE);
-    const r = Math.floor((y - BOARD_OFFSET.y) / TILE_SIZE);
+    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
+    const offsetY = this.offsetY;
+
+    const c = Math.floor((x - offsetX) / this.cellSize);
+    const r = Math.floor((y - offsetY) / this.cellSize);
     if (!this.inBounds(r, c)) return null;
     return { r, c };
   }
@@ -181,10 +315,10 @@ export default class GameScene extends Phaser.Scene {
   findAllMatches() {
     const matches = [];
     // Horizontal
-    for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let r = 0; r < this.rows; r++) {
       let runStart = 0;
-      for (let c = 1; c <= BOARD_SIZE; c++) {
-        if (c === BOARD_SIZE || this.board[r][c] !== this.board[r][c - 1]) {
+      for (let c = 1; c <= this.columns; c++) {
+        if (c === this.columns || this.board[r][c] !== this.board[r][c - 1]) {
           if (c - runStart >= 3 && this.board[r][c - 1] !== null) {
             for (let k = runStart; k < c; k++) matches.push({ r, c: k });
           }
@@ -193,10 +327,10 @@ export default class GameScene extends Phaser.Scene {
       }
     }
     // Vertical
-    for (let c = 0; c < BOARD_SIZE; c++) {
+    for (let c = 0; c < this.columns; c++) {
       let runStart = 0;
-      for (let r = 1; r <= BOARD_SIZE; r++) {
-        if (r === BOARD_SIZE || this.board[r][c] !== this.board[r - 1][c]) {
+      for (let r = 1; r <= this.rows; r++) {
+        if (r === this.rows || this.board[r][c] !== this.board[r - 1][c]) {
           if (r - runStart >= 3 && this.board[r - 1][c] !== null) {
             for (let k = runStart; k < r; k++) matches.push({ r: k, c });
           }
@@ -214,30 +348,108 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  showLevelUpScreen() {
+    return new Promise((resolve) => {
+      // Create semi-transparent overlay
+      const overlay = this.add.rectangle(
+        this.cameras.main.centerX,
+        this.cameras.main.centerY,
+        this.cameras.main.width,
+        this.cameras.main.height,
+        0x000000,
+        0.7
+      );
+
+      // Create a Level Up text
+      const levelText = this.add.text(
+        this.cameras.main.centerX,
+        this.cameras.main.centerY - 50,
+        `LEVEL ${this.level - 1} cleared`,
+        { fontSize: "40px", color: "#ffffff", fontStyle: "bold", fontFamily: 'troika', }
+      ).setOrigin(0.5);
+      levelText.setShadow(2, 2, '#000', 4, true, true);
+
+      // Create a button
+      const btn = createButton({
+        scene: this,
+        x: this.cameras.main.centerX - 75,
+        y: this.cameras.main.centerY,
+        width: 150,
+        height: 40,
+        text: "Continue",
+        onPointerDown: () => {
+          overlay.destroy();
+          levelText.destroy();
+          btn.destroy();
+          resolve();
+        }
+      })
+    });
+  }
+
   clearMatches(cells) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.score += cells.length * 10;
       this.events.emit("scoreChanged", this.score);
+
+      const oldLevel = this.level;
+      this.setLevel();
+
+      if (this.level !== oldLevel) {
+        this.showLevelUpScreen()
+          .then(() => {
+            this.resetForNewLevel();
+            resolve();
+          });
+
+        return;
+      }
+
       let remaining = 0;
       cells.forEach(({ r, c }) => {
         const s = this.sprites[r][c];
-        if (!s) { this.board[r][c] = null; return; }
+        if (!s) {
+          this.board[r][c] = null;
+          return;
+        }
         remaining++;
         this.tweens.add({
-          targets: s, scale: 0, alpha: 0, duration: 120, ease: "Back.easeIn",
-          onComplete: () => { s.destroy(); this.sprites[r][c] = null; this.board[r][c] = null; remaining--; if (remaining === 0) resolve(); }
+          targets: s,
+          scale: 0,
+          alpha: 0,
+          duration: 120,
+          ease: "Back.easeIn",
+          onComplete: () => {
+            s.destroy();
+            this.sprites[r][c] = null;
+            this.board[r][c] = null;
+            remaining--;
+            if (remaining === 0) resolve();
+          },
         });
       });
       if (remaining === 0) resolve();
     });
   }
 
+  resetForNewLevel() {
+    // destroy current sprites
+    this.sprites.flat().forEach((s) => s && s.destroy());
+
+    // rebuild with new settings
+    this.board = this.makeEmptyBoard();
+    this.sprites = this.makeEmptyBoard();
+    this.randomizeBoard();
+    this.drawBoard();
+    this.drawGrid();
+  }
+
   dropTiles() {
     return new Promise(resolve => {
       let remaining = 0;
-      for (let c = 0; c < BOARD_SIZE; c++) {
-        let write = BOARD_SIZE - 1;
-        for (let r = BOARD_SIZE - 1; r >= 0; r--) {
+      for (let c = 0; c < this.columns; c++) {
+        let write = this.rows - 1;
+        for (let r = this.rows - 1; r >= 0; r--) {
           if (this.board[r][c] !== null) {
             if (write !== r) {
               const t = this.board[r][c], s = this.sprites[r][c];
@@ -258,17 +470,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
   hasValidMove() {
-    for (let r = 0; r < BOARD_SIZE; r++) {
-      for (let c = 0; c < BOARD_SIZE; c++) {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
         const t = this.board[r][c];
         // check swap right
-        if (c < BOARD_SIZE - 1) {
+        if (c < this.columns - 1) {
           this.swapBoard(r, c, r, c + 1);
           if (this.findAllMatches().length > 0) { this.swapBoard(r, c, r, c + 1); return true; }
           this.swapBoard(r, c, r, c + 1);
         }
         // check swap down
-        if (r < BOARD_SIZE - 1) {
+        if (r < this.rows - 1) {
           this.swapBoard(r, c, r + 1, c);
           if (this.findAllMatches().length > 0) { this.swapBoard(r, c, r + 1, c); return true; }
           this.swapBoard(r, c, r + 1, c);
@@ -281,21 +493,21 @@ export default class GameScene extends Phaser.Scene {
   async refillTiles() {
     return new Promise(resolve => {
       let remaining = 0;
-      for (let c = 0; c < BOARD_SIZE; c++) {
-        for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        for (let r = 0; r < this.rows; r++) {
           if (this.board[r][c] === null) {
-            const t = Phaser.Math.Between(0, BAXIE_KEYS.length - 1);
+            const t = Phaser.Math.Between(0, this.baxieKeys.length - 1);
             this.board[r][c] = t;
-            const key = BAXIE_KEYS[t];
+            const key = this.baxieKeys[t];
             const p = this.toWorld(r, c);
-            const s = this.add.image(p.x, p.y - TILE_SIZE * 1.5, key).setScale(0).setAlpha(0);
+            const s = this.add.image(p.x, p.y - this.cellSize * 1.5, key).setScale(0).setAlpha(0);
 
             s.setData({ r, c, t }); this.sprites[r][c] = s;
             remaining++;
 
             this.tweens.add({ targets: s, alpha: 1, duration: 60, onComplete: () => {
                 this.tweens.add({ targets: s, y: p.y, duration: 160, ease: "Sine.easeOut", onComplete: () => {
-                    this.tweens.add({ targets: s, scale: 0.55, duration: 100, ease: "Back.out", onComplete: () => {
+                    this.tweens.add({ targets: s, scale: this.imageScale, duration: 100, ease: "Back.out", onComplete: () => {
                         remaining--;
                         if (remaining === 0) {
                           resolve();
