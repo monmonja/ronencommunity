@@ -74,28 +74,9 @@ export default class UiScene extends Phaser.Scene {
     // Reference to the GameScene
     this.gameScene = this.scene.get("GameScene");
 
-    this.createTopMenu();
-    this.createScore();
-
-    // Restart button
-    // const restartButton = this.add.text(
-    //   this.scale.width - 20,
-    //   20,
-    //   "Restart",
-    //   {
-    //     fontFamily: "troika",
-    //     fontSize: 24,
-    //     color: "#ffcc00",
-    //     backgroundColor: "#333",
-    //     padding: { x: 10, y: 5 },
-    //   }
-    // )
-    //   .setOrigin(1, 0)
-    //   .setInteractive({ useHandCursor: true });
-    //
-    // restartButton.on("pointerdown", () => {
-    //   this.scene.stop("GameScene");
-    //   this.scene.start("GameScene");
-    // });
+    document.fonts.load('16px troika').then(() => {
+      this.createTopMenu();
+      this.createScore();
+    });
   }
 }
