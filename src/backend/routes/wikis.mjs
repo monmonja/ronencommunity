@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import {param, validationResult} from "express-validator";
+import {cookieCheckMiddleware} from "../components/middlewares.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -12,6 +13,7 @@ export function initWikisRoutes(app) {
     param("path")
       .matches(/^[a-z-]+$/)
       .withMessage("Invalid wiki"),
+    cookieCheckMiddleware,
     rateLimiterMiddleware,
     (req, res) => {
       // Handle validation errors

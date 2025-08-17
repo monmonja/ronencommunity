@@ -1,4 +1,4 @@
-import {initOverlayDisconnect, logout} from "./overlay-disconnect";
+import {initOverlayDisconnect} from "./overlay-disconnect";
 import { initOverlayLogin } from "./overlay-login";
 import {loginWithRoninWallet} from "./ronin-login";
 

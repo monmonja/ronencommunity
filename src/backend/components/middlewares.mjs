@@ -67,6 +67,23 @@ export function validateCsrfMiddleware(req, res, next) {
   next();
 }
 
+export function cookieCheckMiddleware(req, res, next) {
+  if (req.session.wallet?.address) {
+    res.cookie("has-user", "true", {
+      maxAge: 3 * 60 * 60 * 1000, // 3 hrs
+      sameSite: "strict",
+      secure: config.isProd,
+      path: "/"
+    });
+  } else {
+    res.clearCookie("has-user");
+    res.clearCookie("has-raffle-entry");
+    res.clearCookie("connect.sid");
+  }
+
+  next();
+}
+
 export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
   return async (req, res, next) => {
     const raffleId = getRaffleId(getUtcNow());

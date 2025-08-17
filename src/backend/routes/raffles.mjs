@@ -2,7 +2,7 @@ import crypto from "crypto";
 import {body, param, validationResult} from "express-validator";
 import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
-import {adminAccessMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {getRaffleId, getUtcNow, raffleEndingIn, raffleEndsInDHM} from "../components/utils.mjs";
 import {
@@ -16,6 +16,7 @@ import {logError} from "../components/logger.mjs";
 export function initRafflesRoutes(app, mongoDbConnection) {
   app.get(
     "/raffles",
+    cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
       const raffleId = getRaffleId(getUtcNow());
@@ -55,6 +56,7 @@ export function initRafflesRoutes(app, mongoDbConnection) {
     param("raffleId")
       .matches(/^[0-9]{2}-[0-9]{4}$/)
       .withMessage("Invalid raffle id"),
+    cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
       // Handle validation errors
@@ -100,6 +102,7 @@ export function initRafflesRoutes(app, mongoDbConnection) {
       .trim()
       .matches(/^[a-f0-9]{32}$/) // match 16 bytes hex string
       .withMessage("Invalid nonce"),
+    cookieCheckMiddleware,
     validateCsrfMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {

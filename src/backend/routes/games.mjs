@@ -1,5 +1,5 @@
 import { param, validationResult } from "express-validator";
-import {requireWalletSession, walletRaffleEntryMiddleware} from "../components/middlewares.mjs";
+import {cookieCheckMiddleware, requireWalletSession, walletRaffleEntryMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
   getRaffleId, getUtcNow, raffleEndingIn, raffleEndsInDHM
@@ -14,6 +14,7 @@ import config from "../config/default.json" with { type: "json" };
 export function initGamesRoutes(app, mongoDbConnection) {
   app.get(
     "/games",
+    cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
       const raffleId = getRaffleId(getUtcNow());
@@ -54,6 +55,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
     rateLimiterMiddleware,
+    cookieCheckMiddleware,
     walletRaffleEntryMiddleware({ mongoDbConnection }),
     requireWalletSession,
     async (req, res) => {

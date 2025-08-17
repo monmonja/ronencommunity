@@ -17,7 +17,7 @@ import {
   sessionMiddleWare,
   ejsVariablesMiddleware,
   forceHTTPSMiddleware,
-  securityHeadersMiddleware,
+  securityHeadersMiddleware, cookieCheckMiddleware,
 } from "./components/middlewares.mjs";
 import { rateLimiterMiddleware } from "./components/rate-limiter.mjs";
 import { initStaticRoutes } from "./routes/static.mjs";
@@ -57,9 +57,13 @@ initRafflesRoutes(app, mongoDbConnection);
 initGamesRoutes(app, mongoDbConnection);
 initWikisRoutes(app, mongoDbConnection);
 
-app.get("/", rateLimiterMiddleware, (req, res) => {
-  res.render("index");
-});
+app.get(
+  "/",
+  cookieCheckMiddleware,
+  rateLimiterMiddleware,
+  (req, res) => {
+    res.render("index");
+  });
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
