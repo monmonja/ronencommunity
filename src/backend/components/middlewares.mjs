@@ -78,7 +78,6 @@ export function cookieCheckMiddleware(req, res, next) {
   } else {
     res.clearCookie("has-user");
     res.clearCookie("has-raffle-entry");
-    res.clearCookie("connect.sid");
   }
 
   next();
