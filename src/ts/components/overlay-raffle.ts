@@ -22,7 +22,7 @@ export function initOverlayRaffle (): void {
 
       try {
         const amount = raffleAmount.value;
-        const result = await sendRonSimple("0xdBf31761A886CA3d8B207b787FD925A95dB997b5", amount);
+        const result = await sendRonSimple("{{config.web3.raffleAddress}}", amount);
         const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
 
         if (result) {

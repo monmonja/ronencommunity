@@ -26,7 +26,12 @@ export default (env, argv) => {
       rules: [
         {
           test: /\.ts$/,
-          use: 'ts-loader',
+          use: [
+            'ts-loader',
+            {
+              loader: path.resolve(__dirname, 'webpack', 'replace-config.js'),
+            }
+          ],
           exclude: /node_modules/,
         },
       ],
