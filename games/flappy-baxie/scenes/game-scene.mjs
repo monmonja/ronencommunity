@@ -97,7 +97,7 @@ export default class GameScene extends Phaser.Scene {
 
   hitBaxie() {
     this.scene.pause();
-    this.scene.launch('EndGameScene');
+    this.scene.launch('GameOverScene');
   }
 
   updateScore(_, gap) {

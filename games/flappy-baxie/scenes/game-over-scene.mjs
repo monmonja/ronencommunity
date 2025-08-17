@@ -1,8 +1,6 @@
-import {assets} from "../constants.mjs";
-
-export default class EndGameScene extends Phaser.Scene {
+export default class GameOverScene extends Phaser.Scene {
   constructor() {
-    super({key: 'EndGameScene'});
+    super({key: 'GameOverScene'});
   }
 
   createRestartButton() {
