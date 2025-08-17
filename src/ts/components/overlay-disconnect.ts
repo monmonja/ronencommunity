@@ -1,16 +1,9 @@
-interface RoninWindow extends Window {
-  // eslint-disable-next-line
-  ronin?: { provider?: any };
-  ethereum?: unknown;
-}
-declare const window: RoninWindow;
-
 interface LogoutResponse {
   success: boolean;
   error: string;
 }
 
-async function logout() {
+export async function logout() {
   const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
 
   const res:Response = await fetch("/logout", {

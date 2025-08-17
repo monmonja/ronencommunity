@@ -47,7 +47,7 @@ export async function loginWithRoninWallet() {
     const result = await res.json();
 
     if (result.success) {
-      window.location.href = "/games";
+      window.location.reload();
     } else {
       alert("Login failed: " + result.error);
     }
