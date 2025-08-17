@@ -7,6 +7,8 @@ import ejs from "ejs";
 import cookieParser from "cookie-parser";
 import express from "express";
 
+import config from "./config/default.json" with { type: "json" };
+
 import {
   getConnection,
 } from "./components/db.mjs";
@@ -24,7 +26,7 @@ import { initGamesRoutes } from "./routes/games.mjs";
 import { initAuthRoutes } from "./routes/auth.mjs";
 import { initWikisRoutes } from "./routes/wikis.mjs";
 
-const port = process.env.PORT || 3000;
+const port = config.port;
 // Fix __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
