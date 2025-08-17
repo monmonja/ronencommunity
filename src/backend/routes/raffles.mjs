@@ -155,7 +155,7 @@ export function initRafflesRoutes(app, mongoDbConnection) {
             return;
           }
 
-          if (formatEther(tx.value) !== amount) {
+          if (Math.floor(Number(formatEther(tx.value))) !== Number(amount)) {
             res.status(200).json({verified: true, status: "failed", message: "Not same amount."});
 
             return;

@@ -5,7 +5,8 @@ export function initOverlayRaffle (): void {
   const raffleAmount: HTMLInputElement| null = document.getElementById("raffle-amount") as HTMLInputElement | null;
 
   if (overlay && raffleAmount) {
-    const joinBtn = overlay.querySelector(".button") as HTMLElement | null;
+    const joinBtn = overlay.querySelector(".join-button") as HTMLElement | null;
+    const reloadBtn = overlay.querySelector(".reload-button") as HTMLElement | null;
     const overlayBody = overlay.querySelector(".overlay-body")!;
 
     overlay.addEventListener("click", (e) => {
@@ -15,6 +16,12 @@ export function initOverlayRaffle (): void {
 
     overlayBody?.addEventListener("click", (e) => {
       e.stopPropagation(); // prevents the overlay click handler from firing
+    });
+
+    reloadBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
+
+      window.location.reload();
     });
 
     joinBtn?.addEventListener("click", async (e) => {
