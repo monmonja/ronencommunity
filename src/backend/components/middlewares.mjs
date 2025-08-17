@@ -3,9 +3,10 @@ import crypto from "crypto";
 import MongoStore from "connect-mongo";
 import session from "express-session";
 
-import {getConnection, walletHasRaffleEntry} from "./db.mjs";
+import {getConnection, getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/default.json" with { type: "json" };
-import {getRaffleId, getUtcNow} from "./utils.mjs";
+import {getRaffleId, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
+import {getGame} from "./games.mjs";
 
 const mongoDbConnection = await getConnection();
 
@@ -69,20 +70,35 @@ export function validateCsrfMiddleware(req, res, next) {
 export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
   return async (req, res, next) => {
     const raffleId = getRaffleId(getUtcNow());
-    const wallet = req.session.wallet.address.toLowerCase();
 
-    const hasEntry = await walletHasRaffleEntry({
-      mongoDbConnection,
-      raffleId,
-      wallet
-    });
+    if (req.session.wallet) {
+      const wallet = req.session.wallet.address.toLowerCase();
 
-    if (!hasEntry) {
-      res.clearCookie("has-raffle-entry", { path: "/" });
-      return res.redirect("/games");
+      const hasEntry = await walletHasRaffleEntry({
+        mongoDbConnection,
+        raffleId,
+        wallet
+      });
+
+      if (!hasEntry) {
+        res.clearCookie("has-raffle-entry", { path: "/" });
+        return res.redirect("/games");
+      }
+
+      next();
+    } else {
+      const raffleId = getRaffleId(getUtcNow());
+
+      res.render("raffle/required-for-games", {
+        game: await getGame(req.params.path),
+        currentRaffleId: raffleId,
+        raffleId,
+        totalAmount: await getTotalAmountOnRaffleId({
+          mongoDbConnection, raffleId
+        }),
+        ...raffleEndsInDHM()
+      });
     }
-
-    next();
   };
 }
 

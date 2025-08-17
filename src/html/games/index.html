@@ -25,6 +25,11 @@
           </picture>
           <h3><%= games[i].name %></h3>
           <p class="description"><%= games[i].description %></p>
+          <p class="last-updated">Updated: <%= new Date(games[i].lastUpdate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric"
+            })  %></p>
           <div class="button" data-slug="<%= games[i].slug %>">Play</div>
         </li>
       <% } %>

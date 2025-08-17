@@ -21,7 +21,7 @@ export function initRafflesRoutes(app, mongoDbConnection) {
       const raffleId = getRaffleId(getUtcNow());
 
       return res.render("raffle/index", {
-        currentRaffleId: getRaffleId(getUtcNow()),
+        currentRaffleId: raffleId,
         raffleId,
         totalAmount: await getTotalAmountOnRaffleId({
           mongoDbConnection, raffleId

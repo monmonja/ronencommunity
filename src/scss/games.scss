@@ -46,7 +46,7 @@
 
     picture {
       display: block;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
 
       img {
         display: block;
@@ -58,13 +58,18 @@
     }
 
     h3 {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       text-transform: uppercase;
       cursor: pointer;
       margin-bottom: 8px;
     }
 
     .description {
+      margin-bottom: 12px;
+    }
+
+    .last-updated {
+      font-size: 80%;
       margin-bottom: 12px;
     }
 

@@ -39,7 +39,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
       }
 
       return res.render("games/index", {
-        games: getGames(),
+        games: await getGames(),
         raffleId,
         totalAmount: await getTotalAmountOnRaffleId({
           mongoDbConnection, raffleId
@@ -54,9 +54,9 @@ export function initGamesRoutes(app, mongoDbConnection) {
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
     rateLimiterMiddleware,
-    requireWalletSession,
     walletRaffleEntryMiddleware({ mongoDbConnection }),
-    (req, res) => {
+    requireWalletSession,
+    async (req, res) => {
       // Handle validation errors
       const errors = validationResult(req);
 
@@ -66,7 +66,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
 
       return res.render("game/template", {
         gameId: req.params.path,
-        games: getGames()
+        games: await getGames()
       });
     });
 }

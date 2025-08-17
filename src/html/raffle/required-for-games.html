@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raffle - Ronen Community</title>
+  <link rel="stylesheet" href="/css/raffle.css">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <%- include('../partials/analytics.html') %>
+  <%- include('../partials/adsense.html') %>
+</head>
+<body>
+<%- include('../partials/top-menu.html') %>
+<%- include('../partials/ads-top-banner.html') %>
+<div class="page-content">
+  <div>
+    In order to play <%= game.name %> you need to join our raffle. See below <br /><br />
+  </div>
+  <% if (currentRaffleId === raffleId) { %>
+    <%- include('../partials/raffle-card.html') %>
+  <% } %>
+
+</div>
+<%- include('../partials/footer.html') %>
+<%- include('../partials/overlay-disconnect.html') %>
+<%- include('../partials/overlay-raffle.html') %>
+<%- include('../partials/overlay-login.html') %>
+<script src="/js/raffle.js"></script>
+</body>
+</html>
