@@ -7,13 +7,15 @@
   <link rel="stylesheet" href="/css/index.css">
   <style>
     @font-face {
-      font-family: 'troika';
-      src:
-        url('<%= config.cdnLink %>/fonts/troika.otf') format('oft');
-      font-weight: normal;
-      font-style: normal;
-      font-display: block;
-    }
+     font-family: 'troika';
+     src:
+       url('<%= config.cdnLink %>/fonts/troika.woff2') format('woff2'),
+       url('<%= config.cdnLink %>/fonts/troika.ttf') format('truetype'),
+       url('<%= config.cdnLink %>/fonts/troika.otf') format('opentype');
+     font-weight: normal;
+     font-style: normal;
+     font-display: block;
+   }
   </style>
   <meta name="csrf-token" content="<%= csrfToken %>">
   <%- include('../partials/analytics.html') %>
