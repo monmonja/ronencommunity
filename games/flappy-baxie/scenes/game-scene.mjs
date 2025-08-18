@@ -72,7 +72,7 @@ export default class GameScene extends Phaser.Scene {
         this.velocityX = level.velocityX;
         this.nextFrame = level.nextFrame;
         this.level = i + 1;
-        console.log('this.velocityX', this.velocityX)
+
         break;
       }
     }
