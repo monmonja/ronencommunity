@@ -12,11 +12,13 @@ declare const window: RoninWindow;
 function listenToWalletChange() {
   const provider = window.ronin?.provider || window.ethereum;
 
-  provider.on("accountsChanged", async (accounts: string[]) => {
-    if (accounts.length > 0) {
-      await loginWithRoninWallet();
-    }
-  });
+  if (provider) {
+    provider.on("accountsChanged", async (accounts: string[]) => {
+      if (accounts.length > 0) {
+        await loginWithRoninWallet();
+      }
+    });
+  }
 }
 
 export function initAuth() {
