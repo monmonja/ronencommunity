@@ -1,3 +1,5 @@
+import {detectNetwork} from "./ronin-detect-network";
+
 interface RoninWindow extends Window {
   // eslint-disable-next-line
   ronin?: { provider?: any };
@@ -10,6 +12,10 @@ export async function loginWithRoninWallet() {
 
   if (!provider) {
     alert("Ronin Wallet or compatible Ethereum wallet not found.");
+    return;
+  }
+
+  if (!await detectNetwork()) {
     return;
   }
 

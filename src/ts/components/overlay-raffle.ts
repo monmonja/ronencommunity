@@ -1,4 +1,5 @@
 import { sendRonSimple } from "./ronin-send";
+import {detectNetwork} from "./ronin-detect-network";
 
 export function initOverlayRaffle (): void {
   const overlay = document.getElementById("overlay-raffle");
@@ -26,6 +27,10 @@ export function initOverlayRaffle (): void {
 
     joinBtn?.addEventListener("click", async (e) => {
       e.stopPropagation();
+
+      if (!await detectNetwork()) {
+        return;
+      }
 
       try {
         const amount = raffleAmount.value;
