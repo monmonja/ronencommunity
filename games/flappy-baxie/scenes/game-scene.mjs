@@ -79,18 +79,18 @@ export default class GameScene extends Phaser.Scene {
   }
   
   preload() {
-    this.load.image(assets.scene.ronenCoin, '/game-assets/flappy-baxie/images/ronen.png')
+    this.load.image(assets.scene.ronenCoin, '{{config.cdnLink}}/game-assets/flappy-baxie/images/ronen.png')
 
-    this.load.spritesheet(assets.scene.floor, '/game-assets/flappy-baxie/images/floor.webp', {
+    this.load.spritesheet(assets.scene.floor, '{{config.cdnLink}}/game-assets/flappy-baxie/images/floor.webp', {
       frameWidth: 370,
       frameHeight: 112
     })
 
     // Pipes
-    this.load.image(assets.obstacle.pipe.green.top, '/game-assets/flappy-baxie/images/pipe-green-top.png')
-    this.load.image(assets.obstacle.pipe.green.bottom, '/game-assets/flappy-baxie/images/pipe-green-bottom.png')
-    this.load.image(assets.obstacle.pipe.red.top, '/game-assets/flappy-baxie/images/pipe-red-top.png')
-    this.load.image(assets.obstacle.pipe.red.bottom, '/game-assets/flappy-baxie/images/pipe-red-bottom.png')
+    this.load.image(assets.obstacle.pipe.green.top, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-green-top.png')
+    this.load.image(assets.obstacle.pipe.green.bottom, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-green-bottom.png')
+    this.load.image(assets.obstacle.pipe.red.top, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-red-top.png')
+    this.load.image(assets.obstacle.pipe.red.bottom, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-red-bottom.png')
   }
 
   init(data) {

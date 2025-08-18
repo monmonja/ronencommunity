@@ -17,12 +17,12 @@ export default class MainMenuScene extends Phaser.Scene {
 
   preload() {
     // Backgrounds
-    this.load.image(assets.scene.background.day, '/game-assets/flappy-baxie/images/day.png')
-    this.load.image(assets.scene.background.night, '/game-assets/flappy-baxie/images/night.png')
+    this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day.png')
+    this.load.image(assets.scene.background.night, '{{config.cdnLink}}/game-assets/flappy-baxie/images/night.png')
 
     // baxies
     Object.keys(baxies).forEach((key) => {
-      this.load.spritesheet(baxies[key], `/game-assets/flappy-baxie/images/${baxies[key]}.png`, {
+      this.load.spritesheet(baxies[key], `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`, {
         frameWidth: 61,
         frameHeight: 70,
       });

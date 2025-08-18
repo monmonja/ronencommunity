@@ -16,11 +16,10 @@ export default class MainMenuScene extends Phaser.Scene {
       'orange': 'baxie-orange',
       'yellow': 'baxie-yellow',
     };
-    this.load.image(assets.scene.background.day, '/game-assets/flappy-baxie/images/day.png');
-    this.load.image('gronke', '/game-assets/flappy-baxie/images/baxie-gronke.png'); // path must be correct
+    this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day.png');
 
     for (const key in baxies) {
-      this.load.image(key, `/game-assets/flappy-baxie/images/${baxies[key]}.png`);
+      this.load.image(key, `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`);
     }
   }
 
