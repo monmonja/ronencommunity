@@ -148,13 +148,13 @@ export function securityHeadersMiddleware(req, res, next) {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; " +
-    "img-src 'self' data: blob: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; " +
+    "img-src 'self' data: blob: " +
     // eslint-disable-next-line quotes
-    `script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://ep2.adtrafficquality.google ${config.isProd ? '' : "'unsafe-eval'"};` +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    `script-src 'self' ${config.isProd ? '' : "'unsafe-eval'"};` +
+    "style-src 'self' 'unsafe-inline'; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.ronencommunity.com; " +
-    "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://ep2.adtrafficquality.google; " +
-    "connect-src 'self' https://www.google-analytics.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google; " +
+    "frame-src 'self' ; " +
+    "connect-src 'self' ; " +
     "frame-ancestors 'none'; " +
     "object-src 'none'"
   );
