@@ -52,6 +52,7 @@ export function csrfMiddleware(req, res, next) {
 export function ejsVariablesMiddleware(req, res, next) {
   res.locals.wallet = req.session.wallet || null;
   res.locals.config = config || {};
+  res.locals.nonce = crypto.randomBytes(16).toString("hex");
 
   next();
 }
@@ -148,13 +149,13 @@ export function securityHeadersMiddleware(req, res, next) {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; " +
-    "img-src 'self' data: blob: ;" +
+    "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com;" +
     // eslint-disable-next-line quotes
-    `script-src 'self' ${config.isProd ? '' : "'unsafe-eval'"};` +
+    `script-src 'self' 'nonce-${res.locals.nonce}' https://*.googletagmanager.com ${config.isProd ? '' : "'unsafe-eval'"};` +
     "style-src 'self' 'unsafe-inline'; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.ronencommunity.com; " +
-    "frame-src 'self' ; " +
-    "connect-src 'self' ; " +
+    "frame-src 'self' https://*.google.com; " +
+    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; " +
     "frame-ancestors 'none'; " +
     "object-src 'none'"
   );

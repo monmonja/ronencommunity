@@ -35,7 +35,6 @@ const mongoDbConnection = await getConnection();
 
 app.disable("x-powered-by");
 app.use(forceHTTPSMiddleware);
-app.use(securityHeadersMiddleware);
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json({ limit: "5kb" }));
@@ -43,6 +42,7 @@ app.use(express.urlencoded({ limit: "5kb", extended: true }));
 app.use(await sessionMiddleWare());
 app.use(csrfMiddleware);
 app.use(ejsVariablesMiddleware);
+app.use(securityHeadersMiddleware);
 
 app.set("trust proxy", 1);
 
