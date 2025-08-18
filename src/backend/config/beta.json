@@ -1,13 +1,13 @@
 {
   "isProd": false,
-  "port": 3000,
+  "port": 3001,
   "cdnLink": "https://cdn.ronencommunity.com",
   "distVersion": "1",
   "session": {
     "secret": "localhost"
   },
   "mongo" : {
-    "connectionString": "mongodb://localhost:27017/ronen_community",
+    "connectionString": "mongodb://localhost:27017/ronen_community_beta",
     "table": {
       "wallets": "wallets",
       "raffles": "raffles",

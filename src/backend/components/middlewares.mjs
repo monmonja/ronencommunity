@@ -148,7 +148,7 @@ export function securityHeadersMiddleware(req, res, next) {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; " +
-    "img-src 'self' data: blob: " +
+    "img-src 'self' data: blob: ;" +
     // eslint-disable-next-line quotes
     `script-src 'self' ${config.isProd ? '' : "'unsafe-eval'"};` +
     "style-src 'self' 'unsafe-inline'; " +
