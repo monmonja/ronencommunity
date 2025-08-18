@@ -1,6 +1,49 @@
 import Phaser from 'phaser';
 import { assets } from "../constants.mjs";
 
+const levels = [
+  {
+    maxScore: 1,
+    velocityX: -100,
+    nextFrame: 130,
+  },
+  {
+    maxScore: 4,
+    velocityX: -150,
+    nextFrame: 120,
+  },
+  {
+    maxScore: 7,
+    velocityX: -200,
+    nextFrame: 100,
+  },
+  {
+    maxScore: 10,
+    velocityX: -220,
+    nextFrame: 70,
+  },
+  {
+    maxScore: 13,
+    velocityX: -250,
+    nextFrame: 50,
+  },
+  {
+    maxScore: 16,
+    velocityX: -150,
+    nextFrame: 100,
+  },
+  {
+    maxScore: 19,
+    velocityX: -200,
+    nextFrame: 90,
+  },
+  {
+    maxScore: 22,
+    velocityX: -250,
+    nextFrame: 45,
+  }
+]
+
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
@@ -15,12 +58,33 @@ export default class GameScene extends Phaser.Scene {
     this.backgroundNight = null;
     this.pipesGroup = null;
     this.gapsGroup = null;
+    this.floorGroup = null;
     this.nextPipes = null;
     this.currentPipe = null;
+    this.setLevel();
+  }
+
+  setLevel() {
+    for (let i = 0; i < levels.length; i++) {
+      if (this.score < levels[i].maxScore) {
+        const level = levels[i];
+
+        this.velocityX = level.velocityX;
+        this.nextFrame = level.nextFrame;
+        this.level = i + 1;
+        console.log('this.velocityX', this.velocityX)
+        break;
+      }
+    }
   }
   
   preload() {
     this.load.image(assets.scene.ronenCoin, '/game-assets/flappy-baxie/images/ronen.png')
+
+    this.load.spritesheet(assets.scene.floor, '/game-assets/flappy-baxie/images/floor.webp', {
+      frameWidth: 370,
+      frameHeight: 112
+    })
 
     // Pipes
     this.load.image(assets.obstacle.pipe.green.top, '/game-assets/flappy-baxie/images/pipe-green-top.png')
@@ -37,6 +101,8 @@ export default class GameScene extends Phaser.Scene {
    *   Create the game objects (images, groups, sprites).
    */
   create() {
+    this.add.image(0, 0, assets.scene.floor).setOrigin(0, 0).setInteractive()
+
     this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
     this.backgroundDay.on('pointerdown', () => this.moveBaxie())
     this.backgroundNight = this.add.image(0, 0, assets.scene.background.night).setOrigin(0, 0).setInteractive()
@@ -45,6 +111,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.gapsGroup = this.physics.add.group()
     this.pipesGroup = this.physics.add.group()
+    this.floorGroup = this.physics.add.group()
 
     this.scoreTxt = this.add.text(this.sys.game.config.width / 2, 84, '', {
       fontFamily: 'troika',
@@ -54,6 +121,16 @@ export default class GameScene extends Phaser.Scene {
     this.scoreTxt.setDepth(30);
 
     this.upButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+
+    this.anims.create({
+      key: 'moving',
+      frames: this.anims.generateFrameNumbers(assets.scene.floor, {
+        start: 0,
+        end: 2
+      }),
+      frameRate: 3,
+      repeat: -1
+    })
 
     this.setupGame()
   }
@@ -71,7 +148,7 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    this.pipesGroup.children.iterate(function (child) {
+    this.pipesGroup.children.iterate((child) => {
       if (child === undefined) {
         return;
       }
@@ -79,17 +156,19 @@ export default class GameScene extends Phaser.Scene {
       if (child.x < -50) {
         child.destroy();
       } else {
-        child.setVelocityX(-100);
+        child.setVelocityX(this.velocityX);
       }
     });
 
-    this.gapsGroup.children.iterate(function (child) {
-      child.body.setVelocityX(-100);
+    this.gapsGroup.children.iterate((child) => {
+      child.body.setVelocityX(this.velocityX);
     });
+
+    this.floor.anims.play('moving', true)
 
     this.nextPipes++;
 
-    if (this.nextPipes === 130) {
+    if (this.nextPipes >= this.nextFrame) {
       this.makePipes();
       this.nextPipes = 0;
     }
@@ -97,6 +176,8 @@ export default class GameScene extends Phaser.Scene {
 
   hitBaxie() {
     this.scene.pause();
+    this.score = 0;
+    this.setLevel();
     this.scene.launch('GameOverScene');
   }
 
@@ -115,12 +196,13 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    this.setLevel();
     this.scoreTxt.setText(this.score.toString());
   }
 
 
   makePipes() {
-    const pipeTopY = Phaser.Math.Between(-100, 40);
+    const pipeTopY = Phaser.Math.Between(-120, 30);
     const ronenCoin = this.add.image(388, pipeTopY + 240, assets.scene.ronenCoin)
 
     this.gapsGroup.add(ronenCoin);
@@ -153,15 +235,23 @@ export default class GameScene extends Phaser.Scene {
 
     this.pipesGroup.clear(true, true)
     this.gapsGroup.clear(true, true)
+    this.floorGroup.clear(true, true)
 
     this.player = this.physics.add.sprite(80, 265, this.selectedBaxie)
     this.player.setCollideWorldBounds(true)
     this.player.body.allowGravity = false;
 
+    this.physics.add.collider(this.player, this.floorGroup, this.hitBaxie, null, this);
     this.physics.add.collider(this.player, this.pipesGroup, this.hitBaxie, null, this);
     this.physics.add.overlap(this.player, this.gapsGroup, this.updateScore, null, this);
 
+    this.floor = this.floorGroup.create(185, 500, assets.scene.floor)
+    this.floor.body.allowGravity = false
+    this.floor.setCollideWorldBounds(true)
+    this.floor.setDepth(30);
+
     this.physics.resume();
     this.makePipes();
+
   }
 }

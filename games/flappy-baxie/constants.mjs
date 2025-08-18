@@ -17,7 +17,8 @@ export const assets = {
       day: 'background-day',
       night: 'background-night'
     },
-    ronenCoin: 'ronen-coin'
+    ronenCoin: 'ronen-coin',
+    floor: 'floor'
   }
 };
 
