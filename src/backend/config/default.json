@@ -1,7 +1,7 @@
 {
   "isProd": false,
   "port": 3000,
-  "cdnLink": "https://cdn.ronencommunity.com",
+  "cdnLink": "",
   "distVersion": "1",
   "session": {
     "secret": "localhost"

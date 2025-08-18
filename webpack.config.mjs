@@ -47,7 +47,7 @@ export default (env, argv) => {
       path: path.resolve(__dirname, 'public/dist/js'),
     },
     resolve: {
-      extensions: ['.ts', '.js'],
+      extensions: ['.ts', '.js', '.mjs'],
     },
     module: {
       rules: [
@@ -55,6 +55,15 @@ export default (env, argv) => {
           test: /\.ts$/,
           use: [
             'ts-loader',
+            {
+              loader: path.resolve(__dirname, 'webpack', 'replace-config.js'),
+            }
+          ],
+          exclude: /node_modules/,
+        },
+        {
+          test: /\.mjs$/,
+          use: [
             {
               loader: path.resolve(__dirname, 'webpack', 'replace-config.js'),
             }
