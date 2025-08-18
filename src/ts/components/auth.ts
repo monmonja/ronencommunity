@@ -27,13 +27,17 @@ export function initAuth() {
   const disconnectOverlayEl = document.getElementById("overlay-disconnect");
   const loginOverlayEl = document.getElementById("overlay-login");
 
-  document.getElementById("disconnect-wallet")?.addEventListener("click", () => {
+  document.getElementById("disconnect-wallet")?.addEventListener("click", (e) => {
+    e.preventDefault();
+
     if (disconnectOverlayEl) {
       disconnectOverlayEl.classList.toggle("show");
     }
   });
 
-  document.getElementById("connect-wallet")?.addEventListener("click", () => {
+  document.getElementById("connect-wallet")?.addEventListener("click", (e) => {
+    e.preventDefault();
+
     if (loginOverlayEl) {
       loginOverlayEl.classList.toggle("show");
     }

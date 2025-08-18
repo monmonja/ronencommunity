@@ -6,6 +6,7 @@ export function initRaffleCard (): void {
 
   if (overlay && joinButton) {
     joinButton.addEventListener("click", (e) => {
+      e.preventDefault();
       e.stopPropagation();
 
       if (getCookie("has-user")) {

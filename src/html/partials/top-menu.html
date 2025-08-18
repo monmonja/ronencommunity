@@ -19,7 +19,7 @@
   </div>
   <div id="right-menu">
     <% if (!wallet) { %>
-      <a id="connect-wallet" class="button">Login</a>
+      <a id="connect-wallet" class="button" href="#">Login</a>
     <% } else { %>
       <a id="disconnect-wallet" class="button"><%= wallet.address.slice(0, 6) + '••' + wallet.address.slice(-4) %></a>
     <% } %>
