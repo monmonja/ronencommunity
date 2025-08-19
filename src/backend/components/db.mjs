@@ -91,7 +91,8 @@ export async function getEntriesFromRaffleId({ mongoDbConnection, raffleId } = {
     .db()
     .collection(config.mongo.table.raffles)
     .find({ raffleId })
-    .sort({ amount: -1 })
+    .limit(30)
+    .sort({ amount: -1, timestamp: -1 })
     .toArray();
 
   if (results.length > 0) {
@@ -135,6 +136,7 @@ export async function getAllRaffles({ mongoDbConnection } = {}) {
       },
       { $sort: { _id: 1 } }
     ])
+    .limit(30)
     .toArray();
 
   if (results.length > 0) {

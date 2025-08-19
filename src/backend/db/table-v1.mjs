@@ -34,7 +34,7 @@ await db.collection(config.mongo.table.raffles).createIndex(
 
 // for getEntriesFromRaffleId
 await db.collection(config.mongo.table.raffles).createIndex(
-  { raffleId: 1, amount: -1 }
+  { raffleId: 1, amount: -1, timestamp: -1 }
 );
 
 await db.collection(config.mongo.table.raffleWinners).createIndex(
