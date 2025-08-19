@@ -1,5 +1,23 @@
+@use 'sass:color';
 @use './mixins' as *;
 @use './variables' as *;
+
+@keyframes border-pulse {
+  0%   {
+    border-color: $border-color;
+    background: $content-bg;
+  }
+
+  50%  {
+    border-color: color.adjust($border-color, $lightness: 15%);
+    background: color.adjust($content-bg, $lightness: 7%);
+  }
+
+  100% {
+    border-color: color.adjust($border-color, $lightness: 30%);
+    background: color.adjust($content-bg, $lightness: 15%);
+  }
+}
 
 body:has(.overlay.show) {
   overflow: hidden;
@@ -32,6 +50,10 @@ body:has(.overlay.show) {
     min-height: 100px;
     padding: 32px;
     min-width: 320px;
+  }
+
+  .add-pulse {
+    animation: border-pulse 1s infinite;
   }
 }
 

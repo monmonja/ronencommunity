@@ -55,6 +55,7 @@ export async function loginWithRoninWallet() {
     if (result.success) {
       window.location.reload();
     } else {
+      console.log(result.error);
       alert("Login failed: " + result.error);
     }
   } catch (err) {

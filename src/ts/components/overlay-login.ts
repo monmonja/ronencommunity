@@ -5,15 +5,20 @@ export function initOverlayLogin(): void {
 
   if (overlay) {
     const overlayBody = overlay.querySelector(".overlay-body")!;
+    const loginBtn = overlay.querySelector(".button");
 
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
       overlay.classList.remove("show");
     });
 
-    overlay.querySelector(".button")?.addEventListener("click", async () => {
-      await loginWithRoninWallet();
-    });
+    if (loginBtn) {
+      loginBtn.addEventListener("click", async () => {
+        loginBtn.classList.add('add-pulse');
+        loginBtn.innerHTML = 'Logging in...';
+        await loginWithRoninWallet();
+      });
+    }
 
     overlayBody?.addEventListener("click", (e) => {
       e.stopPropagation();
