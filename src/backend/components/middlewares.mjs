@@ -5,7 +5,7 @@ import session from "express-session";
 
 import {getConnection, getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/default.json" with { type: "json" };
-import {getRaffleId, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
+import {getRaffle, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
 import {getGame} from "./games.mjs";
 
 const mongoDbConnection = await getConnection();
@@ -86,32 +86,31 @@ export function cookieCheckMiddleware(req, res, next) {
 
 export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
   return async (req, res, next) => {
-    const raffleId = getRaffleId(getUtcNow());
+    const raffle = getRaffle(getUtcNow());
 
     if (req.session.wallet) {
       const wallet = req.session.wallet.address.toLowerCase();
 
       const hasEntry = await walletHasRaffleEntry({
         mongoDbConnection,
-        raffleId,
+        raffleId: raffle.id,
         wallet
       });
 
       if (!hasEntry) {
         res.clearCookie("has-raffle-entry", { path: "/" });
+
         return res.redirect("/games");
       }
 
       next();
     } else {
-      const raffleId = getRaffleId(getUtcNow());
-
       res.render("raffle/required-for-games", {
         game: await getGame(req.params.path),
-        currentRaffleId: raffleId,
-        raffleId,
+        raffle,
         totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection, raffleId
+          mongoDbConnection,
+          raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()
       });

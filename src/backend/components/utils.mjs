@@ -1,39 +1,18 @@
 import config from "../config/default.json" with { type: "json" };
 
-export function getRaffleId(date) {
-  const anchor = new Date(config.web3.raffleStartDate); // from JSON, stored as timestamp
-  anchor.setUTCHours(0, 0, 0, 0); // Force UTC midnight
+export function getRaffle(date) {
+  const ts = (date instanceof Date ? date.getTime() : date);
 
-  const targetDate = new Date(date.getTime());
+  for (const raffle of config.raffles) {
+    const start = raffle.raffleStartDate;
+    const end = start + raffle.raffleDuration * 24 * 60 * 60 * 1000; // days → ms
 
-  // Determine the year we’re calculating for
-  let year = targetDate.getUTCFullYear();
-
-  // Build the anchor for that year
-  let yearAnchor = new Date(Date.UTC(year, anchor.getUTCMonth(), anchor.getUTCDate()));
-
-  // If targetDate is before the anchor in that year, use previous year's anchor
-  if (targetDate < yearAnchor) {
-    year -= 1;
-    yearAnchor = new Date(Date.UTC(year, anchor.getUTCMonth(), anchor.getUTCDate()));
+    if (ts >= start && ts < end) {
+      return raffle;
+    }
   }
 
-  // Ensure both dates are UTC midnight
-  const d = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
-  const a = new Date(Date.UTC(yearAnchor.getUTCFullYear(), yearAnchor.getUTCMonth(), yearAnchor.getUTCDate()));
-
-  // Calculate difference in days
-  const diffDays = Math.floor((d.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) {
-    throw new Error("Date is before the anchor date");
-  }
-
-  // How many nights since the year’s anchor
-  const daysIndex = Math.floor(diffDays / config.web3.raffleDuration); // 0-based
-  const nightNumber = daysIndex + 1;       // 1-based
-
-  return `${String(nightNumber).padStart(2, "0")}-${year}`;
+  return null;
 }
 
 export function getUtcNow() {
@@ -50,36 +29,26 @@ export function getUtcNow() {
   ));
 }
 
+// raffles: array of raffles from JSON
 export function raffleEndingIn(date) {
-  const anchor = new Date(config.web3.raffleStartDate); // first raffle start
-  anchor.setUTCHours(0, 0, 0, 0); // Force UTC midnight
+  const ts = date instanceof Date ? date.getTime() : date;
 
-  // Calculate target date + raffle days as in getRaffleId
-  const targetDate = new Date(anchor);
-  targetDate.setUTCDate(anchor.getUTCDate() + (config.web3.raffleDuration - 1));
-  targetDate.setUTCHours(23, 59, 59, 999); // Set to end of day
+  // find the current raffle (the one whose period contains `date`)
+  const current = config.raffles.find((raffle) => {
+    const start = raffle.raffleStartDate;
+    const end = start + raffle.raffleDuration * 24 * 60 * 60 * 1000; // duration in ms
 
-  let year = targetDate.getUTCFullYear();
-  let yearAnchor = new Date(Date.UTC(year, anchor.getUTCMonth(), anchor.getUTCDate()));
+    return ts >= start && ts < end;
+  });
 
-  if (targetDate < yearAnchor) {
-    year -= 1;
-    yearAnchor = new Date(Date.UTC(year, anchor.getUTCMonth(), anchor.getUTCDate()));
+  // no active raffle
+  if (!current) {
+    return null;
   }
 
-  const d = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
-  const a = new Date(Date.UTC(yearAnchor.getUTCFullYear(), yearAnchor.getUTCMonth(), yearAnchor.getUTCDate()));
+  const end = current.raffleStartDate + current.raffleDuration * 24 * 60 * 60 * 1000 - 1;
 
-  const diffDays = Math.floor((d - a) / (1000 * 60 * 60 * 24));
-  const daysIndex = Math.floor(diffDays / config.web3.raffleDuration);
-
-  // Start of this raffle period in UTC
-  const raffleStartUTC = new Date(a.getTime() + daysIndex * config.web3.raffleDuration * 24 * 60 * 60 * 1000);
-
-  // End of this raffle period in UTC: add duration days, set to 23:59:59.999
-  const raffleEndUTC = new Date(raffleStartUTC.getTime() + config.web3.raffleDuration * 24 * 60 * 60 * 1000 - 1);
-
-  return raffleEndUTC.getTime() - date.getTime();
+  return end - ts; // ms remaining
 }
 
 export function raffleEndsInDHM() {

@@ -2,7 +2,7 @@ import { param, validationResult } from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, walletRaffleEntryMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
-  getRaffleId, getUtcNow, raffleEndingIn, raffleEndsInDHM
+  getRaffle, getUtcNow, raffleEndingIn, raffleEndsInDHM
 } from "../components/utils.mjs";
 import {
   walletHasRaffleEntry,
@@ -17,14 +17,14 @@ export function initGamesRoutes(app, mongoDbConnection) {
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
-      const raffleId = getRaffleId(getUtcNow());
+      const raffle = getRaffle(getUtcNow());
 
       if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet) {
         const wallet = req.session.wallet.address.toLowerCase();
 
         const hasEntry = await walletHasRaffleEntry({
           mongoDbConnection,
-          raffleId,
+          raffleId: raffle.id,
           wallet
         });
 
@@ -41,9 +41,10 @@ export function initGamesRoutes(app, mongoDbConnection) {
 
       return res.render("games/index", {
         games: await getGames(),
-        raffleId,
+        raffle,
         totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection, raffleId
+          mongoDbConnection,
+          raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()
       });

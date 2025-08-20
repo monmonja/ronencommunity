@@ -4,7 +4,7 @@ import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
 import {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
-import {getRaffleId, getUtcNow, raffleEndingIn, raffleEndsInDHM} from "../components/utils.mjs";
+import {getRaffle, getUtcNow, raffleEndingIn, raffleEndsInDHM} from "../components/utils.mjs";
 import {
   addRaffleRecord,
   getTotalAmountOnRaffleId,
@@ -19,22 +19,32 @@ export function initRafflesRoutes(app, mongoDbConnection) {
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
-      const raffleId = getRaffleId(getUtcNow());
+      const raffle = getRaffle(getUtcNow());
 
-      return res.render("raffle/index", {
-        currentRaffleId: raffleId,
-        raffleId,
-        totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection, raffleId
-        }),
-        entries: await getEntriesFromRaffleId({
-          mongoDbConnection, raffleId
-        }),
-        allRaffles: await getAllRaffles({
-          mongoDbConnection
-        }),
-        ...raffleEndsInDHM()
-      });
+      if (raffle) {
+        return res.render("raffle/index", {
+          raffle,
+          totalAmount: await getTotalAmountOnRaffleId({
+            mongoDbConnection,
+            raffleId: raffle.id,
+          }),
+          entries: await getEntriesFromRaffleId({
+            mongoDbConnection,
+            raffleId: raffle.id,
+          }),
+          allRaffles: await getAllRaffles({
+            mongoDbConnection
+          }),
+          ...raffleEndsInDHM()
+        });
+      } else {
+        return res.render("raffle/index", {
+          raffle,
+          allRaffles: await getAllRaffles({
+            mongoDbConnection
+          }),
+        });
+      }
     });
 
   app.get(
@@ -67,25 +77,35 @@ export function initRafflesRoutes(app, mongoDbConnection) {
       }
 
       let { raffleId } = req.params;
+      let raffle;
 
-      if (!raffleId) {
-        raffleId = getRaffleId(getUtcNow());
+      for (const raffleItem of config.raffles) {
+        if (raffleItem.id === raffleId) {
+          raffle = raffleItem;
+
+          break;
+        }
       }
 
-      return res.render("raffle/index", {
-        currentRaffleId: getRaffleId(getUtcNow()),
-        raffleId,
-        totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection, raffleId
-        }),
-        entries: await getEntriesFromRaffleId({
-          mongoDbConnection, raffleId
-        }),
-        allRaffles: await getAllRaffles({
-          mongoDbConnection
-        }),
-        ...raffleEndsInDHM()
-      });
+      if (raffle) {
+        return res.render("raffle/index", {
+          raffle,
+          totalAmount: await getTotalAmountOnRaffleId({
+            mongoDbConnection,
+            raffleId: raffle.id,
+          }),
+          entries: await getEntriesFromRaffleId({
+            mongoDbConnection,
+            raffleId: raffle.id,
+          }),
+          allRaffles: await getAllRaffles({
+            mongoDbConnection
+          }),
+          ...raffleEndsInDHM()
+        });
+      } else {
+        return res.status(401).json({ message: "No raffle with this Id." });
+      }
     });
 
   app.post(

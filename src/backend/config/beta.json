@@ -2,7 +2,7 @@
   "isProd": false,
   "port": 3001,
   "cdnLink": "https://cdn.ronencommunity.com",
-  "distVersion": "1",
+  "distVersion": "beta-1",
   "session": {
     "secret": "beta-secret"
   },
@@ -24,5 +24,22 @@
     "defaultAmount": 0.1,
     "adminWallet": "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
     "rollbar": ""
-  }
+  },
+  "raffles": [
+    {
+      "id": "01-2025",
+      "raffleStartDate": 1755129600000,
+      "raffleDuration": 14,
+      "prizes": [
+        {
+          "image": "/img/basic-miner.jpg",
+          "label": "Basic Mining #5629"
+        },
+        {
+          "image": "/img/basic-miner.jpg",
+          "label": "Baxie"
+        }
+      ]
+    }
+  ]
 }

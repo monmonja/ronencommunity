@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 
 import config from "../config/default.json" with { type: "json" };
-import { getRaffleId, getUtcNow } from "./utils.mjs";
+import { getRaffle, getUtcNow } from "./utils.mjs";
 
 let client;
 
@@ -41,23 +41,26 @@ export async function addWalletRecord({ mongoDbConnection, address } = {}) {
 
   export async function addRaffleRecord({ mongoDbConnection, amount, txHash, to, from, status } = {}) {
   const now = getUtcNow();
+  const raffle = getRaffle(now);
 
-  await mongoDbConnection.db().collection(config.mongo.table.raffles).updateOne(
-    { txHash: txHash.toLowerCase() },
-    {
-      $setOnInsert: {
-        raffleId: getRaffleId(now),
-        network: config.web3.chainName,
-        amount: parseFloat(amount),
-        token: "RON",
-        from: from.toLowerCase(),
-        to: to.toLowerCase(),
-        status,
-        timestamp: now
-      }
-    },
-    { upsert: true }
-  );
+  if (raffle) {
+    await mongoDbConnection.db().collection(config.mongo.table.raffles).updateOne(
+      {txHash: txHash.toLowerCase()},
+      {
+        $setOnInsert: {
+          raffleId: raffle.id,
+          network: config.web3.chainName,
+          amount: parseFloat(amount),
+          token: "RON",
+          from: from.toLowerCase(),
+          to: to.toLowerCase(),
+          status,
+          timestamp: now
+        }
+      },
+      {upsert: true}
+    );
+  }
 }
 
 export async function getTotalAmountOnRaffleId({ mongoDbConnection, raffleId } = {}) {
