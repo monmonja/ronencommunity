@@ -11,7 +11,7 @@ import {
 import {getGame, getGames} from "../components/games.mjs";
 import config from "../config/default.json" with { type: "json" };
 
-export function initGamesRoutes(app, mongoDbConnection) {
+export function initGamesRoutes(app) {
   app.get(
     "/games",
     cookieCheckMiddleware,
@@ -23,7 +23,6 @@ export function initGamesRoutes(app, mongoDbConnection) {
         const wallet = req.session.wallet.address.toLowerCase();
 
         const hasEntry = await walletHasRaffleEntry({
-          mongoDbConnection,
           raffleId: raffle.id,
           wallet
         });
@@ -43,7 +42,6 @@ export function initGamesRoutes(app, mongoDbConnection) {
         games: getGames(),
         raffle,
         totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection,
           raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()
@@ -57,7 +55,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
       .withMessage("Invalid game"),
     rateLimiterMiddleware,
     cookieCheckMiddleware,
-    walletRaffleEntryMiddleware({ mongoDbConnection }),
+    walletRaffleEntryMiddleware(),
     requireWalletSession,
     async (req, res) => {
       // Handle validation errors

@@ -10,9 +10,6 @@ import express from "express";
 import config from "./config/default.json" with { type: "json" };
 
 import {
-  getConnection,
-} from "./components/db.mjs";
-import {
   csrfMiddleware,
   sessionMiddleWare,
   ejsVariablesMiddleware,
@@ -31,7 +28,6 @@ const port = config.port;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
-const mongoDbConnection = await getConnection();
 
 app.disable("x-powered-by");
 app.use(forceHTTPSMiddleware);
@@ -52,10 +48,10 @@ app.set("view engine", "html");
 app.set("views", path.join(__dirname, "..", "html"));
 
 initStaticRoutes(app, express);
-initAuthRoutes(app, mongoDbConnection);
-initRafflesRoutes(app, mongoDbConnection);
-initGamesRoutes(app, mongoDbConnection);
-initWikisRoutes(app, mongoDbConnection);
+initAuthRoutes(app);
+initRafflesRoutes(app);
+initGamesRoutes(app);
+initWikisRoutes(app);
 
 app.get(
   "/",

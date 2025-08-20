@@ -6,28 +6,36 @@ import { getRaffle, getUtcNow } from "./utils.mjs";
 let client;
 
 export async function getConnection () {
+  let connection;
+
   if (!client) {
     try {
-      client = await MongoClient.connect(config.mongo.connectionString);
+      connection = await MongoClient.connect(config.mongo.connectionString);
+
+      const events = ["serverClosed", "topologyClosed", "error", "timeout", "close"];
+
+      events.forEach((ev) => {
+        connection.on(ev, () => client = null);
+      });
+
+      connection.on("serverDescriptionChanged", (event) => {
+        if (event.newDescription.error) {
+          client = null;
+        }
+      });
+
+      client = connection;
     } catch (error) {
       throw new Error(error);
     }
-
-    client.on("serverClosed", () => {
-      MongoClient.connect(config.mongo.connectionString)
-        .then((clientResponse) => {
-          client = clientResponse;
-        })
-        .catch((error) => {
-          throw new Error(error);
-        });
-    });
   }
 
   return client;
 }
 
-export async function addWalletRecord({ mongoDbConnection, address } = {}) {
+export async function addWalletRecord({ address } = {}) {
+  const mongoDbConnection = await getConnection();
+
   await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
     { address: address.toLowerCase(), network: "ronin" }, // match criteria
     {
@@ -39,7 +47,9 @@ export async function addWalletRecord({ mongoDbConnection, address } = {}) {
   );
 }
 
-  export async function addRaffleRecord({ mongoDbConnection, amount, txHash, to, from, status } = {}) {
+export async function addRaffleRecord({ amount, txHash, to, from, status } = {}) {
+  const mongoDbConnection = await getConnection();
+
   const now = getUtcNow();
   const raffle = getRaffle(now);
 
@@ -63,7 +73,9 @@ export async function addWalletRecord({ mongoDbConnection, address } = {}) {
   }
 }
 
-export async function getTotalAmountOnRaffleId({ mongoDbConnection, raffleId } = {}) {
+export async function getTotalAmountOnRaffleId({ raffleId } = {}) {
+  const mongoDbConnection = await getConnection();
+
   const result = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)
@@ -72,7 +84,7 @@ export async function getTotalAmountOnRaffleId({ mongoDbConnection, raffleId } =
       {
         $group: {
           _id: "$raffleId",                     // group by raffleId
-          totalAmount: { $sum: "$amount" }     // sum the 'amount' field
+          totalAmount: { $sum: "$amount" }     // sum the "amount" field
         }
       },
       {
@@ -89,7 +101,9 @@ export async function getTotalAmountOnRaffleId({ mongoDbConnection, raffleId } =
   }
 }
 
-export async function getEntriesFromRaffleId({ mongoDbConnection, raffleId } = {}) {
+export async function getEntriesFromRaffleId({ raffleId } = {}) {
+  const mongoDbConnection = await getConnection();
+
   const results = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)
@@ -103,7 +117,9 @@ export async function getEntriesFromRaffleId({ mongoDbConnection, raffleId } = {
   }
 }
 
-export async function raffleRecordExists({ mongoDbConnection, txHash } = {}) {
+export async function raffleRecordExists({ txHash } = {}) {
+  const mongoDbConnection = await getConnection();
+
   const result = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)
@@ -112,7 +128,9 @@ export async function raffleRecordExists({ mongoDbConnection, txHash } = {}) {
   return !!result; // always returns true/false
 }
 
-export async function getAllRaffles({ mongoDbConnection } = {}) {
+export async function getAllRaffles() {
+  const mongoDbConnection = await getConnection();
+
   const results = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)
@@ -147,7 +165,9 @@ export async function getAllRaffles({ mongoDbConnection } = {}) {
   }
 }
 
-export async function walletHasRaffleEntry({ mongoDbConnection, raffleId, wallet } = {}) {
+export async function walletHasRaffleEntry({ raffleId, wallet } = {}) {
+  const mongoDbConnection = await getConnection();
+
   const doc = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)

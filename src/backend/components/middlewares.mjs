@@ -3,12 +3,10 @@ import crypto from "crypto";
 import MongoStore from "connect-mongo";
 import session from "express-session";
 
-import {getConnection, getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
+import { getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getRaffle, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
 import {getGame} from "./games.mjs";
-
-const mongoDbConnection = await getConnection();
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
@@ -27,7 +25,8 @@ export async function sessionMiddleWare() {
     resave: false,
     store: MongoStore.create({
       touchAfter: 24 * 3600,
-      client: mongoDbConnection,
+      mongoUrl: config.mongo.connectionString,
+      mongoOptions: {},
     }),
     cookie: {
       secure: config.isProd,
@@ -84,7 +83,7 @@ export function cookieCheckMiddleware(req, res, next) {
   next();
 }
 
-export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
+export function walletRaffleEntryMiddleware() {
   return async (req, res, next) => {
     const raffle = getRaffle(getUtcNow());
 
@@ -92,7 +91,6 @@ export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
       const wallet = req.session.wallet.address.toLowerCase();
 
       const hasEntry = await walletHasRaffleEntry({
-        mongoDbConnection,
         raffleId: raffle.id,
         wallet
       });
@@ -109,7 +107,6 @@ export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
         game: getGame(req.params.path),
         raffle,
         totalAmount: await getTotalAmountOnRaffleId({
-          mongoDbConnection,
           raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()

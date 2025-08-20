@@ -9,7 +9,7 @@ import {
 } from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
 
-export function initAuthRoutes(app, mongoDbConnection) {
+export function initAuthRoutes(app) {
   app.post(
     "/login",
     body("address")
@@ -62,7 +62,7 @@ export function initAuthRoutes(app, mongoDbConnection) {
 
             // Save wallet
             await addWalletRecord({
-              mongoDbConnection, address,
+              address,
             });
 
             // save to session
