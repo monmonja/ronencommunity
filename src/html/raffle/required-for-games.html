@@ -15,9 +15,7 @@
   <div>
     In order to play <%= game.name %> you need to join our raffle. See below <br /><br />
   </div>
-  <% if (currentRaffleId === raffleId) { %>
-    <%- include('../partials/raffle-card.html') %>
-  <% } %>
+  <%- include('../partials/raffle-card.html') %>
 
 </div>
 <%- include('../partials/footer.html') %>
