@@ -19,8 +19,6 @@
     "chainName": "ronin-saigon",
     "chainId": 2021,
     "raffleAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
-    "raffleStartDate": 1755129600000,
-    "raffleDuration": 14,
     "defaultAmount": 0.1,
     "adminWallet": "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
     "rollbar": ""
