@@ -73,7 +73,7 @@ export function initOverlayRaffle (): void {
           };
 
           if (joinBtn) {
-            joinBtn.classList.add('add-pulse');
+            joinBtn.classList.add("add-pulse");
             joinBtn.innerHTML = "Verifying Transaction...";
           }
 

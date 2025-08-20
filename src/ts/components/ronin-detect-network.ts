@@ -13,8 +13,8 @@ export async function detectNetwork(): Promise<boolean> {
     const chainIdHex = await provider.request({ method: "eth_chainId" });
     const chainId = parseInt(chainIdHex, 16);
 
-    if (chainId.toString() !== '{{config.web3.chainId}}') {
-      alert('Change network to {{config.web3.chainName}}');
+    if (chainId.toString() !== "{{config.web3.chainId}}") {
+      alert("Change network to {{config.web3.chainName}}");
 
       return false;
     }

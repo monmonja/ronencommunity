@@ -70,7 +70,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
       return res.render("game/template", {
         gameId: req.params.path,
         games: getGames(),
-        game: getGame(req.params.path)
+        game: getGame(req.params.path),
       });
     });
 }

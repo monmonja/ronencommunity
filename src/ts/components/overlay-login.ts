@@ -14,8 +14,8 @@ export function initOverlayLogin(): void {
 
     if (loginBtn) {
       loginBtn.addEventListener("click", async () => {
-        loginBtn.classList.add('add-pulse');
-        loginBtn.innerHTML = 'Logging in...';
+        loginBtn.classList.add("add-pulse");
+        loginBtn.innerHTML = "Logging in...";
         await loginWithRoninWallet();
       });
     }
