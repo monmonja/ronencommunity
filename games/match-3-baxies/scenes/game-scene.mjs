@@ -5,7 +5,7 @@ import {createButton} from "../utils/buttons.mjs";
 // src/scenes/GameScene.js
 export const levels = [
   {
-    maxScore: 200,
+    maxScore: 300,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     offsetY: 150,
@@ -14,7 +14,7 @@ export const levels = [
     rows: 4,
   },
   {
-    maxScore: 500,
+    maxScore: 600,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     imageScale: 0.8,
@@ -23,7 +23,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 900,
+    maxScore: 1000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
@@ -32,7 +32,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 1400,
+    maxScore: 1500,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
@@ -61,9 +61,9 @@ export const levels = [
   {
     maxScore: 3600,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
-    cellSize: 70,
-    imageScale: 0.8,
-    offsetY: 115,
+    cellSize: 65,
+    imageScale: 0.7,
+    offsetY: 110,
     columns: 5,
     rows: 6,
   },

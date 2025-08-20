@@ -106,7 +106,7 @@ export function walletRaffleEntryMiddleware({ mongoDbConnection } = {}) {
       next();
     } else {
       res.render("raffle/required-for-games", {
-        game: await getGame(req.params.path),
+        game: getGame(req.params.path),
         raffle,
         totalAmount: await getTotalAmountOnRaffleId({
           mongoDbConnection,

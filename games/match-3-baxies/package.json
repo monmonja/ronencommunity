@@ -2,10 +2,10 @@
   "slug": "match-3-baxies",
   "name": "Match 3 Baxies",
   "description": "A match 3 game with baxies",
-  "lastUpdate": 1755403654000,
+  "lastUpdate": 1755734400000,
   "changeLog": [
     {
-      "date": 1755403654000,
+      "date": 1755734400000,
       "changes": "Initial release of the game. 10 Different levels."
     }
   ]

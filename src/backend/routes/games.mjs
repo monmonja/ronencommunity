@@ -8,7 +8,7 @@ import {
   walletHasRaffleEntry,
   getTotalAmountOnRaffleId,
 } from "../components/db.mjs";
-import { getGames } from "../components/games.mjs";
+import {getGame, getGames} from "../components/games.mjs";
 import config from "../config/default.json" with { type: "json" };
 
 export function initGamesRoutes(app, mongoDbConnection) {
@@ -40,7 +40,7 @@ export function initGamesRoutes(app, mongoDbConnection) {
       }
 
       return res.render("games/index", {
-        games: await getGames(),
+        games: getGames(),
         raffle,
         totalAmount: await getTotalAmountOnRaffleId({
           mongoDbConnection,
@@ -69,7 +69,8 @@ export function initGamesRoutes(app, mongoDbConnection) {
 
       return res.render("game/template", {
         gameId: req.params.path,
-        games: await getGames()
+        games: getGames(),
+        game: getGame(req.params.path)
       });
     });
 }
