@@ -1,17 +1,18 @@
+import {getCookie} from "./cookies";
+
 interface LogoutResponse {
   success: boolean;
   error: string;
 }
 
 export async function logout() {
-  const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
-
   const res:Response = await fetch("/logout", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      csrfToken
-    }),
+    // @ts-ignore
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
+    },
   });
 
   const result:LogoutResponse = await res.json();

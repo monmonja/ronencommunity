@@ -1,5 +1,6 @@
 import { sendRonSimple } from "./ronin-send";
 import {detectNetwork} from "./ronin-detect-network";
+import {getCookie} from "./cookies";
 
 export function initOverlayRaffle (): void {
   const overlay = document.getElementById("overlay-raffle");
@@ -35,7 +36,6 @@ export function initOverlayRaffle (): void {
       try {
         const amount = raffleAmount.value;
         const result = await sendRonSimple("{{config.web3.raffleAddress}}", amount);
-        const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
 
         if (result) {
           const { txHash } = result;
@@ -44,11 +44,13 @@ export function initOverlayRaffle (): void {
           const joinRafflePost = async function () {
             const response = await fetch("/join-raffle", {
               method: "POST",
+              // @ts-ignore
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
               },
               body: JSON.stringify({
-                txHash, csrfToken, amount, nonce,
+                txHash, amount, nonce,
               })
             });
 

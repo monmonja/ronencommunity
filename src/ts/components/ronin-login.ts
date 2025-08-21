@@ -1,4 +1,5 @@
 import {detectNetwork} from "./ronin-detect-network";
+import {getCookie} from "./cookies";
 
 interface RoninWindow extends Window {
   // eslint-disable-next-line
@@ -33,7 +34,6 @@ export async function loginWithRoninWallet() {
     const nonceResponse = await fetch(`/nonce/${address}`, { credentials: "include" });
     const { nonce } = await nonceResponse.json();
 
-    const csrfToken = document.querySelector("meta[name=csrf-token]")?.getAttribute("content");
     const timestamp = Math.floor(Date.now() / 1000);
     const message = `Login to Ronin Community\nWallet: ${address}\nNonce: ${nonce}\nTimestamp: ${timestamp}`;
 
@@ -44,10 +44,12 @@ export async function loginWithRoninWallet() {
 
     const res = await fetch("/login", {
       method: "POST",
+      // @ts-ignore
       headers: {
         "Content-Type": "application/json",
+        "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
       },
-      body: JSON.stringify({ address, signature, message, csrfToken }),
+      body: JSON.stringify({ address, signature, message }),
     });
 
     const result = await res.json();
