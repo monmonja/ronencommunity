@@ -7,7 +7,7 @@
     "secret": "beta-secret"
   },
   "mongo" : {
-    "connectionString": "mongodb://betaUser:@localhost:27017/ronen_community_beta",
+    "connectionString": "mongodb://beta:pwd@localhost:27017/ronen_community_beta?authSource=admin",
     "table": {
       "wallets": "wallets",
       "raffles": "raffles",
