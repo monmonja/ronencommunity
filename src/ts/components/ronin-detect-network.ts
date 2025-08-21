@@ -12,9 +12,13 @@ export async function detectNetwork(): Promise<boolean> {
   if (provider) {
     const chainIdHex = await provider.request({ method: "eth_chainId" });
     const chainId = parseInt(chainIdHex, 16);
+    const targetChainId = "{{config.web3.chainId}}";
 
-    if (chainId.toString() !== "{{config.web3.chainId}}") {
-      alert("Change network to {{config.web3.chainName}}");
+    if (chainId.toString() !== targetChainId) {
+      await provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x" + parseInt(targetChainId, 10).toString(16) }]
+      });
 
       return false;
     }

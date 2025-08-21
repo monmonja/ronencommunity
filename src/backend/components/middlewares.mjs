@@ -44,6 +44,12 @@ export function csrfMiddleware(req, res, next) {
 
   res.locals.csrfToken = req.session.csrfToken;
 
+  res.cookie("XSRF-TOKEN", req.session.csrfToken, {
+    httpOnly: false,    // frontend JS needs to read this one
+    secure: true,       // only send over HTTPS
+    sameSite: "lax"
+  });
+
   next();
 }
 
@@ -58,9 +64,9 @@ export function ejsVariablesMiddleware(req, res, next) {
 
 // Verify Csrf
 export function validateCsrfMiddleware(req, res, next) {
-  const tokenFromBody = req.body.csrfToken;
+  const tokenFromHeader = req.get("X-CSRF-TOKEN");
 
-  if (!tokenFromBody || tokenFromBody !== req.session.csrfToken) {
+  if (!tokenFromHeader || tokenFromHeader !== req.session.csrfToken) {
     return res.status(403).json({ success: false, message: "Invalid CSRF token" });
   }
 
@@ -86,6 +92,11 @@ export function cookieCheckMiddleware(req, res, next) {
 export function walletRaffleEntryMiddleware() {
   return async (req, res, next) => {
     const raffle = getRaffle(getUtcNow());
+    const game = getGame(req.params.path);
+
+    if (!game) {
+      return res.status(403).json({ success: false, message: "No games with this id." });
+    }
 
     if (req.session.wallet) {
       const wallet = req.session.wallet.address.toLowerCase();
