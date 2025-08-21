@@ -130,6 +130,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    if (!this.bgm) {
+      this.bgm = this.sound.add('bgm', {loop: true, volume: 0.3});
+    }
+
     this.cameras.main.setBackgroundColor("#101018");
 
     this.backgroundDay = this.add
@@ -144,6 +148,15 @@ export default class GameScene extends Phaser.Scene {
 
     this.input.on("pointerdown", this.onPointerDown, this);
     this.input.on("pointerup", this.onPointerUp, this);
+    this.input.once('pointerdown', () => {
+      if (!this.bgm.isPlaying) {
+        if (!this.sound.unlock) {
+          this.sound.unlock();
+        }
+
+        this.bgm.play();
+      }
+    });
   }
 
   makeEmptyBoard() {

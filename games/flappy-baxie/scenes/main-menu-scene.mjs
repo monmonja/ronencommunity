@@ -17,6 +17,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
   preload() {
     // Backgrounds
+    this.load.audio('bgm', '/game-assets/flappy-baxie/audio/bg.mp3');
     this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day.png')
     this.load.image(assets.scene.background.night, '{{config.cdnLink}}/game-assets/flappy-baxie/images/night.png')
 
@@ -30,7 +31,21 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create() {
+    if (!this.bgm) {
+      this.bgm = this.sound.add('bgm', {loop: true, volume: 0.3});
+    }
+
     this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
+
+    this.input.once('pointerdown', () => {
+      if (!this.bgm.isPlaying) {
+        if (!this.sound.unlock) {
+          this.sound.unlock();
+        }
+
+        this.bgm.play();
+      }
+    });
 
     document.fonts.load('16px troika').then(() => {
       const center = this.sys.game.config.width / 2;

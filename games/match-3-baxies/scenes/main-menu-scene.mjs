@@ -21,6 +21,8 @@ export default class MainMenuScene extends Phaser.Scene {
     for (const key in baxies) {
       this.load.image(key, `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`);
     }
+
+    this.load.audio('bgm', '/game-assets/match-3-baxies/audio/bg.mp3');
   }
 
   create() {
