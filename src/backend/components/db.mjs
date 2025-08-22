@@ -118,9 +118,9 @@ export async function getEntriesFromRaffleId({ raffleId } = {}) {
         }
       },
       { $sort: { totalAmount: -1 } }, // sort by total amount desc
-      { $limit: 30 }                  // limit to top 30 groups
+      { $limit: 50 }                  // limit to top 30 groups
     ])
-    .limit(30)
+    .limit(50)
     .toArray();
 console.log(results)
   if (results.length > 0) {
