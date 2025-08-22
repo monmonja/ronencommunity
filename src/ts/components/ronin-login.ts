@@ -44,10 +44,10 @@ export async function loginWithRoninWallet() {
 
     const res = await fetch("/login", {
       method: "POST",
-      // @ts-ignore
+      // @ts-expect-error Custom header
       headers: {
         "Content-Type": "application/json",
-        "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
+        "X-CSRF-TOKEN": getCookie("XSRF-TOKEN"),
       },
       body: JSON.stringify({ address, signature, message }),
     });

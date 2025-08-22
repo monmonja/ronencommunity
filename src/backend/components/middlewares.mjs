@@ -7,6 +7,7 @@ import { getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getRaffle, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
 import {getGame} from "./games.mjs";
+import {logError} from "./logger.mjs";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
@@ -67,6 +68,14 @@ export function validateCsrfMiddleware(req, res, next) {
   const tokenFromHeader = req.get("X-CSRF-TOKEN");
 
   if (!tokenFromHeader || tokenFromHeader !== req.session.csrfToken) {
+    logError({
+      message: "CSRF error",
+      auditData: {
+        tokenFromHeader,
+        sessionToken: req.session.csrfToken,
+      },
+    });
+
     return res.status(403).json({ success: false, message: "Invalid CSRF token" });
   }
 
