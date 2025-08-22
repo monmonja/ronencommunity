@@ -107,11 +107,22 @@ export async function getEntriesFromRaffleId({ raffleId } = {}) {
   const results = await mongoDbConnection
     .db()
     .collection(config.mongo.table.raffles)
-    .find({ raffleId })
+    .aggregate([
+      { $match: { raffleId } }, // filter by raffleId
+      { $sort: { amount: -1, timestamp: -1 } }, // sort before grouping if needed
+      {
+        $group: {
+          _id: "$from",                // group by "from"
+          totalAmount: { $sum: "$amount" }, // sum of amounts
+          entries: { $push: "$$ROOT" }      // keep all documents per "from"
+        }
+      },
+      { $sort: { totalAmount: -1 } }, // sort by total amount desc
+      { $limit: 30 }                  // limit to top 30 groups
+    ])
     .limit(30)
-    .sort({ amount: -1, timestamp: -1 })
     .toArray();
-
+console.log(results)
   if (results.length > 0) {
     return results;
   }

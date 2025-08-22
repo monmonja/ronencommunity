@@ -126,10 +126,23 @@ export function initRafflesRoutes(app) {
       const { txHash, amount, nonce } = req.body;
 
       if (!req.session.raffleNonce || nonce !== req.session.raffleNonce) {
+        logError({
+          message: "Invalid or expired nonce",
+          sessionNonce: "req.session.raffleNonce",
+          nonce,
+        });
+
         return res.status(400).json({ verified: false, status: "failed", message: "Invalid or expired nonce" });
       }
 
       if (!req.session.wallet?.address) {
+        logError({
+          message: "Failed in join-raffle",
+          auditData: {
+            message: "Not logged in",
+          },
+        });
+
         return res.status(401).json({ verified: false, status: "failed", message: "Not logged in" });
       }
 
@@ -157,6 +170,14 @@ export function initRafflesRoutes(app) {
           const tx = await provider.getTransaction(txHash);
 
           if (receipt.from.toLowerCase() !== req.session.wallet?.address.toLowerCase()) {
+            logError({
+              message: "Failed in join-raffle",
+              auditData: {
+                message: "Wallet is not the same as logged in wallet.",
+                from: receipt.from.toLowerCase(),
+                sessionWallet: req.session.wallet?.address.toLowerCase(),
+              },
+            });
             res.status(200).json({ verified: true, status: "failed", message: "Wallet is not the same as logged in wallet." });
 
             return;
@@ -164,12 +185,28 @@ export function initRafflesRoutes(app) {
 
           if (receipt.to.toLowerCase() !== config.web3.raffleAddress.toLowerCase()) {
             res.status(200).json({ verified: true, status: "failed", message: "Not sending to the raffle wallet" });
+            logError({
+              message: "Failed in join-raffle",
+              auditData: {
+                message: "Wallet is not the going to the same address.",
+                to: receipt.to.toLowerCase(),
+                configTo: config.web3.raffleAddress.toLowerCase(),
+              },
+            });
 
             return;
           }
 
           if (Number(formatEther(tx.value)) !== Number(amount)) {
             res.status(200).json({verified: true, status: "failed", message: "Not same amount."});
+            logError({
+              message: "Failed in join-raffle",
+              auditData: {
+                message: "Wrong value.",
+                ether: Number(formatEther(tx.value)),
+                form: Number(amount),
+              },
+            });
 
             return;
           }
@@ -194,6 +231,14 @@ export function initRafflesRoutes(app) {
 
           res.status(200).json({ verified: true, status: "success" });
         } else {
+          logError({
+            message: "Failed in join-raffle",
+            auditData: {
+              message: "Wrong status.",
+              receipt,
+            },
+          });
+
           res.status(200).json({ verified: true, status: "failed" });
         }
       } catch (err) {

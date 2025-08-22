@@ -8,10 +8,10 @@ interface LogoutResponse {
 export async function logout() {
   const res:Response = await fetch("/logout", {
     method: "POST",
-    // @ts-ignore
+    // @ts-expect-error Custom header
     headers: {
       "Content-Type": "application/json",
-      "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
+      "X-CSRF-TOKEN": getCookie("XSRF-TOKEN"),
     },
   });
 

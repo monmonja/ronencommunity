@@ -44,10 +44,10 @@ export function initOverlayRaffle (): void {
           const joinRafflePost = async function () {
             const response = await fetch("/join-raffle", {
               method: "POST",
-              // @ts-ignore
+              // @ts-expect-error Custom header
               headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": getCookie('XSRF-TOKEN'),
+                "X-CSRF-TOKEN": getCookie("XSRF-TOKEN"),
               },
               body: JSON.stringify({
                 txHash, amount, nonce,

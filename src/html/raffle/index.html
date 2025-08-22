@@ -19,32 +19,34 @@
     <% if (entries?.length > 0) { %>
       <table>
         <tr>
-          <th>Time</th>
-          <th>TX Hash</th>
           <th>From</th>
           <th>Amount</th>
+          <th></th>
         </tr>
         <% for (i in entries) { %>
           <tr>
+
             <td>
-              <%
-                const date = new Date(entries[i].timestamp);
-                const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
-              %>
-              <%= formatted %>
-            </td>
-            <td>
-              <a href="https://app.roninchain.com/tx/<%= entries[i].txHash %>" target="_blank" rel="nofollow">
-                <%= entries[i].txHash.slice(0, 6) %>
+              <a href="https://app.roninchain.com/address/<%= entries[i]._id %>"  target="_blank" rel="nofollow">
+                <%= entries[i]._id.slice(0, 4) + '••' + entries[i]._id.slice(-4) %>
               </a>
             </td>
+            <td><%= entries[i].totalAmount %></td>
             <td>
-              <a href="https://app.roninchain.com/address/<%= entries[i].from %>"  target="_blank" rel="nofollow">
-                <%= entries[i].from.slice(0, 4) + '••' + entries[i].from.slice(-4) %>
-              </a>
+              <% for (j in entries[i].entries) { %>
+                <div>
+                  <%
+                    const date = new Date(entries[i].entries[j].timestamp);
+                    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                    const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
+                  %>
+                  <%= formatted %>
+                  <a href="https://app.roninchain.com/tx/<%= entries[i].txHash %>" target="_blank" rel="nofollow">
+                    <%= entries[i].entries[j].txHash.slice(0, 6) %>
+                  </a>
+                </div>
+              <% } %>
             </td>
-            <td><%= entries[i].amount %></td>
           </tr>
         <% } %>
       </table>
