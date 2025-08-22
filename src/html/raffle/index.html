@@ -28,7 +28,7 @@
 
             <td>
               <a href="https://app.roninchain.com/address/<%= entries[i]._id %>"  target="_blank" rel="nofollow">
-                <%= entries[i]._id.slice(0, 4) + '••' + entries[i]._id.slice(-4) %>
+                <%= entries[i]._id?.slice(0, 4) + '••' + entries[i]._id?.slice(-4) %>
               </a>
             </td>
             <td><%= entries[i].totalAmount %></td>
