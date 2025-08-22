@@ -134,7 +134,21 @@ export function walletRaffleEntryMiddleware() {
       if (!hasEntry) {
         res.clearCookie("has-raffle-entry", { path: "/" });
 
-        return res.redirect("/games");
+        res.set({
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0",
+          "Surrogate-Control": "no-store" // for CDNs like CloudFront
+        });
+
+        return res.render("raffle/required-for-games", {
+          game: getGame(req.params.path),
+          raffle,
+          totalAmount: await getTotalAmountOnRaffleId({
+            raffleId: raffle.id,
+          }),
+          ...raffleEndsInDHM()
+        });
       }
 
       next();
