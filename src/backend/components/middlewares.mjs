@@ -139,6 +139,13 @@ export function walletRaffleEntryMiddleware() {
 
       next();
     } else {
+      res.set({
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "Surrogate-Control": "no-store" // for CDNs like CloudFront
+      });
+
       res.render("raffle/required-for-games", {
         game: getGame(req.params.path),
         raffle,
