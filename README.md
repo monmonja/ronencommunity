@@ -12,7 +12,7 @@ We are ronen community. We started with wiki and now we have games and raffle.
 > Bind to 127.0.0.1 only
 >## Server
 > Only allow ssh port, http and https  
-> Make sure main folder is webapp:webap  
+> Make sure main folder is webapp:webapp  
 > Add 24x7 monitoring
 
 # Web3 links
