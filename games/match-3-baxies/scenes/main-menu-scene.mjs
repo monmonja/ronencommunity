@@ -80,23 +80,24 @@ export default class MainMenuScene extends Phaser.Scene {
 
       threeBaxies.setStroke('#112704', 3);
 
-      createButton({
-        scene: this,
-        x: this.sys.game.config.width / 2 - (160 / 2),
-        y: 230,
-        width: 160,
-        height: 50,
-        text: "Campaign",
-        onPointerDown: () => {
-          this.scene.start('ScoreGameScene');
-          this.scene.start('UIScene');
-        }
-      })
+      // createButton({
+      //   scene: this,
+      //   x: this.sys.game.config.width / 2 - (160 / 2),
+      //   y: 230,
+      //   width: 160,
+      //   height: 50,
+      //   text: "Campaign",
+      //   onPointerDown: () => {
+      //     this.scene.start('ScoreGameScene');
+      //     this.scene.start('UIScene');
+      //   }
+      // })
 
       createButton({
         scene: this,
         x: this.sys.game.config.width / 2 - (160 / 2),
-        y: 290,
+        y: 250,
+        // y: 290,
         width: 160,
         height: 50,
         text: "Score based",
@@ -108,7 +109,8 @@ export default class MainMenuScene extends Phaser.Scene {
       createButton({
         scene: this,
         x: this.sys.game.config.width / 2 - (160 / 2),
-        y: 350,
+        // y: 350,
+        y: 310,
         width: 160,
         height: 50,
         text: "Options",
