@@ -19,6 +19,10 @@ export function requireWalletSession(req, res, next) {
     return next(); // session is valid
   }
 
+  if (!config.isProd) {
+    return next();
+  }
+
   res.status(401).json({ success: false, message: "Wallet session required" });
 }
 
@@ -106,6 +110,10 @@ export function walletRaffleEntryMiddleware() {
   return async (req, res, next) => {
     const raffle = getRaffle(getUtcNow());
     const game = getGame(req.params.path);
+
+    if (!config.isProd) {
+      return next();
+    }
 
     if (!game) {
       return res.status(403).json({ success: false, message: "No games with this id." });

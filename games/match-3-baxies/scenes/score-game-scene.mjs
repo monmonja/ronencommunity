@@ -2,13 +2,12 @@ import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../../utils/buttons.mjs";
 
-// src/scenes/GameScene.js
 export const levels = [
   {
     maxScore: 300,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
-    offsetY: 150,
+    offsetY: 170,
     imageScale: 0.8,
     columns: 4,
     rows: 4,
@@ -18,7 +17,7 @@ export const levels = [
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 115,
+    offsetY: 130,
     columns: 4,
     rows: 5,
   },
@@ -27,7 +26,7 @@ export const levels = [
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 115,
+    offsetY: 130,
     columns: 4,
     rows: 5,
   },
@@ -36,7 +35,7 @@ export const levels = [
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 115,
+    offsetY: 130,
     columns: 5,
     rows: 5,
   },
@@ -45,7 +44,7 @@ export const levels = [
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 115,
+    offsetY: 130,
     columns: 5,
     rows: 5,
   },
@@ -54,43 +53,43 @@ export const levels = [
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 115,
+    offsetY: 130,
     columns: 5,
     rows: 5,
   },
   {
     maxScore: 3600,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
-    cellSize: 65,
+    cellSize: 63,
     imageScale: 0.7,
-    offsetY: 110,
+    offsetY: 120,
     columns: 5,
     rows: 6,
   },
   {
     maxScore: 5000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
-    cellSize: 60,
-    imageScale: 0.65,
-    offsetY: 115,
+    cellSize: 63,
+    imageScale: 0.7,
+    offsetY: 120,
     columns: 5,
     rows: 6,
   },
   {
     maxScore: 6500,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
-    cellSize: 60,
-    imageScale: 0.65,
-    offsetY: 115,
+    cellSize: 63,
+    imageScale: 0.7,
+    offsetY: 120,
     columns: 6,
     rows: 6,
   },
   {
     maxScore: Infinity, // anything above 6500
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
-    cellSize: 50,
-    imageScale: 0.55,
-    offsetY: 120,
+    cellSize: 52,
+    imageScale: 0.6,
+    offsetY: 125,
     columns: 7, // 6x6
     rows: 7, // 6x6
   }
@@ -98,9 +97,9 @@ export const levels = [
 
 
 
-export default class GameScene extends Phaser.Scene {
+export default class ScoreGameScene extends Phaser.Scene {
   constructor() {
-    super("GameScene");
+    super("ScoreGameScene");
   }
 
   init() {
@@ -111,7 +110,7 @@ export default class GameScene extends Phaser.Scene {
     this.isBusy = false;
   }
 
-  setLevel() {
+  setLevel(emitEvent = true) {
     for (let i = 0; i < levels.length; i++) {
       if (this.score < levels[i].maxScore) {
         const level = levels[i];
@@ -124,20 +123,23 @@ export default class GameScene extends Phaser.Scene {
         this.baxieKeys = level.baxieKeys;
 
         this.level = i + 1;
+
+        if (emitEvent) {
+          setTimeout(() => {
+            this.events.emit("targetChanged", level.maxScore);
+          }, 50);
+        }
+
         break;
       }
     }
   }
 
   create() {
-    if (!this.bgm) {
-      this.bgm = this.sound.add('bgm', {loop: true, volume: 0.3});
-    }
-
     this.cameras.main.setBackgroundColor("#101018");
 
     this.backgroundDay = this.add
-      .image(0, 0, assets.scene.background.day)
+      .image(0, 0, 'bg')
       .setOrigin(0, 0)
       .setInteractive();
     this.gridGraphics = this.add.graphics();
@@ -148,15 +150,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.input.on("pointerdown", this.onPointerDown, this);
     this.input.on("pointerup", this.onPointerUp, this);
-    this.input.once('pointerdown', () => {
-      if (!this.bgm.isPlaying) {
-        if (!this.sound.unlock) {
-          this.sound.unlock();
-        }
 
-        this.bgm.play();
-      }
-    });
   }
 
   makeEmptyBoard() {
@@ -199,6 +193,15 @@ export default class GameScene extends Phaser.Scene {
 
     // clear previous grid
     this.gridGraphics.clear();
+    this.gridGraphics.fillStyle(0x316180, 0.7); // background color
+    this.gridGraphics.fillRoundedRect(
+      offsetX,
+      offsetY,
+      this.columns * this.cellSize,
+      this.rows * this.cellSize,
+      2
+    );
+
     this.gridGraphics.lineStyle(2, 0xffffff, 0.3);
 
     for (let row = 0; row <= this.rows; row++) {
@@ -376,7 +379,7 @@ export default class GameScene extends Phaser.Scene {
       // Create a Level Up text
       const levelText = this.add.text(
         this.cameras.main.centerX,
-        this.cameras.main.centerY - 50,
+        this.cameras.main.centerY,
         `LEVEL ${this.level - 1} cleared`,
         { fontSize: "40px", color: "#ffffff", fontStyle: "bold", fontFamily: 'troika', }
       ).setOrigin(0.5);
@@ -386,11 +389,12 @@ export default class GameScene extends Phaser.Scene {
       const btn = createButton({
         scene: this,
         x: this.cameras.main.centerX - 75,
-        y: this.cameras.main.centerY,
+        y: this.cameras.main.centerY + 40,
         width: 150,
         height: 40,
         text: "Continue",
         onPointerDown: () => {
+          this.setLevel();
           overlay.destroy();
           levelText.destroy();
           btn.destroy();
@@ -406,7 +410,7 @@ export default class GameScene extends Phaser.Scene {
       this.events.emit("scoreChanged", this.score);
 
       const oldLevel = this.level;
-      this.setLevel();
+      this.setLevel(false);
 
       if (this.level !== oldLevel) {
         this.showLevelUpScreen()

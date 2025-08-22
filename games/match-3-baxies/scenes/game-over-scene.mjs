@@ -48,7 +48,7 @@ export default class GameOverScene extends Phaser.Scene {
     );
     button.on('pointerdown', () => {
       this.events.emit("scoreChanged", 0);
-      this.scene.start("GameScene");
+      this.scene.start("ScoreGameScene");
     });
 
     return button;
