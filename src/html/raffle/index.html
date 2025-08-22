@@ -41,7 +41,7 @@
                     const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
                   %>
                   <%= formatted %>
-                  <a href="https://app.roninchain.com/tx/<%= entries[i].txHash %>" target="_blank" rel="nofollow">
+                  <a href="https://app.roninchain.com/tx/<%= entries[i].entries[j].txHash %>" target="_blank" rel="nofollow">
                     <%= entries[i].entries[j].txHash.slice(0, 6) %>
                   </a>
                 </div>
