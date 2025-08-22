@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
+import {createButton} from "../utils/buttons.mjs";
 
 // src/scenes/UIScene.js
-export default class UiScene extends Phaser.Scene {
+export default class OptionsScene extends Phaser.Scene {
   constructor() {
-    super("UIScene");
+    super("OptionsScene");
   }
 
   createButtonUI({ x, y, width, height, label, eventType } = {}) {
@@ -45,12 +46,12 @@ export default class UiScene extends Phaser.Scene {
 
     const bg = this.add.graphics();
     bg.fillStyle(0x2f8011, 1);
-    bg.fillRoundedRect(0, 0, this.sys.game.config.width, 100, 0);
+    bg.fillRoundedRect(15, 60, this.sys.game.config.width - 30, 400, 4);
     topBg.add([bg]);
   }
 
   createLogo() {
-    const topBg = this.add.container(this.sys.game.config.width / 2 - 8, 25);
+    const topBg = this.add.container(this.sys.game.config.width / 2 - 8, 35);
     const bg = this.add.graphics();
     bg.fillStyle(0xffffff, 1);
     bg.fillRoundedRect(-35, -16, 80, 80, 40);
@@ -68,29 +69,62 @@ export default class UiScene extends Phaser.Scene {
     topBg.add([bg, gronke1, gronke2, gronke3]);
   }
 
+  createMusicOption() {
+    const isPlaying = localStorage.getItem("match-3-baxies-music-muted");
+    console.log("isPlaying", isPlaying)
+
+    this.add.text(35 , 152, "Background Music", {
+      fontFamily: "troika",
+      fontSize: '20px',
+      color: "#FFF",
+    }).setOrigin(0, 0.5);
+
+    const onBtn = this.add.text(270 , 152, "On", {
+      fontFamily: "troika",
+      fontSize: '20px',
+      color: isPlaying !== "false" ? "#333" : "#fff",
+    }).setOrigin(0, 0.5);
+    onBtn.setInteractive();
+    onBtn.on('pointerdown', () => {
+      this.mainMenuScene = this.scene.get("MainMenuScene");
+      onBtn.setColor('#333')
+      offBtn.setColor('#ffffff');
+      this.mainMenuScene.events.emit("bgAudioChange", false);
+      localStorage.setItem("match-3-baxies-music-muted",  "true");
+    });
+
+    const offBtn = this.add.text(305 , 152, "Off", {
+      fontFamily: "troika",
+      fontSize: '20px',
+      color: isPlaying === "false" ? "#333" : "#fff",
+    }).setOrigin(0, 0.5);
+    offBtn.setInteractive();
+    offBtn.on('pointerdown', () => {
+      this.mainMenuScene = this.scene.get("MainMenuScene");
+
+      offBtn.setColor('#333')
+      onBtn.setColor('#ffffff')
+      this.mainMenuScene.events.emit("bgAudioChange", true);
+      localStorage.setItem("match-3-baxies-music-muted",  "false");
+    });
+  }
+
   create() {
-    // Reference to the GameScene
-    this.gameScene = this.scene.get("ScoreGameScene");
     this.createTopBg();
     this.createLogo();
+    this.createMusicOption();
 
-    document.fonts.load('16px troika').then(() => {
-      this.createButtonUI({
-        x: 30,
-        y: 12,
-        width: 100,
-        height: 150,
-        label: "Target",
-        eventType: "targetChanged"
-      });
-      this.createButtonUI({
-        x: 245,
-        y: 12,
-        width: 100,
-        height: 150,
-        label: "Score",
-        eventType: "scoreChanged"
-      });
-    });
+    createButton({
+      scene: this,
+      x: this.sys.game.config.width / 2 - (150 / 2),
+      y: 350,
+      width: 150,
+      height: 50,
+      text: "Back",
+      onPointerDown: () => {
+        this.scene.stop('OptionsScene');
+        // this.scene.launch('UIScene');
+      }
+    })
   }
 }

@@ -1,12 +1,13 @@
 import Phaser from "phaser";
 import MainMenuScene from './scenes/main-menu-scene.mjs';
-import GameScene from './scenes/game-scene.mjs';
+import ScoreGameScene from './scenes/score-game-scene.mjs';
 import UiScene from './scenes/ui-scene.mjs';
 import GameOverScene from "./scenes/game-over-scene.mjs";
+import OptionsScene from "./scenes/options-scene.mjs";
 
 const config = {
   type: Phaser.AUTO,
-  width: 370,
+  width: 380,
   height: 512,
   parent: 'game-wrapper',
   physics: {
@@ -15,7 +16,7 @@ const config = {
       debug: false,
     }
   },
-  scene: [MainMenuScene, GameScene, UiScene, GameOverScene],
+  scene: [MainMenuScene, ScoreGameScene, UiScene, GameOverScene, OptionsScene],
 };
 
 new Phaser.Game(config);
