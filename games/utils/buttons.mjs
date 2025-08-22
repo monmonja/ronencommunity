@@ -1,4 +1,6 @@
-export function createButton({ scene, x, y, width, height, text, onPointerDown } = {}) {
+export function createButton({
+  scene, x, y, width, height, text,
+  onPointerDown, image } = {}) {
   const button = scene.add.container(x, y);
 
   const bg = scene.add.graphics();
@@ -17,13 +19,17 @@ export function createButton({ scene, x, y, width, height, text, onPointerDown }
   bg.lineStyle(2, 0x000000);
   bg.strokeRoundedRect(0, 0, width, height, 6);
 
-  const label = scene.add.text(width / 2, height / 2, text, {
-    fontSize: '24px',
-    fontFamily: 'troika',
-    color: '#ffffff'
-  }).setOrigin(0.5, 0.5);
+  if (text) {
+    const label = scene.add.text(width / 2, height / 2, text, {
+      fontSize: '24px',
+      fontFamily: 'troika',
+      color: '#ffffff'
+    }).setOrigin(0.5, 0.5);
 
-  button.add([bg, label]);
+    button.add([bg, label]);
+  } else {
+    button.add([bg, image]);
+  }
 
   button.setSize(width, height);
   button.setInteractive(

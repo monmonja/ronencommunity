@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
-import {createButton} from "../utils/buttons.mjs";
+import {createButton} from "../../utils/buttons.mjs";
 
 // src/scenes/GameScene.js
 export const levels = [

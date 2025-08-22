@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const games = [];
+let games = [];
 
 export function getGames() {
   if (games.length > 0) {
@@ -33,6 +33,8 @@ export function getGames() {
       }
     }
   }
+
+  games = games.sort((gameA, gameB) => gameA.lastUpdate > gameB.lastUpdate ? -1: 1);
 
   return games;
 }

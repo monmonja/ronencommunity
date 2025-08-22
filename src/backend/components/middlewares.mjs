@@ -10,6 +10,10 @@ import {getGame} from "./games.mjs";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
+  if (!config.isProd) {
+    return next();
+  }
+
   if (req.session.wallet && req.session.wallet.address) {
     return next(); // session is valid
   }
@@ -86,6 +90,10 @@ export function cookieCheckMiddleware(req, res, next) {
 export function walletRaffleEntryMiddleware() {
   return async (req, res, next) => {
     const raffle = getRaffle(getUtcNow());
+
+    if (!config.isProd) {
+      return next();
+    }
 
     if (req.session.wallet) {
       const wallet = req.session.wallet.address.toLowerCase();

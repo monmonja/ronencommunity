@@ -1,4 +1,4 @@
-import {createButton} from "../utils/buttons.mjs";
+import {createButton} from "../../utils/buttons.mjs";
 
 export default class GameOverScene extends Phaser.Scene {
   constructor() {
