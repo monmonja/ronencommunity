@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import {createButton} from "../utils/buttons.mjs";
+import {createButton} from "../../utils/buttons.mjs";
 
 // src/scenes/UIScene.js
 export default class OptionsScene extends Phaser.Scene {

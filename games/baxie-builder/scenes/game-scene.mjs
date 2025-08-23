@@ -2,7 +2,11 @@ import Phaser from 'phaser';
 import {createButton} from "../../utils/buttons.mjs";
 import {createOverlay} from "../../utils/overlay.mjs";
 
-// src/scenes/GameScene.js
+const partsMax = {
+  eyes: 25,
+  mouth: 24,
+  forehead: 24,
+}
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -10,11 +14,11 @@ export default class GameScene extends Phaser.Scene {
 
   init() {
     this.bodyType = 'orange';
-    this.eye = `eye-${Math.floor(Math.random() * 25) + 1}`;
+    this.eye = `eye-${Math.floor(Math.random() * partsMax.eyes) + 1}`;
     console.log(this.eye)
-    this.mouth = `mouth-${Math.floor(Math.random() * 24) + 1}`;
+    this.mouth = `mouth-${Math.floor(Math.random() * partsMax.mouth) + 1}`;
     console.log(this.mouth)
-    this.forehead = 'forehead-1';
+    this.forehead = `forehead-${Math.floor(Math.random() * partsMax.forehead) + 1}`;
   }
 
   create() {
@@ -38,8 +42,8 @@ export default class GameScene extends Phaser.Scene {
       .image((this.sys.game.config.width / 2) - 1, 285, this.mouth)
       .setScale(0.25)
       .setOrigin(0.5, 0.5);
-    this.add
-      .image((this.sys.game.config.width / 2) - 10, 180, this.forehead)
+    this.selectedForehead = this.add
+      .image((this.sys.game.config.width / 2) - 1, 180, this.forehead)
       .setScale(0.35)
       .setOrigin(0.5, 0.5);
 
@@ -62,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
       height: buttonHeight,
       image: eyeImage,
       onPointerDown: () => {
-        this.openOverlay('eye', 25, (key) => {
+        this.openOverlay('eye', partsMax.eyes, (key) => {
           this.selectedEye.setTexture(key);
           eyeImage.setTexture(key);
         });
@@ -80,21 +84,28 @@ export default class GameScene extends Phaser.Scene {
       height: buttonHeight,
       image: mouthImage,
       onPointerDown: () => {
-        this.openOverlay('mouth', 24,(key) => {
+        this.openOverlay('mouth', partsMax.mouth,(key) => {
           this.selectedMouth.setTexture(key);
           mouthImage.setTexture(key);
         });
       }
     });
+
+    const foreheadImage = this.add.image(widthHeight / 2, buttonHeight / 2, this.forehead)
+      .setScale(0.2)
+      .setOrigin(0.5, 0.5);
     createButton({
       scene: this,
       x: 185,
       y: 400,
       width: 75,
       height: buttonHeight,
-      text: 'horn',
+      image: foreheadImage,
       onPointerDown: () => {
-        this.openOverlay();
+        this.openOverlay('forehead', partsMax.forehead,(key) => {
+          this.selectedForehead.setTexture(key);
+          foreheadImage.setTexture(key);
+        });
       }
     });
     createButton({

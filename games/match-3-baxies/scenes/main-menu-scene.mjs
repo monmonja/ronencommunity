@@ -1,6 +1,12 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
-import {createButton} from "../utils/buttons.mjs";
+import {createButton} from "../../utils/buttons.mjs";
+
+const partsMax = {
+  eyes: 25,
+  mouth: 24,
+  forehead: 24,
+}
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
