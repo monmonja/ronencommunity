@@ -4,6 +4,7 @@ const partsMax = {
   eyes: 25,
   mouth: 24,
   forehead: 24,
+  tails: 24,
 }
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -34,6 +35,9 @@ export default class MainMenuScene extends Phaser.Scene {
     }
     for (let i = 0; i < partsMax.forehead; i++) {
       this.load.image(`forehead-${i + 1}`, `{{config.cdnLink}}/game-assets/baxie-builder/images/forehead/${i + 1}.png`);
+    }
+    for (let i = 0; i < partsMax.tails; i++) {
+      this.load.image(`tails-${i + 1}`, `{{config.cdnLink}}/game-assets/baxie-builder/images/tails/${i + 1}.png`);
     }
   }
 

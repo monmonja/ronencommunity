@@ -6,6 +6,7 @@ const partsMax = {
   eyes: 25,
   mouth: 24,
   forehead: 24,
+  tails: 24,
 }
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -15,16 +16,20 @@ export default class GameScene extends Phaser.Scene {
   init() {
     this.bodyType = 'orange';
     this.eye = `eye-${Math.floor(Math.random() * partsMax.eyes) + 1}`;
-    console.log(this.eye)
     this.mouth = `mouth-${Math.floor(Math.random() * partsMax.mouth) + 1}`;
-    console.log(this.mouth)
     this.forehead = `forehead-${Math.floor(Math.random() * partsMax.forehead) + 1}`;
+    this.tails = `tails-${Math.floor(Math.random() * partsMax.tails) + 1}`;
   }
 
   create() {
     this.bg = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0);
+
+    this.selectedTails = this.add
+      .image((this.sys.game.config.width / 2) + 58, 343, this.tails)
+      .setScale(0.23)
+      .setOrigin(0.5, 0.5);
     this.add
       .image(this.sys.game.config.width /2, 180, this.bodyType)
       .setScale(0.5)
@@ -46,6 +51,7 @@ export default class GameScene extends Phaser.Scene {
       .image((this.sys.game.config.width / 2) - 1, 180, this.forehead)
       .setScale(0.35)
       .setOrigin(0.5, 0.5);
+
 
     this.createButtons();
 
@@ -108,15 +114,22 @@ export default class GameScene extends Phaser.Scene {
         });
       }
     });
+
+    const tailsImage = this.add.image(widthHeight / 2, buttonHeight / 2, this.tails)
+      .setScale(0.2)
+      .setOrigin(0.5, 0.5);
     createButton({
       scene: this,
       x: 23,
       y: 452,
       width: 75,
       height: buttonHeight,
-      text: 'ears',
+      image: tailsImage,
       onPointerDown: () => {
-        this.openOverlay('eye', 25);
+        this.openOverlay('tails', partsMax.tails,(key) => {
+          this.selectedTails.setTexture(key);
+          tailsImage.setTexture(key);
+        });
       }
     });
 
@@ -126,7 +139,7 @@ export default class GameScene extends Phaser.Scene {
       y: 452,
       width: 75,
       height: buttonHeight,
-      text: 'tails',
+      text: 'Ears',
       onPointerDown: () => {
         this.openOverlay('mouth', 3, () => {
 
