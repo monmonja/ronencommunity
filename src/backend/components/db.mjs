@@ -109,15 +109,16 @@ export async function getEntriesFromRaffleId({ raffleId } = {}) {
     .collection(config.mongo.table.raffles)
     .aggregate([
       { $match: { raffleId } }, // filter by raffleId
-      { $sort: { amount: -1, timestamp: -1 } }, // sort before grouping if needed
+      { $sort: { timestamp: -1 } }, // sort before grouping if needed
       {
         $group: {
           _id: "$from",                // group by "from"
           totalAmount: { $sum: "$amount" }, // sum of amounts
+          latestTimestamp: { $first: "$timestamp" },
           entries: { $push: "$$ROOT" }      // keep all documents per "from"
         }
       },
-      { $sort: { totalAmount: -1, timestamp: -1 } }, // sort by total amount desc
+      { $sort: { totalAmount: -1, latestTimestamp: -1 } }, // sort by total amount desc
       { $limit: 50 }                  // limit to top 30 groups
     ])
     .limit(50)
