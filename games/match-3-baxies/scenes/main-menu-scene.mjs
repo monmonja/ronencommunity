@@ -81,20 +81,7 @@ export default class MainMenuScene extends Phaser.Scene {
           this.scene.start('ScoreGameScene');
           this.scene.launch('UIScene');
         }
-      })
-      createButton({
-        scene: this,
-        x: this.sys.game.config.width / 2 - (160 / 2),
-        // y: 350,
-        y: 310,
-        width: 160,
-        height: 50,
-        text: "Options",
-        onPointerDown: () => {
-          this.scene.launch('OptionsScene');
-          // this.scene.launch('UIScene');
-        }
-      })
+      });
     });
   }
 }

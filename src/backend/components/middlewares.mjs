@@ -107,10 +107,6 @@ export function walletRaffleEntryMiddleware() {
     const raffle = getRaffle(getUtcNow());
     const game = getGame(req.params.path);
 
-    if (!config.isProd) {
-      return next();
-    }
-
     if (!game) {
       return res.status(403).json({ success: false, message: "No games with this id." });
     }

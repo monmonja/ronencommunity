@@ -2,8 +2,12 @@
   "slug": "flappy-baxie",
   "name": "Flappy Baxie",
   "description": "Flappy bird clone with baxie",
-  "lastUpdate": 1755820800000,
+  "lastUpdate": 1756044765000,
   "changeLog": [
+    {
+      "date": 1756044765000,
+      "changes": "New images, bg image is moving, new bg music, settings page."
+    },
     {
       "date": 1755820800000,
       "changes": "Initial release of the game."
