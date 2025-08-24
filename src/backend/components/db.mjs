@@ -117,12 +117,12 @@ export async function getEntriesFromRaffleId({ raffleId } = {}) {
           entries: { $push: "$$ROOT" }      // keep all documents per "from"
         }
       },
-      { $sort: { totalAmount: -1 } }, // sort by total amount desc
+      { $sort: { totalAmount: -1, timestamp: -1 } }, // sort by total amount desc
       { $limit: 50 }                  // limit to top 30 groups
     ])
     .limit(50)
     .toArray();
-console.log(results)
+
   if (results.length > 0) {
     return results;
   }
