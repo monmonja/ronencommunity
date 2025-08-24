@@ -3,20 +3,25 @@ import MainMenuScene from './scenes/main-menu-scene.mjs';
 import ScoreGameScene from './scenes/score-game-scene.mjs';
 import UiScene from './scenes/ui-scene.mjs';
 import GameOverScene from "./scenes/game-over-scene.mjs";
-import OptionsScene from "./scenes/options-scene.mjs";
+import {SettingsScene} from "../common/utils/settings.mjs";
 
 const config = {
   type: Phaser.AUTO,
   width: 380,
   height: 512,
-  parent: 'game-wrapper',
+  parent: 'game-content',
+  backgroundColor: '#111',
   physics: {
     default: 'arcade',
     arcade: {
       debug: false,
     }
   },
-  scene: [MainMenuScene, ScoreGameScene, UiScene, GameOverScene, OptionsScene],
+  scale: {
+    mode: Phaser.Scale.FIT,       // keep aspect ratio, fit screen
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  scene: [MainMenuScene, ScoreGameScene, UiScene, GameOverScene, SettingsScene],
 };
 
 new Phaser.Game(config);

@@ -1,0 +1,91 @@
+@use 'partials/global' as *;
+@use 'partials/mixins' as *;
+@use 'partials/variables' as *;
+@use 'partials/top-menu' as *;
+@use 'partials/overlay' as *;
+@use 'partials/card' as *;
+@use 'partials/raffle-card' as *;
+@use 'partials/footer' as *;
+
+.fullscreen {
+  .page-content {
+    padding: 0;
+
+    #game-content {
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+
+      canvas {
+        margin: 0 !important;
+        max-width: unset !important;
+        max-height: unset !important;
+      }
+    }
+  }
+}
+
+.page-content {
+  display: flex;
+  padding: $padding-side;
+  flex-direction: column;
+
+  #game-content {
+    width: 380px !important;
+    height: 512px !important;
+    margin: auto;
+
+    canvas {
+      max-width: 380px !important;
+      max-height: 512px !important;
+    }
+  }
+
+  #game-wrapper {
+    border: 1px solid $border-color;
+    min-height: 300px;
+    text-align: center;
+    width: 100%;
+    background: $content-bg;
+  }
+
+  .game-details-header {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .game-details {
+    margin-top: -1px;
+    text-align: left;
+
+    h1 {
+      margin-bottom: 2px;
+      font-size: 20px;
+    }
+
+    .change-logs {
+      margin-top: 32px;
+    }
+
+    .change-row {
+      padding-top: 2px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #444;
+
+      &:last-child {
+        border: 0;
+        padding-bottom: 0;
+      }
+    }
+
+    .change-date {
+      font-size: 70%;
+    }
+  }
+}
+
+.last-updated {
+  font-size: 80%;
+  margin-bottom: 12px;
+  color: white;
+}

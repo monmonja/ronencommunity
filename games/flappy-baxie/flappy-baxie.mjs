@@ -2,12 +2,16 @@ import Phaser from 'phaser';
 import MainMenuScene from './scenes/main-menu-scene.mjs';
 import GameScene from "./scenes/game-scene.mjs";
 import GameOverScene from "./scenes/game-over-scene.mjs";
+import PreloaderScene from "./scenes/preloader-scene.mjs";
+import BootScene from "./scenes/boot-scene.mjs";
+import {SettingsScene} from "../common/utils/settings.mjs";
 
 new Phaser.Game({
   type: Phaser.AUTO,
   width: 370,
   height: 512,
-  parent: 'game-wrapper',
+  parent: 'game-content',
+  backgroundColor: '#111',
   physics: {
     default: 'arcade',
     arcade: {
@@ -17,5 +21,9 @@ new Phaser.Game({
       debug: false
     }
   },
-  scene: [MainMenuScene, GameScene, GameOverScene]
+  scale: {
+    mode: Phaser.Scale.FIT,       // keep aspect ratio, fit screen
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  scene: [BootScene, PreloaderScene, MainMenuScene, GameScene, GameOverScene, SettingsScene]
 });

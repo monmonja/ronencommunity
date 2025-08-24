@@ -73,5 +73,8 @@ export default (env, argv) => {
       ],
     },
     mode: isProduction ? 'production' : 'development',
+    externals: {
+      phaser: "Phaser",
+    },
   };
 }

@@ -1,4 +1,5 @@
 import { assets } from "../constants.mjs";
+import {addSettingsIcon} from "../../common/utils/settings.mjs";
 
 const baxies = {
   'gronke': 'baxie-gronke',
@@ -15,55 +16,29 @@ export default class MainMenuScene extends Phaser.Scene {
     super({key: 'MainMenuScene'});
   }
 
-  preload() {
-    // Backgrounds
-    this.load.audio('bgm', '/game-assets/flappy-baxie/audio/bg.mp3');
-    this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day.png')
-    this.load.image(assets.scene.background.night, '{{config.cdnLink}}/game-assets/flappy-baxie/images/night.png')
-
-    // baxies
-    Object.keys(baxies).forEach((key) => {
-      this.load.spritesheet(baxies[key], `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`, {
-        frameWidth: 61,
-        frameHeight: 70,
-      });
-    });
-  }
-
   create() {
-    if (!this.bgm) {
-      this.bgm = this.sound.add('bgm', {loop: true, volume: 0.3});
-    }
+    this.add.image(0, 0, 'bg').setOrigin(0, 0).setInteractive()
 
-    this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
-
-    this.input.once('pointerdown', () => {
-      if (!this.bgm.isPlaying) {
-        if (!this.sound.unlock) {
-          this.sound.unlock();
-        }
-
-        this.bgm.play();
-      }
-    });
+    addSettingsIcon(this);
 
     document.fonts.load('16px troika').then(() => {
       const center = this.sys.game.config.width / 2;
       const logo = this.add.text(center, 84, 'Flappy Baxie', {
         fontFamily: 'troika',
         fontSize: '42px',
-        color: '#f99502'
+        color: '#dda23e'
       }).setOrigin(0.5, 0);
 
       logo.setShadow(2, 2, '#000', 4, true, true);
 
       const selectText = this.add.text(center, 134, 'Select your baxie', {
         fontFamily: 'troika',
-        fontSize: '20px',
-        color: '#fff'
+        fontSize: '25px',
+        color: '#dda23e'
       }).setOrigin(0.5, 0);
+      selectText.setShadow(2, 2, '#000', 4, true, true);
 
-      const containerItems = [logo, selectText];
+      const containerItems = [ selectText];
       const startX = 110;
       const startY = 235;
       const spaceX = 80;

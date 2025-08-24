@@ -196,7 +196,7 @@ export function securityHeadersMiddleware(req, res, next) {
     "default-src 'self'; " +
     "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com;" +
     // eslint-disable-next-line quotes
-    `script-src 'self' 'nonce-${res.locals.nonce}' https://*.googletagmanager.com ${config.isProd ? '' : "'unsafe-eval'"};` +
+    `script-src 'self' 'nonce-${res.locals.nonce}' https://*.googletagmanager.com https://cdn.jsdelivr.net ${config.isProd ? '' : "'unsafe-eval'"};` +
     "style-src 'self' 'unsafe-inline'; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.ronencommunity.com; " +
     "frame-src 'self' https://*.google.com; " +

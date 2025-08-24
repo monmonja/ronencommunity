@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../utils/buttons.mjs";
+import {addBgMusic, addSettingsIcon} from "../../common/utils/settings.mjs";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -8,6 +9,7 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('settings', '{{config.cdnLink}}/game-assets/common/settings.png')
     const baxies = {
       'gronke': 'baxie-gronke',
       'pink': 'baxie-pink',
@@ -23,43 +25,17 @@ export default class MainMenuScene extends Phaser.Scene {
       this.load.image(key, `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`);
     }
 
-    this.load.audio('bgm', '/game-assets/match-3-baxies/audio/bg.mp3');
-  }
-
-  startBgAudio() {
-    if (!this.bgm) {
-      this.bgm = this.sound.add('bgm', {loop: true, volume: 1});
-    }
-
-    this.input.once('pointerdown', () => {
-      if (!this.bgm.isPlaying) {
-        if (!this.sound.unlock) {
-          this.sound.unlock();
-        }
-
-        const isPlaying = localStorage.getItem("match-3-baxies-music-muted");
-        if (isPlaying !== 'false') {
-          this.bgm.play();
-        }
-      }
-    });
-
-    this.events.on('bgAudioChange', (isOn) => {
-      if (isOn) {
-        this.bgm.stop();
-      } else {
-        this.bgm.play();
-      }
-    });
+    this.load.audio('bgm', '{{config.cdnLink}}/game-assets/match-3-baxies/audio/bg.mp3');
   }
 
   create() {
-    this.startBgAudio();
+    addBgMusic(this);
 
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)
       .setInteractive();
+    addSettingsIcon(this);
 
     document.fonts.load('16px troika').then(() => {
       const match = this.add.text(this.sys.game.config.width / 2, 100, 'Match', {

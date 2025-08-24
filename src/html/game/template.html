@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= game.name %> - Ronen Community</title>
-  <link rel="stylesheet" href="/css/games-<%= config.distVersion %>.css">
+  <link rel="stylesheet" href="/css/game-<%= config.distVersion %>.css">
   <style>
     @font-face {
      font-family: 'troika';
@@ -18,36 +18,45 @@
    }
   </style>
   <%- include('../partials/analytics.html') %>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 </head>
 <body>
   <%- include('../partials/top-menu.html') %>
   <%- include('../partials/ads-top-banner.html') %>
-  <div class="page-content game-template">
-    <div style="text-align: center" id="game-wrapper">
-
+  <div class="page-content">
+    <div id="game-wrapper">
+      <div id="game-content" class="<%= game.slug %>"></div>
     </div>
     <div>
       <div class="card game-details">
-        <h1><%= game.name %></h1>
-        <p><%= game.description %></p>
-        <p class="last-updated">Updated: <%= new Date(game.lastUpdate).toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric"
-          })  %></p>
-        <strong>Change log:</strong>
-        <% for (const i in game.changeLog) { %>
-          <div class="change-row">
-            <div class="change-date">
-              <%= new Date(game.changeLog[i].date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "2-digit",
-                year: "numeric"
-                })  %>
-            </div>
-            <p><%= game.changeLog[i].changes %></p>
+        <div class="game-details-header">
+          <div>
+            <h1><%= game.name %></h1>
+            <p><%= game.description %></p>
           </div>
-        <% } %>
+          <div>
+            <p class="last-updated">Updated: <%= new Date(game.lastUpdate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric"
+              })  %></p>
+          </div>
+        </div>
+        <div class="change-logs">
+          <strong>Change log:</strong>
+          <% for (const i in game.changeLog) { %>
+            <div class="change-row">
+              <div class="change-date">
+                <%= new Date(game.changeLog[i].date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "2-digit",
+                  year: "numeric"
+                  })  %>
+              </div>
+              <p><%= game.changeLog[i].changes %></p>
+            </div>
+          <% } %>
+        </div>
       </div>
     </div>
   </div>

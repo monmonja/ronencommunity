@@ -77,22 +77,6 @@ export default class GameScene extends Phaser.Scene {
       }
     }
   }
-  
-  preload() {
-    this.load.image(assets.scene.ronenCoin, '{{config.cdnLink}}/game-assets/flappy-baxie/images/ronen.png')
-
-    this.load.spritesheet(assets.scene.floor, '{{config.cdnLink}}/game-assets/flappy-baxie/images/floor.webp', {
-      frameWidth: 370,
-      frameHeight: 112
-    })
-
-    // Pipes
-    this.load.image(assets.obstacle.pipe.green.top, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-green-top.png')
-    this.load.image(assets.obstacle.pipe.green.bottom, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-green-bottom.png')
-    this.load.image(assets.obstacle.pipe.red.top, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-red-top.png')
-    this.load.image(assets.obstacle.pipe.red.bottom, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-red-bottom.png')
-  }
-
   init(data) {
     this.selectedBaxie = data.selectedBaxie;
   }
@@ -101,11 +85,11 @@ export default class GameScene extends Phaser.Scene {
    *   Create the game objects (images, groups, sprites).
    */
   create() {
-    this.add.image(0, 0, assets.scene.floor).setOrigin(0, 0).setInteractive()
+    this.add.image(0, 0, assets.scene.floor).setOrigin(0, 0)
 
-    this.backgroundDay = this.add.image(0, 0, assets.scene.background.day).setOrigin(0, 0).setInteractive()
+    this.backgroundDay = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, assets.scene.background.day).setOrigin(0, 0).setInteractive()
     this.backgroundDay.on('pointerdown', () => this.moveBaxie())
-    this.backgroundNight = this.add.image(0, 0, assets.scene.background.night).setOrigin(0, 0).setInteractive()
+    this.backgroundNight = this.add.tileSprite(0, 0,  this.scale.width, this.scale.height, assets.scene.background.night).setOrigin(0, 0).setInteractive()
     this.backgroundNight.visible = false
     this.backgroundNight.on('pointerdown', () => this.moveBaxie())
 
@@ -130,7 +114,7 @@ export default class GameScene extends Phaser.Scene {
       }),
       frameRate: 3,
       repeat: -1
-    })
+    });
 
     this.setupGame()
   }
@@ -164,13 +148,19 @@ export default class GameScene extends Phaser.Scene {
       child.body.setVelocityX(this.velocityX);
     });
 
-    this.floor.anims.play('moving', true)
-
     this.nextPipes++;
 
     if (this.nextPipes >= this.nextFrame) {
       this.makePipes();
       this.nextPipes = 0;
+    }
+
+    if (this.backgroundDay.visible) {
+      this.backgroundDay.tilePositionX += 1;
+    }
+
+    if (this.backgroundNight.visible) {
+      this.backgroundNight.tilePositionX += 1;
     }
   }
 
@@ -186,6 +176,9 @@ export default class GameScene extends Phaser.Scene {
     gap.destroy();
 
     if (this.score % 10 === 0) {
+      this.backgroundDay.tilePositionX = 0;
+      this.backgroundNight.tilePositionX = 0;
+
       this.backgroundDay.visible = !this.backgroundDay.visible;
       this.backgroundNight.visible = !this.backgroundNight.visible;
 
@@ -249,6 +242,8 @@ export default class GameScene extends Phaser.Scene {
     this.floor.body.allowGravity = false
     this.floor.setCollideWorldBounds(true)
     this.floor.setDepth(30);
+
+    this.floor.anims.play('moving', true)
 
     this.physics.resume();
     this.makePipes();
