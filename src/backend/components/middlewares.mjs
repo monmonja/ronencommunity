@@ -118,6 +118,10 @@ export function walletRaffleEntryMiddleware() {
     if (req.session.wallet) {
       const wallet = req.session.wallet.address.toLowerCase();
 
+      if (wallet === config.web3.adminWallet.toLowerCase()) {
+        return next();
+      }
+
       const hasEntry = await walletHasRaffleEntry({
         raffleId: raffle.id,
         wallet
