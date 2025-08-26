@@ -2,14 +2,12 @@ import { param, validationResult } from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, walletRaffleEntryMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
-  getRaffle, getUtcNow, raffleEndingIn, raffleEndsInDHM
-} from "../components/utils.mjs";
-import {
-  walletHasRaffleEntry,
-  getTotalAmountOnRaffleId,
-} from "../components/db.mjs";
-import {getGame, getGames} from "../components/games.mjs";
+  getUtcNow,
+} from "../utils/date-utils.mjs";
+import { raffleEndsInDHM, raffleEndingIn } from "../utils/raffle-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
+import Raffles from "../models/raffles.mjs";
+import Games from "../models/games.mjs";
 
 export function initGamesRoutes(app) {
   app.get(
@@ -17,12 +15,12 @@ export function initGamesRoutes(app) {
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
-      const raffle = getRaffle(getUtcNow());
+      const raffle = Raffles.getRaffle(getUtcNow());
 
       if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet) {
         const wallet = req.session.wallet.address.toLowerCase();
 
-        const hasEntry = await walletHasRaffleEntry({
+        const hasEntry = await Raffles.walletHasEntry({
           raffleId: raffle.id,
           wallet
         });
@@ -39,9 +37,9 @@ export function initGamesRoutes(app) {
       }
 
       return res.render("games/index", {
-        games: getGames(),
+        games: Games.getGames(),
         raffle,
-        totalAmount: await getTotalAmountOnRaffleId({
+        totalAmount: await Raffles.getTotalAmount({
           raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()
@@ -67,8 +65,8 @@ export function initGamesRoutes(app) {
 
       return res.render("game/template", {
         gameId: req.params.path,
-        games: getGames(),
-        game: getGame(req.params.path),
+        games: Games.getGames(),
+        game: Games.getGame(req.params.path),
       });
     });
 }

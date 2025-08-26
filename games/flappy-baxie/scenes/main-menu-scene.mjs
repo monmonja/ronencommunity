@@ -17,7 +17,8 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(0, 0, 'bg').setOrigin(0, 0).setInteractive()
+    this.add.image(0, 0, 'bg').setOrigin(0, 0)
+      .setInteractive()
 
     addSettingsIcon(this);
 
@@ -39,7 +40,7 @@ export default class MainMenuScene extends Phaser.Scene {
       selectText.setShadow(2, 2, '#000', 4, true, true);
 
       const containerItems = [ selectText];
-      const startX = 110;
+      const startX = 320;
       const startY = 235;
       const spaceX = 80;
       const spaceY = 90;

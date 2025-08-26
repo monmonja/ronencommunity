@@ -3,20 +3,18 @@ import crypto from "crypto";
 import MongoStore from "connect-mongo";
 import session from "express-session";
 
-import { getTotalAmountOnRaffleId, walletHasRaffleEntry} from "./db.mjs";
 import config from "../config/default.json" with { type: "json" };
-import {getRaffle, getUtcNow, raffleEndsInDHM} from "./utils.mjs";
-import {getGame} from "./games.mjs";
+import { getUtcNow } from "../utils/date-utils.mjs";
+import { raffleEndsInDHM } from "../utils/raffle-utils.mjs";
 import {logError} from "./logger.mjs";
+import Raffles from "../models/raffles.mjs";
+import Games from "../models/games.mjs";
+import Energies from "../models/energies.mjs";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
   if (req.session.wallet && req.session.wallet.address) {
     return next(); // session is valid
-  }
-
-  if (!config.isProd) {
-    return next();
   }
 
   res.status(401).json({ success: false, message: "Wallet session required" });
@@ -104,8 +102,8 @@ export function cookieCheckMiddleware(req, res, next) {
 
 export function walletRaffleEntryMiddleware() {
   return async (req, res, next) => {
-    const raffle = getRaffle(getUtcNow());
-    const game = getGame(req.params.path);
+    const raffle = Raffles.getRaffle(getUtcNow());
+    const game = Games.getGame(req.params.path);
 
     if (!game) {
       return res.status(403).json({ success: false, message: "No games with this id." });
@@ -114,11 +112,20 @@ export function walletRaffleEntryMiddleware() {
     if (req.session.wallet) {
       const wallet = req.session.wallet.address.toLowerCase();
 
-      if (wallet === config.web3.adminWallet.toLowerCase()) {
+      if (config.isProd && wallet === config.web3.adminWallet.toLowerCase()) {
         return next();
       }
 
-      const hasEntry = await walletHasRaffleEntry({
+      const availableEnergy = await Energies.getAvailableEnergies({
+        address: wallet,
+        gameId: req.params.path
+      })
+
+      if (availableEnergy > 0) {
+        return next();
+      }
+
+      const hasEntry = await Raffles.walletHasEntry({
         raffleId: raffle.id,
         wallet
       });
@@ -134,9 +141,9 @@ export function walletRaffleEntryMiddleware() {
         });
 
         return res.render("raffle/required-for-games", {
-          game: getGame(req.params.path),
+          game: Games.getGame(req.params.path),
           raffle,
-          totalAmount: await getTotalAmountOnRaffleId({
+          totalAmount: await Raffles.getTotalAmount({
             raffleId: raffle.id,
           }),
           ...raffleEndsInDHM()
@@ -153,9 +160,9 @@ export function walletRaffleEntryMiddleware() {
       });
 
       res.render("raffle/required-for-games", {
-        game: getGame(req.params.path),
+        game: Games.getGame(req.params.path),
         raffle,
-        totalAmount: await getTotalAmountOnRaffleId({
+        totalAmount: await Raffles.getTotalAmount({
           raffleId: raffle.id,
         }),
         ...raffleEndsInDHM()

@@ -1,33 +1,5 @@
+import { getUtcNow } from "./date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
-
-export function getRaffle(date) {
-  const ts = (date instanceof Date ? date.getTime() : date);
-
-  for (const raffle of config.raffles) {
-    const start = raffle.raffleStartDate;
-    const end = start + raffle.raffleDuration * 24 * 60 * 60 * 1000; // days → ms
-
-    if (ts >= start && ts < end) {
-      return raffle;
-    }
-  }
-
-  return null;
-}
-
-export function getUtcNow() {
-  const now = new Date();
-  // return new Date(Date.UTC(2025, 7, 27, 0, 0, 0, 0));
-  return new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    now.getUTCHours(),
-    now.getUTCMinutes(),
-    now.getUTCSeconds(),
-    now.getUTCMilliseconds()
-  ));
-}
 
 // raffles: array of raffles from JSON
 export function raffleEndingIn(date) {
@@ -51,6 +23,7 @@ export function raffleEndingIn(date) {
   return end - ts; // ms remaining
 }
 
+// raffles: array of raffles from JSON
 export function raffleEndsInDHM() {
   const now = getUtcNow();
   const remainingMs = raffleEndingIn(now);    // Date object when raffle ends

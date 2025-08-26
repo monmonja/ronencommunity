@@ -45,12 +45,12 @@ export default class UiScene extends Phaser.Scene {
 
     const bg = this.add.graphics();
     bg.fillStyle(0x2f8011, 1);
-    bg.fillRoundedRect(0, 0, this.sys.game.config.width, 100, 0);
+    bg.fillRoundedRect(0, 0, 117, this.sys.game.config.height, 0);
     topBg.add([bg]);
   }
 
   createLogo() {
-    const topBg = this.add.container(this.sys.game.config.width / 2 - 8, 25);
+    const topBg = this.add.container(53, 25);
     const bg = this.add.graphics();
     bg.fillStyle(0xffffff, 1);
     bg.fillRoundedRect(-35, -16, 80, 80, 40);
@@ -76,16 +76,16 @@ export default class UiScene extends Phaser.Scene {
 
     document.fonts.load('16px troika').then(() => {
       this.createButtonUI({
-        x: 30,
-        y: 12,
+        x: 8,
+        y: 112,
         width: 100,
         height: 150,
         label: "Target",
         eventType: "targetChanged"
       });
       this.createButtonUI({
-        x: 245,
-        y: 12,
+        x: 8,
+        y: 200,
         width: 100,
         height: 150,
         label: "Score",

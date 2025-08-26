@@ -19,7 +19,7 @@ export default class MainMenuScene extends Phaser.Scene {
       'orange': 'baxie-orange',
       'yellow': 'baxie-yellow',
     };
-    this.load.image('bg', '{{config.cdnLink}}/game-assets/match-3-baxies/images/main-bg.webp');
+    this.load.image('bg', '{{config.cdnLink}}/game-assets/match-3-baxies/images/bg-2.webp');
 
     for (const key in baxies) {
       this.load.image(key, `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`);

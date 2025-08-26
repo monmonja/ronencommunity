@@ -1,97 +1,104 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../utils/buttons.mjs";
+import {addSettingsIcon} from "../../common/utils/settings.mjs";
 
 export const levels = [
   {
-    maxScore: 300,
+    maxScore: 30,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
-    offsetY: 170,
     imageScale: 0.8,
     columns: 4,
     rows: 4,
   },
   {
-    maxScore: 600,
+    maxScore: 60,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 130,
     columns: 4,
     rows: 5,
   },
   {
-    maxScore: 1000,
+    maxScore: 100,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 130,
     columns: 4,
     rows: 5,
   },
   {
-    maxScore: 1500,
+    maxScore: 150,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 130,
     columns: 5,
     rows: 5,
   },
   {
-    maxScore: 2000,
+    maxScore: 200,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 130,
     columns: 5,
     rows: 5,
   },
   {
-    maxScore: 2700,
+    maxScore: 270,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
     cellSize: 70,
     imageScale: 0.8,
-    offsetY: 130,
     columns: 5,
     rows: 5,
   },
   {
-    maxScore: 3600,
+    maxScore: 360,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
     cellSize: 63,
     imageScale: 0.7,
-    offsetY: 120,
     columns: 5,
     rows: 6,
   },
   {
-    maxScore: 5000,
+    maxScore: 500,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 63,
     imageScale: 0.7,
-    offsetY: 120,
     columns: 5,
     rows: 6,
   },
   {
-    maxScore: 6500,
+    maxScore: 650,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 63,
     imageScale: 0.7,
-    offsetY: 120,
     columns: 6,
     rows: 6,
   },
   {
+    maxScore: 800,
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
+    cellSize: 60,
+    imageScale: 0.7,
+    columns: 7,
+    rows: 7,
+  },
+  {
+    maxScore: 1000, // anything above 6500
+    baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
+    cellSize: 60,
+    imageScale: 0.7,
+    columns: 9,
+    rows: 7,
+  },
+  {
     maxScore: Infinity, // anything above 6500
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
-    cellSize: 52,
-    imageScale: 0.6,
-    offsetY: 125,
-    columns: 7, // 6x6
-    rows: 7, // 6x6
+    cellSize: 58,
+    imageScale: 0.68,
+    columns: 10, 
+    rows: 7, 
   }
 ];
 
@@ -117,7 +124,6 @@ export default class ScoreGameScene extends Phaser.Scene {
 
         this.cellSize = level.cellSize;
         this.imageScale = level.imageScale;
-        this.offsetY = level.offsetY;
         this.columns = level.columns;
         this.rows = level.rows;
         this.baxieKeys = level.baxieKeys;
@@ -126,7 +132,7 @@ export default class ScoreGameScene extends Phaser.Scene {
 
         if (emitEvent) {
           setTimeout(() => {
-            this.events.emit("targetChanged", level.maxScore);
+            this.events.emit("targetChanged", level.maxScore == Infinity ? '∞' : level.maxScore);
           }, 50);
         }
 
@@ -138,6 +144,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor("#101018");
 
+
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)
@@ -147,10 +154,10 @@ export default class ScoreGameScene extends Phaser.Scene {
     this.randomizeBoard();
     this.drawBoard();
     this.drawGrid();
+    addSettingsIcon(this);
 
     this.input.on("pointerdown", this.onPointerDown, this);
     this.input.on("pointerup", this.onPointerUp, this);
-
   }
 
   makeEmptyBoard() {
@@ -188,8 +195,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   }
 
   drawGrid() {
-    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
-    const offsetY = this.offsetY;
+    const [offsetX, offsetY] = this.getOffset();
 
     // clear previous grid
     this.gridGraphics.clear();
@@ -220,8 +226,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   }
 
   drawBoard() {
-    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
-    const offsetY = this.offsetY;
+    const [offsetX, offsetY] = this.getOffset();
 
     for (let r = 0; r < this.rows; r++) {
       for (let c = 0; c < this.columns; c++) {
@@ -241,8 +246,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   }
 
   toWorld(r, c) {
-    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
-    const offsetY = this.offsetY;
+    const [offsetX, offsetY] = this.getOffset();
 
     return { x: offsetX + c * this.cellSize + this.cellSize / 2, y: offsetY + r * this.cellSize + this.cellSize / 2 };
   }
@@ -268,9 +272,19 @@ export default class ScoreGameScene extends Phaser.Scene {
     this.selectCell = null;
   }
 
+  getOffset() {
+    const uiSceneWidth = 117;
+    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2) + (uiSceneWidth / 2);
+    const offsetY = (this.sys.game.config.height / 2) - ((this.rows * this.cellSize) / 2);
+
+    return [
+      offsetX,
+      offsetY,
+    ];
+  }
+
   screenToCell(x, y) {
-    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2);
-    const offsetY = this.offsetY;
+    const [offsetX, offsetY] = this.getOffset();
 
     const c = Math.floor((x - offsetX) / this.cellSize);
     const r = Math.floor((y - offsetY) / this.cellSize);
@@ -376,22 +390,26 @@ export default class ScoreGameScene extends Phaser.Scene {
         0.7
       );
 
+      const uiSceneWidth = 117;
+      const container = this.add.container(this.cameras.main.centerX + uiSceneWidth - 58, this.cameras.main.centerY - 30)
+
       // Create a Level Up text
       const levelText = this.add.text(
-        this.cameras.main.centerX,
-        this.cameras.main.centerY,
+        0,
+        0,
         `LEVEL ${this.level - 1} cleared`,
         { fontSize: "40px", color: "#ffffff", fontStyle: "bold", fontFamily: 'troika', }
       ).setOrigin(0.5);
       levelText.setShadow(2, 2, '#000', 4, true, true);
+      container.add(levelText);
 
       // Create a button
       const btn = createButton({
         scene: this,
-        x: this.cameras.main.centerX - 75,
-        y: this.cameras.main.centerY + 40,
+        x: -75,
+        y: 45,
         width: 150,
-        height: 40,
+        height: 45,
         text: "Continue",
         onPointerDown: () => {
           this.setLevel();
@@ -400,7 +418,8 @@ export default class ScoreGameScene extends Phaser.Scene {
           btn.destroy();
           resolve();
         }
-      })
+      });
+      container.add(btn);
     });
   }
 

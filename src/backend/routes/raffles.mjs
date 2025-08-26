@@ -4,14 +4,13 @@ import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
 import {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
-import {getRaffle, getUtcNow, raffleEndingIn, raffleEndsInDHM} from "../components/utils.mjs";
+import { getUtcNow } from "../utils/date-utils.mjs";
+import { raffleEndingIn, raffleEndsInDHM } from "../utils/raffle-utils.mjs";
 import {
-  addRaffleRecord,
-  getTotalAmountOnRaffleId,
-  getEntriesFromRaffleId,
-  getAllRaffles, raffleRecordExists, getConnection,
+  getConnection,
 } from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
+import Raffles from "../models/raffles.mjs";
 
 export function initRafflesRoutes(app) {
   app.get(
@@ -19,24 +18,24 @@ export function initRafflesRoutes(app) {
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
-      const raffle = getRaffle(getUtcNow());
+      const raffle = Raffles.getRaffle(getUtcNow());
 
       if (raffle) {
         return res.render("raffle/index", {
           raffle,
-          totalAmount: await getTotalAmountOnRaffleId({
+          totalAmount: await Raffles.getTotalAmount({
             raffleId: raffle.id,
           }),
-          entries: await getEntriesFromRaffleId({
+          entries: await Raffles.getEntries({
             raffleId: raffle.id,
           }),
-          allRaffles: await getAllRaffles(),
+          allRaffles: await Raffles.getAllRaffles(),
           ...raffleEndsInDHM()
         });
       } else {
         return res.render("raffle/index", {
           raffle,
-          allRaffles: await getAllRaffles(),
+          allRaffles: await Raffles.getAllRaffles(),
         });
       }
     });
@@ -84,13 +83,13 @@ export function initRafflesRoutes(app) {
       if (raffle) {
         return res.render("raffle/index", {
           raffle,
-          totalAmount: await getTotalAmountOnRaffleId({
+          totalAmount: await Raffles.getTotalAmount({
             raffleId: raffle.id,
           }),
-          entries: await getEntriesFromRaffleId({
+          entries: await Raffles.getEntries({
             raffleId: raffle.id,
           }),
-          allRaffles: await getAllRaffles(),
+          allRaffles: await Raffles.getAllRaffles(),
           ...raffleEndsInDHM()
         });
       } else {
@@ -146,7 +145,7 @@ export function initRafflesRoutes(app) {
         return res.status(401).json({ verified: false, status: "failed", message: "Not logged in" });
       }
 
-      const existing = await raffleRecordExists({ txHash });
+      const existing = await Raffles.isRecordExists({ txHash });
 
       if (existing) {
         return res.status(409).json({ verified: false, status: "failed", message: "Transaction already used" });
@@ -211,7 +210,7 @@ export function initRafflesRoutes(app) {
             return;
           }
 
-          await addRaffleRecord({
+          await Raffles.addRecord({
             txHash,
             amount: formatEther(tx.value),
             to: receipt.to,
@@ -256,7 +255,7 @@ export function initRafflesRoutes(app) {
     rateLimiterMiddleware,
     async (req, res) => {
       try {
-        const raffleId = getRaffleId(getUtcNow());
+        const raffleId = Raffles.getRaffle(getUtcNow());
         const mongoDbConnection = await getConnection();
 
         //  Check if a winner already exists
@@ -272,7 +271,7 @@ export function initRafflesRoutes(app) {
           });
         }
 
-        const entries = await getEntriesFromRaffleId({ raffleId });
+        const entries = await Raffles.getEntries({ raffleId });
 
         if (entries.length === 0) {
           return res.status(404).send("No entries for this raffle");

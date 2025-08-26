@@ -8,12 +8,7 @@ export function initGameItems(): void {
     buttons.forEach((button: Element) => {
       button.addEventListener("click", () => {
         if (getCookie("has-user")) {
-          if (getCookie("has-raffle-entry") === "true") {
-            location.href = `/game/${button.getAttribute("data-slug")}`;
-          } else {
-            overlay.classList.toggle("show");
-            overlay.setAttribute("data-slug", button.getAttribute("data-slug") ?? "");
-          }
+          location.href = `/game/${button.getAttribute("data-slug")}`;
         } else {
           document.getElementById("connect-wallet")?.click();
         }

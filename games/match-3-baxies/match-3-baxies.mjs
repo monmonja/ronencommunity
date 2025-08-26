@@ -7,8 +7,8 @@ import {SettingsScene} from "../common/utils/settings.mjs";
 
 const config = {
   type: Phaser.AUTO,
-  width: 380,
-  height: 512,
+  width: 800,
+  height: 450,
   parent: 'game-content',
   backgroundColor: '#111',
   physics: {

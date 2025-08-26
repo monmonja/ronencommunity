@@ -41,42 +41,9 @@ export function addBgMusic (scene) {
 }
 
 export class SettingsScene extends Phaser.Scene {
+  windowWidth = 400;
   constructor() {
     super("SettingsScene");
-  }
-
-  createButtonUI({ x, y, width, height, label, eventType } = {}) {
-    const button = this.add.container(x, y);
-    const bg = this.add.graphics();
-
-    // Optional: fake inset shadow - smaller, inside shape
-    bg.fillStyle(0xFFFFFF, 1);
-    bg.fillRoundedRect(0, 0, width, height / 2, 4);
-    button.add(bg);
-
-    // Top strip with rounded top corners, flat bottom
-    const topStrip = this.add.graphics();
-    topStrip.fillStyle(0xCCCCCC, 1); // border color
-    topStrip.fillRoundedRect(0, 0, width, 25, { tl: 4, tr: 4, br: 0, bl: 0 });
-    button.add(topStrip);
-
-    const labelTxt = this.add.text(width / 2,  14, label, {
-      fontSize: '20px',
-      fontFamily: 'troika',
-      color: '#1f4213'
-    }).setOrigin(0.5, 0.5);
-    button.add(labelTxt);
-
-    const valueText = this.add.text(width / 2 , 52, "0", {
-      fontFamily: "troika",
-      fontSize: '30px',
-      color: "#2f8011",
-    }).setOrigin(0.5, 0.5);
-
-    this.gameScene.events.on(eventType, (newScore) => {
-      valueText.setText(newScore);
-    });
-    button.add(valueText);
   }
 
   createTopBg() {
@@ -85,15 +52,16 @@ export class SettingsScene extends Phaser.Scene {
     const blocker = this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.3)
       .setOrigin(0, 0)
       .setInteractive();
-    
+
+
     const bg = this.add.graphics();
     bg.fillStyle(0x222222, 1);
-    bg.fillRoundedRect(15, 60, this.scale.width - 30, 400, 4);
+    bg.fillRoundedRect(this.scale.width / 2 - this.windowWidth / 2, 20, this.windowWidth, this.scale.height - 40, 4);
     this.panel.add([blocker, bg]);
   }
 
   createMusicOption() {
-    const musicGroup = this.add.container(0, 0);
+    const musicGroup = this.add.container(this.scale.width / 2 - this.windowWidth / 2, 0);
     const isPlaying = localStorage.getItem("music-muted");
 
     const label = this.add.text(35 , 152, "Background Music", {
@@ -134,7 +102,7 @@ export class SettingsScene extends Phaser.Scene {
   }
 
   createFullscreenOption() {
-    const fullscreenGroup = this.add.container(0, 35);
+    const fullscreenGroup = this.add.container(this.scale.width / 2 - this.windowWidth / 2, 35);
     const isFullscreen = localStorage.getItem("fullscreen-mode");
 
     const label = this.add.text(35 , 152, "Fullscreen", {
@@ -185,7 +153,7 @@ export class SettingsScene extends Phaser.Scene {
   }
 
   createHeader() {
-    const header = this.add.text(30, 84, 'Settings', {
+    const header = this.add.text(this.scale.width / 2 - this.windowWidth / 2 + 25, 84, 'Settings', {
       fontFamily: 'troika',
       fontSize: '40px',
       color: '#FFF'

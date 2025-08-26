@@ -8,7 +8,7 @@ const rollbar = new Rollbar({
 });
 
 export function logError({ message, auditData } = {}) {
-  if (!config.isProd) {
+  if (config.isProd) {
     rollbar.log(message, { auditData });
   }
 

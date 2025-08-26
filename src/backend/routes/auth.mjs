@@ -4,10 +4,8 @@ import { body, param, validationResult } from "express-validator";
 import { validateCsrfMiddleware } from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import config from "../config/default.json" with { type: "json" };
-import {
-  addWalletRecord,
-} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
+import Wallets from "../models/wallets.mjs";
 
 export function initAuthRoutes(app) {
   app.post(
@@ -61,7 +59,7 @@ export function initAuthRoutes(app) {
             req.session.csrfToken = crypto.randomBytes(32).toString("hex");
 
             // Save wallet
-            await addWalletRecord({
+            await Wallets.addRecord({
               address,
             });
 

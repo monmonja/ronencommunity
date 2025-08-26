@@ -6,7 +6,7 @@ export default class BootScene extends Phaser.Scene {
     super({key: 'BootScene'});
   }
   preload() {
-    this.load.image('bg', '{{config.cdnLink}}/game-assets/flappy-baxie/images/bg.webp')
+    this.load.image('bg', '{{config.cdnLink}}/game-assets/flappy-baxie/images/bg2.webp')
   }
 
   create() {

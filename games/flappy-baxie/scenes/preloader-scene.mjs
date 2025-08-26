@@ -80,10 +80,11 @@ export default class PreloaderScene extends Phaser.Scene {
 
     this.load.image(assets.scene.ronenCoin, '{{config.cdnLink}}/game-assets/flappy-baxie/images/ronen.png')
 
-    this.load.spritesheet(assets.scene.floor, '{{config.cdnLink}}/game-assets/flappy-baxie/images/floor.webp', {
-      frameWidth: 370,
-      frameHeight: 112
-    })
+    this.load.image(assets.scene.floor, '{{config.cdnLink}}/game-assets/flappy-baxie/images/floor-2.webp')
+    // this.load.spritesheet(assets.scene.floor, '{{config.cdnLink}}/game-assets/flappy-baxie/images/floor.webp', {
+    //   frameWidth: 370,
+    //   frameHeight: 112
+    // })
 
     // Pipes
     this.load.image(assets.obstacle.pipe.green.top, '{{config.cdnLink}}/game-assets/flappy-baxie/images/pipe-green-top.png')
@@ -93,7 +94,7 @@ export default class PreloaderScene extends Phaser.Scene {
 
     this.load.audio('bgm', '{{config.cdnLink}}/game-assets/flappy-baxie/audio/bg.mp3');
 
-    this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day.webp')
+    this.load.image(assets.scene.background.day, '{{config.cdnLink}}/game-assets/flappy-baxie/images/day-2.webp')
     this.load.image(assets.scene.background.night, '{{config.cdnLink}}/game-assets/flappy-baxie/images/night.webp')
 
     // baxies

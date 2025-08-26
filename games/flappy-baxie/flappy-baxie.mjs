@@ -8,8 +8,8 @@ import {SettingsScene} from "../common/utils/settings.mjs";
 
 new Phaser.Game({
   type: Phaser.AUTO,
-  width: 370,
-  height: 512,
+  width: 800,
+  height: 450,
   parent: 'game-content',
   backgroundColor: '#111',
   physics: {

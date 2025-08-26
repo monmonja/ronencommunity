@@ -1,0 +1,128 @@
+import {getConnection} from "../components/db.mjs";
+
+import { getTodayDateString } from "../utils/date-utils.mjs";
+import config from "../config/default.json" with { type: "json" };
+import Games from "./games.mjs";
+import { getUtcNow } from "../utils/date-utils.mjs";
+
+// gameEnergy model for tracking lives per wallet per game
+export default class Energies {
+  static async getEnergy({ address, gameId, date } = {}) {
+    const mongoDbConnection = await getConnection();
+
+    if (!date) {
+      date = getUtcNow();
+    }
+
+    return await mongoDbConnection.db().collection(config.mongo.table.energies).findOne({
+      address,
+      gameId,
+      date: getTodayDateString(date),
+    });
+  }
+
+  static async addUpdateRecord({
+    address, gameId, date, energyUsed = 0
+  }) {
+    const mongoDbConnection = await getConnection();
+
+    if (!date) {
+      date = getUtcNow();
+    }
+
+    const energyData = {
+      address,
+      gameId,
+      date: getTodayDateString(date),
+      energyUsed,
+      lastUpdated: getUtcNow(),
+      createdAt: getUtcNow()
+    };
+
+    await mongoDbConnection.db().collection(config.mongo.table.energies)
+      .updateOne({
+        address,
+        gameId,
+        date: getTodayDateString(date),
+      },
+      { $set: energyData },
+      { upsert: true }
+    );
+
+    return energyData;
+  }
+
+  static async getAvailableEnergies({ address, gameId}) {
+    const energyFromDb = await this.getEnergy({ address, gameId });
+    const dailyEnergy = Games.getDailyEnergy(gameId);
+
+    if (!energyFromDb) {
+      return dailyEnergy;
+    }
+
+    return dailyEnergy - energyFromDb.energyUsed;
+  }
+
+  static async useLife({ address, gameId, date } = {}) {
+    if (!date) {
+      date = getUtcNow();
+    }
+
+    let gameEnergy = await this.getEnergy({
+      address, gameId, date,
+    });
+    const dailyEnergy = Games.getDailyEnergy(gameId);
+
+    if (gameEnergy === null) {
+      gameEnergy = await Energies.addUpdateRecord({
+        address, gameId, date
+      })
+    }
+
+    if (gameEnergy.energyUsed >= dailyEnergy) {
+      throw new Error('Cannot use more energy');
+    }
+
+    gameEnergy = await Energies.addUpdateRecord({
+      address, gameId, date,
+      energyUsed: gameEnergy.energyUsed + 1
+    });
+
+    return dailyEnergy - gameEnergy.energyUsed;
+  }
+
+  static async getEnergySummary({
+    address, date
+   }) {
+    const mongoDbConnection = await getConnection();
+
+    if (!date) {
+      date = getUtcNow();
+    }
+
+    const gameEnergy = await mongoDbConnection.db().collection(config.mongo.table.energies)
+      .find({
+        address,
+        date: getTodayDateString(date),
+      })
+      .toArray();
+
+    const summary = {};
+    const games = Games.getGames();
+
+    // Initialize with all games
+    Object.keys(games).forEach(gameKey => {
+      const game = games[gameKey];
+      const dbRecord = gameEnergy.filter((i) => i.gameId === game.slug);
+
+      delete game.changeLog;
+
+      summary[game.slug] = {
+        ...game,
+        available: dbRecord?.length > 0 ? game.dailyEnergy - dbRecord[0].energyUsed : game.dailyEnergy
+      };
+    });
+
+    return summary;
+  }
+}

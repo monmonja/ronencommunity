@@ -3,6 +3,7 @@
   "name": "Match 3 Baxies",
   "description": "A match 3 game with baxies",
   "lastUpdate": 1756044765000,
+  "dailyEnergy": 3,
   "changeLog": [
     {
       "date": 1756044765000,

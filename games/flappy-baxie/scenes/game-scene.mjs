@@ -3,14 +3,14 @@ import { assets } from "../constants.mjs";
 
 const levels = [
   {
-    maxScore: 1,
-    velocityX: -100,
-    nextFrame: 130,
+    maxScore: 3,
+    velocityX: -120,
+    nextFrame: 100,
   },
   {
     maxScore: 4,
     velocityX: -150,
-    nextFrame: 120,
+    nextFrame: 100,
   },
   {
     maxScore: 7,
@@ -25,7 +25,7 @@ const levels = [
   {
     maxScore: 13,
     velocityX: -250,
-    nextFrame: 50,
+    nextFrame: 60,
   },
   {
     maxScore: 16,
@@ -40,7 +40,7 @@ const levels = [
   {
     maxScore: 22,
     velocityX: -250,
-    nextFrame: 45,
+    nextFrame: 50,
   }
 ]
 
@@ -85,8 +85,6 @@ export default class GameScene extends Phaser.Scene {
    *   Create the game objects (images, groups, sprites).
    */
   create() {
-    this.add.image(0, 0, assets.scene.floor).setOrigin(0, 0)
-
     this.backgroundDay = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, assets.scene.background.day).setOrigin(0, 0).setInteractive()
     this.backgroundDay.on('pointerdown', () => this.moveBaxie())
     this.backgroundNight = this.add.tileSprite(0, 0,  this.scale.width, this.scale.height, assets.scene.background.night).setOrigin(0, 0).setInteractive()
@@ -102,19 +100,20 @@ export default class GameScene extends Phaser.Scene {
       fontSize: '50px',
       color: '#FFF'
     }).setOrigin(0.5, 0);
+    this.scoreTxt.setShadow(2, 2, '#222', 4, false, true);
     this.scoreTxt.setDepth(30);
 
     this.upButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
 
-    this.anims.create({
-      key: 'moving',
-      frames: this.anims.generateFrameNumbers(assets.scene.floor, {
-        start: 0,
-        end: 2
-      }),
-      frameRate: 3,
-      repeat: -1
-    });
+    // this.anims.create({
+    //   key: 'moving',
+    //   frames: this.anims.generateFrameNumbers(assets.scene.floor, {
+    //     start: 0,
+    //     end: 2
+    //   }),
+    //   frameRate: 3,
+    //   repeat: -1
+    // });
 
     this.setupGame()
   }
@@ -149,8 +148,8 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.nextPipes++;
-
     if (this.nextPipes >= this.nextFrame) {
+console.log(this.nextPipes, this.nextFrame, this.level)
       this.makePipes();
       this.nextPipes = 0;
     }
@@ -194,17 +193,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
 
-  makePipes() {
-    const pipeTopY = Phaser.Math.Between(-120, 30);
-    const ronenCoin = this.add.image(388, pipeTopY + 240, assets.scene.ronenCoin)
+  makePipes(initialX = 820) {
+    const pipeTopY = Phaser.Math.Between(-120, 40);
+    const ronenCoin = this.add.image(initialX, pipeTopY + 240, assets.scene.ronenCoin)
 
     this.gapsGroup.add(ronenCoin);
     ronenCoin.body.allowGravity = false;
 
-    const pipeTop = this.pipesGroup.create(388, pipeTopY, this.currentPipe.top)
+    const pipeTop = this.pipesGroup.create(initialX, pipeTopY, this.currentPipe.top)
     pipeTop.body.allowGravity = false
 
-    const pipeBottom = this.pipesGroup.create(388, pipeTopY + 500, this.currentPipe.bottom)
+    const pipeBottom = this.pipesGroup.create(initialX, pipeTopY + 500, this.currentPipe.bottom)
     pipeBottom.body.allowGravity = false
   }
 
@@ -237,16 +236,17 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.floorGroup, this.hitBaxie, null, this);
     this.physics.add.collider(this.player, this.pipesGroup, this.hitBaxie, null, this);
     this.physics.add.overlap(this.player, this.gapsGroup, this.updateScore, null, this);
-
-    this.floor = this.floorGroup.create(185, 500, assets.scene.floor)
+    //
+    this.floor = this.floorGroup.create(400, 450, assets.scene.floor)
+      .setScale(0.4, 0.3)
     this.floor.body.allowGravity = false
-    this.floor.setCollideWorldBounds(true)
     this.floor.setDepth(30);
 
-    this.floor.anims.play('moving', true)
+    // this.floor.anims.play('moving', true)
 
     this.physics.resume();
-    this.makePipes();
+    this.makePipes(430);
+    this.makePipes(740);
 
   }
 }

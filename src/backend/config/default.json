@@ -11,7 +11,8 @@
     "table": {
       "wallets": "wallets",
       "raffles": "raffles",
-      "raffleWinners": "raffle-winners"
+      "raffleWinners": "raffle-winners",
+      "energies": "energies"
     }
   },
   "web3":  {

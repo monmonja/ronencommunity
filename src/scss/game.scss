@@ -31,13 +31,13 @@
   flex-direction: column;
 
   #game-content {
-    width: 380px !important;
-    height: 512px !important;
+    height: 450px !important;
+    width: 800px !important;
     margin: auto;
 
     canvas {
-      max-width: 380px !important;
-      max-height: 512px !important;
+      max-height: 450px !important;
+      max-width: 800px !important;
     }
   }
 
