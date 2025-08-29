@@ -1,4 +1,4 @@
-import { sendRonSimple } from "./ronin-send";
+import { sendToken } from "./ronin-send";
 import {detectNetwork} from "./ronin-detect-network";
 import {getCookie} from "./cookies";
 
@@ -35,7 +35,7 @@ export function initOverlayRaffle (): void {
 
       try {
         const amount = raffleAmount.value;
-        const result = await sendRonSimple("{{config.web3.raffleAddress}}", amount);
+        const result = await sendToken("RON","{{config.web3.raffleAddress}}", amount);
 
         if (result) {
           const { txHash } = result;

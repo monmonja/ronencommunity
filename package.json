@@ -57,6 +57,7 @@
     "watch:scss": "webpack --config webpack.styles.mjs --watch",
     "watch": "concurrently -n TS,SCSS -c yellow,cyan \"npm:watch:ts\" \"npm:watch:scss\"",
     "lint:ts": "npx eslint \"src/**/*.{ts,tsx,mjs}\"",
+    "lint:games": "npx eslint \"games/common/**/*.{ts,tsx,mjs}\"",
     "lint:scss": "stylelint \"src/**/*.{scss,css}\"",
     "lint": "npm run lint:ts && npm run lint:scss",
     "start": "node local.mjs"

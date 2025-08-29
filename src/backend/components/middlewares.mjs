@@ -119,7 +119,7 @@ export function walletRaffleEntryMiddleware() {
       const availableEnergy = await Energies.getAvailableEnergies({
         address: wallet,
         gameId: req.params.path
-      })
+      });
 
       if (availableEnergy > 0) {
         return next();

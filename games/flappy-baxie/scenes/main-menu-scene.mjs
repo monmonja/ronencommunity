@@ -1,5 +1,7 @@
 import { assets } from "../constants.mjs";
-import {addSettingsIcon} from "../../common/utils/settings.mjs";
+import {addSettingsIcon} from "../../common/settings.mjs";
+import {useEnergy} from "../../common/energies.mjs";
+import constants from "../../common/constants.mjs";
 
 const baxies = {
   'gronke': 'baxie-gronke',
@@ -11,7 +13,7 @@ const baxies = {
   'yellow': 'baxie-yellow',
 }
 
-export default class MainMenuScene extends Phaser.Scene {
+export default class  MainMenuScene extends Phaser.Scene {
   constructor() {
     super({key: 'MainMenuScene'});
   }
@@ -20,7 +22,7 @@ export default class MainMenuScene extends Phaser.Scene {
     this.add.image(0, 0, 'bg').setOrigin(0, 0)
       .setInteractive()
 
-    addSettingsIcon(this);
+    this.scene.launch('MainPanelScene');
 
     document.fonts.load('16px troika').then(() => {
       const center = this.sys.game.config.width / 2;
@@ -52,8 +54,26 @@ export default class MainMenuScene extends Phaser.Scene {
 
         const baxie = this.add.image(x, startY + row * spaceY, baxies[key]);
 
-        baxie.setInteractive().on('pointerdown', () => {
-          this.scene.start('GameScene', { selectedBaxie: baxies[key] });
+        baxie.setInteractive();
+        baxie.on("pointerover", () => {
+          this.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
+        });
+        baxie.on("pointerout", () => {
+          this.input.manager.canvas.style.cursor = "default";
+        });
+        baxie.on('pointerdown', () => {
+          const energy = this.registry.get(constants.registry.energy);
+
+          if (energy.available > 0) {
+            useEnergy({
+              scene: this,
+              gameId: 'flappy-baxie',
+            }).then((result) => {
+              if (result.available > 0) {
+                this.scene.start('GameScene', {selectedBaxie: baxies[key]});
+              }
+            })
+          }
         });
         containerItems.push(baxie);
       });

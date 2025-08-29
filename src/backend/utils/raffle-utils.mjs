@@ -31,9 +31,11 @@ export function raffleEndsInDHM() {
   let diffMs = Math.max(remainingMs, 0); // avoid negative
 
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
   diffMs -= days * 24 * 60 * 60 * 1000;
 
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
+
   diffMs -= hours * 60 * 60 * 1000;
 
   const minutes = Math.floor(diffMs / (1000 * 60));

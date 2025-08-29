@@ -1,11 +1,15 @@
 import Phaser from "phaser";
 import MainMenuScene from './scenes/main-menu-scene.mjs';
 import ScoreGameScene from './scenes/score-game-scene.mjs';
-import UiScene from './scenes/ui-scene.mjs';
 import GameOverScene from "./scenes/game-over-scene.mjs";
-import {SettingsScene} from "../common/utils/settings.mjs";
+import {SettingsScene} from "../common/settings.mjs";
+import BootScene from "./scenes/boot-scene.mjs";
+import PreloaderScene from "./scenes/preloader-scene.mjs";
+import {MainPanelScene} from "../common/main-panel.mjs";
+import EnergiesScene from "../common/scene/energies-scene.mjs";
 
-const config = {
+const game = new Phaser.Game({
+  gameId: 'match-3-baxies',
   type: Phaser.AUTO,
   width: 800,
   height: 450,
@@ -21,7 +25,18 @@ const config = {
     mode: Phaser.Scale.FIT,       // keep aspect ratio, fit screen
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [MainMenuScene, ScoreGameScene, UiScene, GameOverScene, SettingsScene],
-};
+  scene: [
+    BootScene,
+    PreloaderScene,
+    MainMenuScene,
+    ScoreGameScene,
+    GameOverScene,
+    SettingsScene,
+    MainPanelScene,
+    EnergiesScene,
+  ],
+});
 
-new Phaser.Game(config);
+game.customConfig = {
+  gameId: 'match-3-baxies',
+};

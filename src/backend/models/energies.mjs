@@ -7,6 +7,39 @@ import { getUtcNow } from "../utils/date-utils.mjs";
 
 // gameEnergy model for tracking lives per wallet per game
 export default class Energies {
+  static async addPurchasedEnergy({ txHash, address, amount = 0 }) {
+    const mongoDbConnection = await getConnection();
+
+    if (amount <= 0) {
+      throw new Error("Amount must be positive");
+    }
+
+    const existingPurchase = await mongoDbConnection.db()
+      .collection(config.mongo.table.purchases)
+      .findOne({ txHash });
+
+    if (existingPurchase) {
+      return null; // or throw an error
+    }
+
+    // Use $inc to increment purchasedEnergy
+    const updateData = {
+      lastUpdated: getUtcNow(),
+      createdAt: getUtcNow() // optional: only relevant on insert
+    };
+
+    return await mongoDbConnection
+      .db()
+      .collection(config.mongo.table.wallets)
+      .updateOne(
+        {
+          address: address.toLowerCase()
+        },
+        { $inc: { purchasedEnergy: amount }, $setOnInsert: updateData },
+        { upsert: true }
+      );
+  }
+
   static async getEnergy({ address, gameId, date } = {}) {
     const mongoDbConnection = await getConnection();
 
@@ -52,15 +85,28 @@ export default class Energies {
     return energyData;
   }
 
+  static async getPurchasedEnergy({ address } = {}) {
+    // Fetch purchasedEnergy from wallets collection
+    const mongoDbConnection = await getConnection();
+    const wallet = await mongoDbConnection
+      .db()
+      .collection(config.mongo.table.wallets)
+      .findOne({ address: address.toLowerCase() });
+
+    return wallet?.purchasedEnergy || 0;
+  }
+
   static async getAvailableEnergies({ address, gameId}) {
     const energyFromDb = await this.getEnergy({ address, gameId });
     const dailyEnergy = Games.getDailyEnergy(gameId);
 
+    const purchasedEnergy = await Energies.getPurchasedEnergy({ address });
+
     if (!energyFromDb) {
-      return dailyEnergy;
+      return dailyEnergy + purchasedEnergy;
     }
 
-    return dailyEnergy - energyFromDb.energyUsed;
+    return dailyEnergy - energyFromDb.energyUsed + purchasedEnergy;
   }
 
   static async useLife({ address, gameId, date } = {}) {
@@ -72,15 +118,17 @@ export default class Energies {
       address, gameId, date,
     });
     const dailyEnergy = Games.getDailyEnergy(gameId);
+    const purchasedEnergy = await Energies.getPurchasedEnergy({ address });
+    const totalAllowedEnergy = dailyEnergy + purchasedEnergy;
 
     if (gameEnergy === null) {
       gameEnergy = await Energies.addUpdateRecord({
         address, gameId, date
-      })
+      });
     }
 
-    if (gameEnergy.energyUsed >= dailyEnergy) {
-      throw new Error('Cannot use more energy');
+    if (gameEnergy.energyUsed >= totalAllowedEnergy) {
+      throw new Error("Cannot use more energy");
     }
 
     gameEnergy = await Energies.addUpdateRecord({
@@ -88,7 +136,7 @@ export default class Energies {
       energyUsed: gameEnergy.energyUsed + 1
     });
 
-    return dailyEnergy - gameEnergy.energyUsed;
+    return totalAllowedEnergy - gameEnergy.energyUsed;
   }
 
   static async getEnergySummary({

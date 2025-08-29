@@ -126,6 +126,7 @@ export function initAuthRoutes(app) {
       const { address } = req.params;
 
       const nonce = crypto.randomBytes(16).toString("hex");
+
       req.session.nonceData = { address: address.toLowerCase(), nonce };
 
       res.json({ nonce });

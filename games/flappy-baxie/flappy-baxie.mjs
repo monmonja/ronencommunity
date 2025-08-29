@@ -4,9 +4,11 @@ import GameScene from "./scenes/game-scene.mjs";
 import GameOverScene from "./scenes/game-over-scene.mjs";
 import PreloaderScene from "./scenes/preloader-scene.mjs";
 import BootScene from "./scenes/boot-scene.mjs";
-import {SettingsScene} from "../common/utils/settings.mjs";
+import {SettingsScene} from "../common/settings.mjs";
+import {MainPanelScene} from "../common/main-panel.mjs";
+import EnergiesScene from "../common/scene/energies-scene.mjs";
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   width: 800,
   height: 450,
@@ -25,5 +27,18 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,       // keep aspect ratio, fit screen
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BootScene, PreloaderScene, MainMenuScene, GameScene, GameOverScene, SettingsScene]
+  scene: [
+    BootScene,
+    PreloaderScene,
+    MainMenuScene,
+    GameScene,
+    GameOverScene,
+    SettingsScene,
+    MainPanelScene,
+    EnergiesScene,
+  ]
 });
+
+game.customConfig = {
+  gameId: 'flappy-baxie',
+};

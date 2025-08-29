@@ -1,6 +1,7 @@
 import { assets } from "../constants.mjs";
-import {createButton} from "../utils/buttons.mjs";
-import {addBgMusic} from "../../common/utils/settings.mjs";
+import {addBgMusic} from "../../common/settings.mjs";
+import {fetchEnergy} from "../../common/energies.mjs";
+import {createProgressBar} from "../../common/progres.mjs";
 
 const baxies = {
   'gronke': 'baxie-gronke',
@@ -17,56 +18,18 @@ export default class PreloaderScene extends Phaser.Scene {
     super({key: 'PreloaderScene'});
   }
 
-  progressBar(width, height) {
-    // Create graphics for the bar
-    const progressBox = this.add.graphics();
-    const progressBar = this.add.graphics();
-
-    progressBox.fillStyle(0x2f8011, 1);
-    progressBox.fillRoundedRect((this.scale.width / 2) - (width / 2), this.scale.height / 2 + 10, width, height, 6);
-
-    // Listen for load progress
-    this.load.on('progress', (value) => {
-      progressBar.clear();
-      progressBar.fillStyle(0x8aff5c, 1);
-      console.log(value)
-      progressBar.fillRect((this.scale.width / 2) - (width / 2) + 5, (this.scale.height / 2) + 15,  (width - 10) * value, height - 10);
-    });
-
-    this.load.on('complete', () => {
-      progressBar.destroy();
-      progressBox.destroy();
-      createButton({
-        scene: this,
-        x: (this.scale.width / 2) - (100 / 2),
-        y: this.scale.height / 2 + 10,
-        width: 100,
-        height: 30,
-        text: "Start",
-        onPointerDown: () => {
-          const isFullscreen = localStorage.getItem("fullscreen-mode");
-
-          if (isFullscreen === "true") {
-            this.scale.startFullscreen();
-            document.body.classList.add('fullscreen');
-
-            this.scale.once('enterfullscreen', () => {
-              this.scene.launch('MainMenuScene');
-            });
-          } else {
-            this.scene.launch('MainMenuScene');
-          }
-        }
-      })
-    });
-  }
   preload() {
-    this.load.image('bg', '{{config.cdnLink}}/game-assets/flappy-baxie/images/bg.webp')
-    this.load.image('settings', '{{config.cdnLink}}/game-assets/common/settings.png')
+    fetchEnergy(this);
 
     this.add.image(0, 0, "bg")
       .setOrigin(0, 0);
-    this.progressBar(200, 16);
+
+    createProgressBar({
+      scene: this,
+      width: 220,
+      height: 14,
+      launchScreen: 'MainMenuScene',
+    });
 
     document.fonts.load('16px troika').then(() => {
       const logo = this.add.text(this.scale.width / 2, this.scale.height / 2 - 40, 'Flappy Baxie', {
@@ -99,10 +62,7 @@ export default class PreloaderScene extends Phaser.Scene {
 
     // baxies
     Object.keys(baxies).forEach((key) => {
-      this.load.spritesheet(baxies[key], `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`, {
-        frameWidth: 61,
-        frameHeight: 70,
-      });
+      this.load.image(baxies[key], `{{config.cdnLink}}/game-assets/flappy-baxie/images/${baxies[key]}.png`);
     });
   }
 

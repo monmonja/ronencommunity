@@ -3,6 +3,7 @@ import { MongoClient } from "mongodb";
 import config from "../config/default.json" with { type: "json" };
 
 const client = new MongoClient(config.mongo.connectionString);
+
 await client.connect();
 const db = client.db();
 

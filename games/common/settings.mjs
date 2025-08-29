@@ -1,0 +1,268 @@
+import Phaser from "phaser";
+import {createButton, createCloseButton} from "./buttons.mjs";
+import constants from "./constants.mjs";
+
+export function addSettingsIcon({ scene } = {}) {
+  const x = 0;
+  const y = 10;
+  const width = 50;
+  const container = scene.add.container(x, y);
+  const bg = scene.add.graphics();
+
+  const profilePicWidth = width + 10;
+  const profilePicHeight = 60;
+
+  bg.fillStyle(0x9dfd90, 0.3);
+  bg.fillRoundedRect(10, 18, profilePicWidth, profilePicHeight, {
+    tl: 24, // top-left
+    tr: 30, // top-right
+    bl: 24,  // bottom-left
+    br: 30   // bottom-right
+  });
+  container.add(bg);
+
+
+
+  // Profile picture
+  const profilePic = scene.add.image(38, 22, "profile-pic")
+    .setScale(0.7)
+    .setOrigin(0.5, 0);
+
+  // Create graphics for mask
+  const maskShape = scene.make.graphics();
+  maskShape.fillStyle(0xffffff);
+
+  // Draw circle for mask
+  maskShape.fillRoundedRect(10, 18, profilePicWidth, profilePicHeight, {
+    tl: 24, // top-left
+    tr: 30, // top-right
+    bl: 24,  // bottom-left
+    br: 30   // bottom-right
+  });
+
+// Apply mask
+  const mask = maskShape.createGeometryMask();
+  profilePic.setMask(mask);
+
+// Add to container
+  container.add(profilePic);
+
+  const frame = scene.add.image(38, 10, "profile-frame")
+    .setScale(1.3)
+    .setOrigin(0.5, 0)
+    .setInteractive();
+
+  container.add(frame);
+  container.add(profilePic);
+
+  const settingsIcon = scene.add.image(8, 8, "settings")
+    .setOrigin(0, 0)
+    .setScale(0.65)
+    .setInteractive();
+
+  container.add(settingsIcon);
+
+  frame.on("pointerover", () => {
+    scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
+  });
+  frame.on("pointerout", () => {
+    scene.input.manager.canvas.style.cursor = "default";
+  });
+  frame.on("pointerdown", () => {
+    scene.scene.launch("SettingsScene");
+    scene.scene.bringToTop("SettingsScene");
+  });
+  settingsIcon.on("pointerover", () => {
+    scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
+  });
+  settingsIcon.on("pointerout", () => {
+    scene.input.manager.canvas.style.cursor = "default";
+  });
+  settingsIcon.on("pointerdown", () => {
+    scene.scene.launch("SettingsScene");
+    scene.scene.bringToTop("SettingsScene");
+  });
+
+  return settingsIcon;
+}
+
+export function addBgMusic (scene) {
+  if (!scene.bgm) {
+    scene.bgm = scene.sound.add("bgm", {loop: true, volume: 0.3});
+  }
+
+  scene.input.once("pointerdown", () => {
+    if (!scene.bgm.isPlaying) {
+      const isPlaying = localStorage.getItem("music-muted");
+
+      if (isPlaying !== "false") {
+        if (!scene.sound.unlock) {
+          scene.sound.unlock();
+        }
+
+        scene.bgm.play();
+      }
+    }
+  });
+
+  scene.game.events.on("bgAudioChange", (isOn) => {
+    if (isOn) {
+      scene.bgm.stop();
+    } else {
+      scene.bgm.play();
+    }
+  });
+}
+
+export class SettingsScene extends Phaser.Scene {
+  windowWidth = 400;
+  constructor() {
+    super("SettingsScene");
+  }
+
+  createTopBg() {
+    this.add.container(0, 0);
+    this.add.rectangle(0, 0, this.scale.width, this.scale.height, constants.colors.blocker, constants.colors.blockerAlpha)
+      .setOrigin(0, 0)
+      .setInteractive();
+
+    this.panel = this.add.container(this.scale.width / 2 - this.windowWidth / 2, 20);
+    const bg = this.add.graphics();
+
+    bg.fillStyle(0x222222, 1);
+    bg.fillRoundedRect(0, 0, this.windowWidth, this.scale.height - 40, 4);
+    this.panel.add([bg]);
+  }
+
+  createMusicOption() {
+    const musicGroup = this.add.container(15, 100);
+    const isPlaying = localStorage.getItem("music-muted");
+
+    const label = this.add.text(0 , 0, "Background Music", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: "#FFF",
+    }).setOrigin(0, 0.5);
+
+    musicGroup.add(label);
+
+    const onBtn = this.add.text(270 , 0, "On", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: isPlaying === "true" ? "#FFF" : "#333",
+    }).setOrigin(0, 0.5);
+
+    onBtn.setInteractive();
+    onBtn.on("pointerdown", () => {
+      onBtn.setColor("#FFF");
+      offBtn.setColor("#333");
+      this.game.events.emit("bgAudioChange", false);
+      localStorage.setItem("music-muted",  "true");
+    });
+    musicGroup.add(onBtn);
+
+    const offBtn = this.add.text(305 , 0, "Off", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: isPlaying === "false" ? "#FFF" : "#333",
+    }).setOrigin(0, 0.5);
+
+    offBtn.setInteractive();
+    offBtn.on("pointerdown", () => {
+      offBtn.setColor("#FFF");
+      onBtn.setColor("#333");
+      this.game.events.emit("bgAudioChange", true);
+      localStorage.setItem("music-muted",  "false");
+    });
+    musicGroup.add(offBtn);
+    this.panel.add(musicGroup);
+  }
+
+  createFullscreenOption() {
+    const fullscreenGroup = this.add.container(15, 130);
+    const isFullscreen = localStorage.getItem("fullscreen-mode");
+
+    const label = this.add.text(0 , 0, "Fullscreen", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: "#FFF",
+    }).setOrigin(0, 0.5);
+
+    fullscreenGroup.add(label);
+
+    const onBtn = this.add.text(270 , 0, "On", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: isFullscreen === "true" ? "#FFF" : "#333",
+    }).setOrigin(0, 0.5);
+
+    onBtn.setInteractive();
+    onBtn.on("pointerdown", () => {
+      onBtn.setColor("#ffffff");
+      offBtn.setColor("#333");
+      this.scale.startFullscreen();
+      document.body.classList.add("fullscreen");
+      localStorage.setItem("fullscreen-mode",  "true");
+    });
+    fullscreenGroup.add(onBtn);
+
+    const offBtn = this.add.text(305 , 0, "Off", {
+      fontFamily: "troika",
+      fontSize: "20px",
+      color: isFullscreen === "false" ? "#FFF" : "#333",
+    }).setOrigin(0, 0.5);
+
+    offBtn.setInteractive();
+    offBtn.on("pointerdown", () => {
+      offBtn.setColor("#ffffff");
+      onBtn.setColor("#333");
+      this.scale.stopFullscreen();
+      localStorage.setItem("fullscreen-mode",  "false");
+    });
+    fullscreenGroup.add(offBtn);
+    this.panel.add(fullscreenGroup);
+
+    this.scale.on("leavefullscreen", () => {
+      document.body.classList.remove("fullscreen");
+      localStorage.setItem("fullscreen-mode",  "false");
+
+      if (offBtn) {
+        offBtn.setColor("#ffffff");
+        onBtn.setColor("#333");
+      }
+    });
+  }
+
+  createHeader() {
+    const header = this.add.text(15, 15, "Settings", {
+      fontFamily: "troika",
+      fontSize: "40px",
+      color: "#FFF"
+    }).setOrigin(0, 0);
+
+    this.panel.add(header);
+  }
+
+  create() {
+    this.cameras.main.setScroll(0, -this.scale.height);
+
+    // Slide down tween
+    this.tweens.add({
+      targets: this.cameras.main,
+      scrollY: 0,
+      duration: 500,
+      ease: "Cubic.easeOut"
+    });
+
+    this.createTopBg();
+    this.createFullscreenOption();
+    this.createHeader();
+    this.createMusicOption();
+
+    this.panel.add(createCloseButton({
+      scene: this,
+      x: this.windowWidth - 44,
+      y: 15,
+    }));
+  }
+}

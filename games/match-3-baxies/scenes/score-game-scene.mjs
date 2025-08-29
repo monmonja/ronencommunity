@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
-import {createButton} from "../utils/buttons.mjs";
-import {addSettingsIcon} from "../../common/utils/settings.mjs";
+import {createButton} from "../../common/buttons.mjs";
+import {addSettingsIcon} from "../../common/settings.mjs";
+import constants from "../../common/constants.mjs";
 
 export const levels = [
   {
@@ -132,7 +133,7 @@ export default class ScoreGameScene extends Phaser.Scene {
 
         if (emitEvent) {
           setTimeout(() => {
-            this.events.emit("targetChanged", level.maxScore == Infinity ? '∞' : level.maxScore);
+            this.game.events.emit("targetChanged", level.maxScore == Infinity ? '∞' : level.maxScore);
           }, 50);
         }
 
@@ -141,20 +142,71 @@ export default class ScoreGameScene extends Phaser.Scene {
     }
   }
 
-  create() {
-    this.cameras.main.setBackgroundColor("#101018");
+  createScoreBoard({ x, y, eventType, label } = {}) {
+    this.game.events.emit('addMainPanelItem', ({ scene }) => {
+      const container = this.add.container(x, y);
+      const width = 80 - 18;
+      const height = 80;
+      const bg = scene.add.graphics();
 
+      container.setSize(width, height);
+      bg.fillStyle(0x9dfd90, 0.3);
+      bg.fillRoundedRect(0, 0, width, height, 6);
+
+      // Top strip with rounded top corners, flat bottom
+      const topStrip = this.add.graphics();
+      topStrip.fillStyle(0xCCCCCC, 1); // border color
+      topStrip.fillRoundedRect(0, 0, width, 25, { tl: 4, tr: 4, br: 0, bl: 0 });
+
+      const labelTxt = this.add.text(width / 2,  14, label, {
+        fontSize: '18px',
+        fontFamily: 'troika',
+        color: '#1f4213'
+      }).setOrigin(0.5, 0.5);
+
+      const valueText = scene.add.text(width / 2, (height / 2) + 15, '0', {
+        fontFamily: 'troika',
+        fontSize: '26px',
+        color: '#FFF'
+      }).setOrigin(0.5, 0.5);
+      valueText.setShadow(2, 2, '#222', 4, false, true);
+      valueText.setDepth(30);
+
+      scene.game.events.on(eventType, (newScore) => {
+        valueText.setText(newScore);
+      });
+
+      container.add([bg, topStrip, labelTxt, valueText]);
+      return container;
+    })
+  }
+
+  create() {
+    this.createScoreBoard({
+      x: 0,
+      y: 0,
+      eventType: "targetChanged",
+      label: "target"
+    });
+    this.createScoreBoard({
+      x: 0,
+      y: 90,
+      eventType: "scoreChanged",
+      label: "score"
+    });
+    this.cameras.main.setBackgroundColor("#101018");
 
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)
       .setInteractive();
+
+
     this.gridGraphics = this.add.graphics();
 
     this.randomizeBoard();
     this.drawBoard();
     this.drawGrid();
-    addSettingsIcon(this);
 
     this.input.on("pointerdown", this.onPointerDown, this);
     this.input.on("pointerup", this.onPointerUp, this);
@@ -273,7 +325,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   }
 
   getOffset() {
-    const uiSceneWidth = 117;
+    const uiSceneWidth = constants.mainMenu.panelWidth;
     const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2) + (uiSceneWidth / 2);
     const offsetY = (this.sys.game.config.height / 2) - ((this.rows * this.cellSize) / 2);
 
@@ -426,7 +478,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   clearMatches(cells) {
     return new Promise((resolve) => {
       this.score += cells.length * 10;
-      this.events.emit("scoreChanged", this.score);
+      this.game.events.emit("scoreChanged", this.score);
 
       const oldLevel = this.level;
       this.setLevel(false);
@@ -549,7 +601,7 @@ export default class ScoreGameScene extends Phaser.Scene {
                           resolve();
                           // check if any moves left
                           if (!this.hasValidMove()) {
-                            this.events.emit("scoreChanged", 0);
+                            this.game.events.emit("scoreChanged", 0);
                             this.scene.launch("GameOverScene", { score: this.score });
                             this.score = 0;
                             this.isBusy = true;

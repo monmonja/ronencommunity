@@ -81,10 +81,42 @@ export default class GameScene extends Phaser.Scene {
     this.selectedBaxie = data.selectedBaxie;
   }
 
+  createScoreBoard() {
+    this.game.events.emit('addMainPanelItem', ({ scene }) => {
+      const width = 80 - 18;
+      const height = 80;
+      const bg = scene.add.graphics();
+      bg.fillStyle(0x9dfd90, 0.3);
+      bg.fillRoundedRect(0, 0, width, height, 6);
+
+      // Top strip with rounded top corners, flat bottom
+      const topStrip = this.add.graphics();
+      topStrip.fillStyle(0xCCCCCC, 1); // border color
+      topStrip.fillRoundedRect(0, 0, width, 25, { tl: 4, tr: 4, br: 0, bl: 0 });
+
+      const labelTxt = this.add.text(width / 2,  14, 'Score', {
+        fontSize: '18px',
+        fontFamily: 'troika',
+        color: '#1f4213'
+      }).setOrigin(0.5, 0.5);
+
+      this.scoreTxt = scene.add.text(width / 2, (height / 2) + 15, '0', {
+        fontFamily: 'troika',
+        fontSize: '40px',
+        color: '#FFF'
+      }).setOrigin(0.5, 0.5);
+      this.scoreTxt.setShadow(2, 2, '#222', 4, false, true);
+      this.scoreTxt.setDepth(30);
+
+      return [bg, topStrip, labelTxt, this.scoreTxt];
+    })
+  }
+
   /**
    *   Create the game objects (images, groups, sprites).
    */
   create() {
+    this.createScoreBoard();
     this.backgroundDay = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, assets.scene.background.day).setOrigin(0, 0).setInteractive()
     this.backgroundDay.on('pointerdown', () => this.moveBaxie())
     this.backgroundNight = this.add.tileSprite(0, 0,  this.scale.width, this.scale.height, assets.scene.background.night).setOrigin(0, 0).setInteractive()
@@ -95,13 +127,7 @@ export default class GameScene extends Phaser.Scene {
     this.pipesGroup = this.physics.add.group()
     this.floorGroup = this.physics.add.group()
 
-    this.scoreTxt = this.add.text(this.sys.game.config.width / 2, 84, '', {
-      fontFamily: 'troika',
-      fontSize: '50px',
-      color: '#FFF'
-    }).setOrigin(0.5, 0);
-    this.scoreTxt.setShadow(2, 2, '#222', 4, false, true);
-    this.scoreTxt.setDepth(30);
+
 
     this.upButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
 
@@ -149,7 +175,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.nextPipes++;
     if (this.nextPipes >= this.nextFrame) {
-console.log(this.nextPipes, this.nextFrame, this.level)
+
       this.makePipes();
       this.nextPipes = 0;
     }
@@ -229,7 +255,7 @@ console.log(this.nextPipes, this.nextFrame, this.level)
     this.gapsGroup.clear(true, true)
     this.floorGroup.clear(true, true)
 
-    this.player = this.physics.add.sprite(80, 265, this.selectedBaxie)
+    this.player = this.physics.add.sprite(220, 265, this.selectedBaxie)
     this.player.setCollideWorldBounds(true)
     this.player.body.allowGravity = false;
 
@@ -245,7 +271,7 @@ console.log(this.nextPipes, this.nextFrame, this.level)
     // this.floor.anims.play('moving', true)
 
     this.physics.resume();
-    this.makePipes(430);
+    this.makePipes(500);
     this.makePipes(740);
 
   }

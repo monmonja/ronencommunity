@@ -47,7 +47,7 @@ export default class GameOverScene extends Phaser.Scene {
       Phaser.Geom.Rectangle.Contains
     );
     button.on('pointerdown', () => {
-      this.events.emit("scoreChanged", 0);
+      this.game.events.emit("scoreChanged", 0);
       this.scene.start("ScoreGameScene");
     });
 

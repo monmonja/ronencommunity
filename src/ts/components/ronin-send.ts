@@ -6,7 +6,11 @@ interface RoninWindow extends Window {
 }
 declare const window: RoninWindow;
 
-export async function sendRonSimple(toRoninAddress: string, amountRon: string): Promise<{ txParams: object; txHash: string } | null> {
+export async function sendToken(
+  tokenSymbol: "RON" | "RONEN",
+  toRoninAddress: string,
+  amount: string
+): Promise<{ txParams: object; txHash: string } | null> {
   const provider = window.ronin?.provider || window.ethereum;
 
   if (!provider) {
@@ -23,42 +27,82 @@ export async function sendRonSimple(toRoninAddress: string, amountRon: string): 
       return null;
     }
 
-    // Convert Ronin address (ronin:...) to Ethereum hex address (0x...)
+    // Convert Ronin address to Ethereum format
     const to = toRoninAddress.startsWith("ronin:")
       ? "0x" + toRoninAddress.slice(6)
       : toRoninAddress;
 
-    // Convert amount from RON to hex Wei string
-    const amountNum = Number(amountRon);
+    const amountNum = Number(amount);
 
     if (isNaN(amountNum) || amountNum <= 0) {
       alert("Invalid amount");
-      
       return null;
     }
 
-    // Multiply by 1e18 and convert to hex
-    const amountWei = BigInt(Math.floor(amountNum * 1e18)).toString(16);
-    const valueHex = "0x" + amountWei;
+    if (tokenSymbol === "RON") {
+      // Native RON transfer
+      const amountWei = BigInt(Math.floor(amountNum * 1e18)).toString(16);
+      const valueHex = "0x" + amountWei;
 
-    const txParams = {
-      from: fromAddress,
-      to,
-      value: valueHex,
-      gas: "0x5208", // 21000 gas limit
-    };
+      const txParams = {
+        from: fromAddress,
+        to,
+        value: valueHex,
+        gas: "0x5208" // 21000
+      };
 
-    const txHash: string = await provider.request({
-      method: "eth_sendTransaction",
-      params: [txParams],
-    });
+      const txHash: string = await provider.request({
+        method: "eth_sendTransaction",
+        params: [txParams]
+      });
 
-    return { txParams, txHash };
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      alert("Transaction failed: " + (error?.message || error));
+      return { txParams, txHash };
+    } else if (tokenSymbol === "RONEN") {
+      // ERC-20 transfer
+      const tokenAddress = "{{config.web3.ronenContract}}"; // replace with actual $RONEN address
+
+      const decimalsHex = await provider.request({
+        method: "eth_call",
+        params: [
+          {
+            to: tokenAddress,
+            data: "0x313ce567" // keccak256("decimals()") first 4 bytes
+          },
+          "latest"
+        ]
+      });
+      const decimals = parseInt(decimalsHex, 16);
+
+      function encodeTransfer(to: string, amountWei: bigint) {
+        const functionSelector = "0xa9059cbb";
+        const toPadded = to.toLowerCase().replace(/^0x/, "").padStart(64, "0");
+        const amountPadded = amountWei.toString(16).padStart(64, "0");
+
+        return functionSelector + toPadded + amountPadded;
+      }
+
+      // Encode transfer(address,uint256)
+      const amountWei = BigInt(Math.floor(amountNum * Math.pow(10, decimals)));
+      const data = encodeTransfer(to, amountWei);
+      const txParams = {
+        from: fromAddress,
+        to: tokenAddress,
+        data,
+        gas: "0x186a0", // ~100000 gas
+      };
+
+      const txHash: string = await provider.request({
+        method: "eth_sendTransaction",
+        params: [txParams]
+      });
+
+      return { txParams, txHash };
+    } else {
+      alert("Unsupported token");
+      return null;
     }
+  } catch (error: unknown) {
+    alert("Transaction failed: " + (error instanceof Error ? error.message : error));
+    return null;
   }
-
-  return null;
 }

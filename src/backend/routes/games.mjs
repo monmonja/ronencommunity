@@ -17,7 +17,7 @@ export function initGamesRoutes(app) {
     async (req, res) => {
       const raffle = Raffles.getRaffle(getUtcNow());
 
-      if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet) {
+      if (req.cookies["has-raffle-entry"] !== "true" && req.session.wallet && raffle) {
         const wallet = req.session.wallet.address.toLowerCase();
 
         const hasEntry = await Raffles.walletHasEntry({
@@ -39,9 +39,9 @@ export function initGamesRoutes(app) {
       return res.render("games/index", {
         games: Games.getGames(),
         raffle,
-        totalAmount: await Raffles.getTotalAmount({
+        totalAmount: raffle ? await Raffles.getTotalAmount({
           raffleId: raffle.id,
-        }),
+        }) : 0,
         ...raffleEndsInDHM()
       });
     });

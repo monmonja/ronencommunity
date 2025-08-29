@@ -49,6 +49,7 @@ export function initRafflesRoutes(app) {
       }
 
       const nonce = crypto.randomBytes(16).toString("hex");
+
       req.session.raffleNonce = nonce;
 
       res.json({ nonce });

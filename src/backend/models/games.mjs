@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
  * @property {string} name - Display name of the game
  * @property {number} dailyEnergy - Number of daily lives/plays allowed
  * @property {string} slug - Unique identifier for the game
+ * @property {object[]} changeLog - List of changes
  */
 export default class Games {
   /**
@@ -41,6 +42,7 @@ export default class Games {
           try {
             const data = fs.readFileSync(pkgPath, "utf-8");
             const json = JSON.parse(data);
+
             Games.games.push(json);
           } catch (err) {
             // ignore if no package.json or JSON parse fails

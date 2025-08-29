@@ -12,7 +12,8 @@
       "wallets": "wallets",
       "raffles": "raffles",
       "raffleWinners": "raffle-winners",
-      "energies": "energies"
+      "energies": "energies",
+      "purchases": "purchases"
     }
   },
   "web3":  {
@@ -22,13 +23,14 @@
     "raffleAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
     "defaultAmount": 0.1,
     "adminWallet": "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
-    "rollbar": ""
+    "rollbar": "",
+    "ronenContract": "0x82f5483623D636BC3deBA8Ae67E1751b6CF2Bad2"
   },
   "raffles": [
     {
       "id": "01-2025",
       "raffleStartDate": 1755129600000,
-      "raffleDuration": 14,
+      "raffleDuration": 24,
       "prizes": [
         {
           "image": "/img/basic-miner.jpg",
@@ -39,6 +41,28 @@
           "label": "Baxie"
         }
       ]
+    }
+  ],
+  "energies": [
+    {
+      "ron": "0.1",
+      "energy": 10,
+      "ronen": "10"
+    },
+    {
+      "ron": "0.1",
+      "energy": 20,
+      "ronen": "200"
+    },
+    {
+      "ron": "0.1",
+      "energy": 50,
+      "ronen": "500"
+    },
+    {
+      "ron": "0.1",
+      "energy": 100,
+      "ronen": "1000"
     }
   ]
 }
