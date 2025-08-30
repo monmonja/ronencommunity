@@ -1,3 +1,3 @@
-[submodule "games/cr-world"]
-	path = games/cr-world
-	url = https://github.com/monmonja/cr-world.git
+[submodule "games/rc-world"]
+	path = games/rc-world
+	url = https://github.com/monmonja/rc-world.git
