@@ -201,7 +201,6 @@ export default class ScoreGameScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setInteractive();
 
-
     this.gridGraphics = this.add.graphics();
 
     this.randomizeBoard();
@@ -442,7 +441,7 @@ export default class ScoreGameScene extends Phaser.Scene {
         0.7
       );
 
-      const uiSceneWidth = 117;
+      const uiSceneWidth = constants.mainMenu.panelWidth;
       const container = this.add.container(this.cameras.main.centerX + uiSceneWidth - 58, this.cameras.main.centerY - 30)
 
       // Create a Level Up text

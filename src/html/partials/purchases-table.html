@@ -1,0 +1,43 @@
+<section>
+  <h2>Purchases</h2>
+  <table >
+    <thead>
+    <tr>
+      <th>Date Created</th>
+      <th>Type</th>
+      <th>Quantity</th>
+      <th>Token</th>
+      <th>Price</th>
+      <th>TxHash</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if (purchases && purchases.length > 0) { %>
+    <% purchases.forEach(function(purchase) { %>
+    <tr>
+      <%
+      const date = new Date(purchase.createdAt);
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
+      %>
+
+      <td><%= formatted %></td>
+      <td><%= purchase.type %></td>
+      <td class="text-center"><%= purchase.quantity %></td>
+      <td><%= purchase.token %></td>
+      <td class="text-center"><%= purchase.price %></td>
+      <td>
+        <a href="https://app.roninchain.com/tx/<%= purchase.txHash %>" target="_blank" rel="nofollow">
+          <%= purchase.txHash.slice(0, 6) %>
+        </a>
+      </td>
+    </tr>
+    <% }); %>
+    <% } else { %>
+    <tr>
+      <td colspan="5">No purchases found</td>
+    </tr>
+    <% } %>
+    </tbody>
+  </table>
+</section>

@@ -167,10 +167,18 @@ export default class EnergiesScene extends Phaser.Scene {
             window.verifyEnergyTx(result?.txHash)
               .then((verifyResult) => {
                 this.verifyTxt.setText("Purchase complete. Thank you for supporting us.");
-                fetchEnergy(this, "flappy-baxie")
+                fetchEnergy(this, this.game.customConfig.gameId)
                   .then(() => {
                     setTimeout(() => {
-                      this.verifyOverlay.visible = false;
+                      this.tweens.add({
+                        targets: this.panel,
+                        y: this.scale.height,
+                        duration: 500,
+                        ease: "Cubic.easeIn",
+                        onComplete: () => {
+                          this.scene.stop();   // remove SettingsScene
+                        }
+                      });
                     }, 2000);
                   });
               })

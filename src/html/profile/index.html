@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page - Ronen Community</title>
+  <link rel="stylesheet" href="/css/profile-<%= config.distVersion %>.css">
+  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+  <%- include('../partials/analytics.html') %>
+</head>
+<body>
+  <%- include('../partials/top-menu.html') %>
+  <%- include('../partials/ads-top-banner.html') %>
+  <div class="page-content">
+    <%- include('../partials/energy-summary.html') %>
+    <%- include('../partials/purchases-table.html') %>
+    <%- include('../partials/consumes-table.html') %>
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/app-<%= config.distVersion %>.js"></script>
+</body>
+</html>

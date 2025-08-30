@@ -82,6 +82,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createScoreBoard() {
+    this.game.events.emit('clearMainPanelItem');
     this.game.events.emit('addMainPanelItem', ({ scene }) => {
       const width = 80 - 18;
       const height = 80;
@@ -90,11 +91,11 @@ export default class GameScene extends Phaser.Scene {
       bg.fillRoundedRect(0, 0, width, height, 6);
 
       // Top strip with rounded top corners, flat bottom
-      const topStrip = this.add.graphics();
+      const topStrip = scene.add.graphics();
       topStrip.fillStyle(0xCCCCCC, 1); // border color
       topStrip.fillRoundedRect(0, 0, width, 25, { tl: 4, tr: 4, br: 0, bl: 0 });
 
-      const labelTxt = this.add.text(width / 2,  14, 'Score', {
+      const labelTxt = scene.add.text(width / 2,  14, 'Score', {
         fontSize: '18px',
         fontFamily: 'troika',
         color: '#1f4213'

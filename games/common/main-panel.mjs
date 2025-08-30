@@ -95,7 +95,8 @@ export class MainPanelScene extends Phaser.Scene {
     });
 
     this.gameItems = this.add.container(7, 100);
-    this.game.events.on("clearMainPanelItem", (uiFunc) => {
+    this.game.events.on("clearMainPanelItem", () => {
+      console.log('here')
       this.gameItems.removeAll(true);
     });
     this.game.events.on("addMainPanelItem", (uiFunc) => {

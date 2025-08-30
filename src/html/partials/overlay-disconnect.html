@@ -1,8 +1,11 @@
 <% if (wallet) { %>
   <div id="overlay-disconnect" class="overlay">
     <div class="overlay-body">
+      <p>
+        <a href="/profile">Go to Profile Page</a>
+      </p>
       <p class="wallet-address">
-        <%= wallet.address %>
+        Your wallet: <br /><%= wallet.address %>
       </p>
       <div class="button">Disconnect</div>
     </div>

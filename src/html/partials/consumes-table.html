@@ -1,0 +1,37 @@
+<section>
+  <h2>Consumed</h2>
+  <table >
+    <thead>
+    <tr>
+      <th>Date Created</th>
+      <th>Type</th>
+      <th>Quantity</th>
+      <th>Game Id</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if (consumes && consumes.length > 0) { %>
+    <% consumes.forEach(function(consume) { %>
+    <tr>
+      <%
+      const date = new Date(consume.createdAt);
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
+      %>
+
+      <td><%= formatted %></td>
+      <td><%= consume.type %></td>
+      <td class="text-center"><%= consume.quantity %></td>
+      <td><%= consume.gameId %></td>
+      <td><%= consume.description %></td>
+    </tr>
+    <% }); %>
+    <% } else { %>
+    <tr>
+      <td colspan="5">No consumes found</td>
+    </tr>
+    <% } %>
+    </tbody>
+  </table>
+</section>

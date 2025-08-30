@@ -1,0 +1,35 @@
+<section>
+  <h2>Energy Summary</h2>
+  <table >
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Daily Free</th>
+      <th>Available</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if (energies.games && energies.games.length > 0) { %>
+    <% energies.games.forEach(function(game) { %>
+    <tr>
+      <td>
+        <a href="/game/<%= game.slug %>">
+          <%= game.name %>
+        </a>
+      </td>
+      <td class="text-center"><%= game.dailyEnergy %></td>
+      <td class="text-center"><%= game.available %></td>
+    </tr>
+    <% }); %>
+    <tr>
+      <td>Purchased Energy</td>
+      <td colspan="2" class="text-center"><%= energies.purchasedEnergy %></td>
+    </tr>
+    <% } else { %>
+    <tr>
+      <td colspan="5">No games found</td>
+    </tr>
+    <% } %>
+    </tbody>
+  </table>
+</section>

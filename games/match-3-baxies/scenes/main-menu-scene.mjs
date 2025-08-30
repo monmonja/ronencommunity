@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../../common/buttons.mjs";
 import {addBgMusic, addSettingsIcon} from "../../common/settings.mjs";
+import constants from "../../common/constants.mjs";
+import {useEnergy} from "../../common/energies.mjs";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -56,7 +58,20 @@ export default class MainMenuScene extends Phaser.Scene {
         height: 50,
         text: "Score based",
         onPointerDown: () => {
-          this.scene.start('ScoreGameScene');
+          const energy = this.registry.get(constants.registry.energy);
+
+          if (energy.available > 0) {
+            useEnergy({
+              scene: this,
+              gameId: this.game.customConfig.gameId,
+            }).then((result) => {
+              if (result.available > 0) {
+                this.scene.start('ScoreGameScene');
+              }
+            })
+          } else {
+            this.scene.launch('EnergiesScene');
+          }
         }
       });
     });

@@ -13,5 +13,5 @@ export function logError({ message, auditData } = {}) {
   }
 
   // eslint-disable-next-line no-console
-  console.log(message);
+  console.log(message, auditData);
 }

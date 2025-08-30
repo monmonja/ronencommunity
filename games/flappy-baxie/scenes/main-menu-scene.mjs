@@ -22,7 +22,11 @@ export default class  MainMenuScene extends Phaser.Scene {
     this.add.image(0, 0, 'bg').setOrigin(0, 0)
       .setInteractive()
 
-    this.scene.launch('MainPanelScene');
+    if (this.scene.isActive('MainPanelScene')) {
+      this.game.events.emit('clearMainPanelItem');
+    } else {
+      this.scene.launch('MainPanelScene');
+    }
 
     document.fonts.load('16px troika').then(() => {
       const center = this.sys.game.config.width / 2;
@@ -67,12 +71,14 @@ export default class  MainMenuScene extends Phaser.Scene {
           if (energy.available > 0) {
             useEnergy({
               scene: this,
-              gameId: 'flappy-baxie',
+              gameId: this.game.customConfig.gameId,
             }).then((result) => {
               if (result.available > 0) {
                 this.scene.start('GameScene', {selectedBaxie: baxies[key]});
               }
             })
+          } else {
+            this.scene.launch('EnergiesScene');
           }
         });
         containerItems.push(baxie);

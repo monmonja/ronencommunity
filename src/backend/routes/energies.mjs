@@ -9,6 +9,7 @@ import config from "../config/default.json" with { type: "json" };
 import crypto from "crypto";
 import {Contract, formatEther, Interface, JsonRpcProvider, parseUnits} from "ethers";
 import {handleValidation} from "../utils/validations.mjs";
+import PurchasedEnergies from "../models/purchased-energies.mjs";
 
 export function initEnergyRoutes(app) {
   app.get(
@@ -66,7 +67,7 @@ export function initEnergyRoutes(app) {
       let available = 0;
 
       try {
-        available = await Energies.useLife({
+        available = await Energies.useEnergy({
           address: req.session.wallet.address.toLowerCase(),
           gameId: req.params.path,
         });
@@ -78,27 +79,10 @@ export function initEnergyRoutes(app) {
       }
 
       game.available = available;
+      game.config = config.energies;
       delete game.changeLog;
 
       return res.json(game);
-    });
-
-  app.get(
-    "/energy/summary",
-    rateLimiterMiddleware,
-    cookieCheckMiddleware,
-    requireWalletSession,
-    async (req, res) => {
-      try {
-        const summary = await Energies.getEnergySummary({
-          address: req.session.wallet.address.toLowerCase()
-        });
-
-        res.json(summary);
-      } catch (error) {
-        console.error("Error getting lives summary:", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
     });
 
   app.get(
@@ -199,6 +183,7 @@ export function initEnergyRoutes(app) {
 
           let actualRecipient;
           let purchasedEnergy;
+          let token = 'RON';
 
           if (tx.data === "0x" && tx.value > 0) {
             actualRecipient = receipt.to.toLowerCase();
@@ -217,6 +202,7 @@ export function initEnergyRoutes(app) {
             const decimals = await contract.decimals();
 
             purchasedEnergy = config["energies"].filter((i) => parseUnits(i["ronen"].toString(), decimals) === parsed.args.amount);
+            token = "RONEN";
           }
 
           if (actualRecipient.toLowerCase() !== config.web3.raffleAddress.toLowerCase()) {
@@ -246,10 +232,12 @@ export function initEnergyRoutes(app) {
             return;
           }
 
-          await Energies.addPurchasedEnergy({
+          await PurchasedEnergies.addEnergy({
             txHash,
             address: receipt.from,
-            amount: purchasedEnergy[0].energy
+            amount: purchasedEnergy[0].energy,
+            price: token === 'RON' ? purchasedEnergy[0].ron: purchasedEnergy[0].ronen,
+            token,
           });
 
           delete req.session.energyNonce;

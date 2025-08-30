@@ -53,7 +53,6 @@ export function initGamesRoutes(app) {
       .withMessage("Invalid game"),
     rateLimiterMiddleware,
     cookieCheckMiddleware,
-    walletRaffleEntryMiddleware(),
     requireWalletSession,
     async (req, res) => {
       // Handle validation errors
