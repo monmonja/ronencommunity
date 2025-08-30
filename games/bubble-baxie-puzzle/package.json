@@ -1,0 +1,12 @@
+{
+  "slug": "bubble-baxie-puzzle",
+  "name": "Bubble Baxie puzzle",
+  "description": "A bubble puzzle clone",
+  "lastUpdate": 1755820900000,
+  "changeLog": [
+    {
+      "date": 1755820900000,
+      "changes": "Initial release of the game."
+    }
+  ]
+}
