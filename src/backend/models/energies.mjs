@@ -144,4 +144,15 @@ export default class Energies {
     });
     return summary;
   }
+
+  static async isRecordExists({ txHash } = {}) {
+    const mongoDbConnection = await getConnection();
+
+    const result = await mongoDbConnection
+      .db()
+      .collection(config.mongo.table.energies)
+      .findOne({ txHash });
+
+    return !!result; // always returns true/false
+  }
 }

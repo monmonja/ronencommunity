@@ -16,7 +16,7 @@ export default class EnergiesScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setInteractive();
 
-    this.panel = this.add.container(this.scale.width / 2 - this.windowWidth / 2, 20);
+    this.panel = this.add.container((this.scale.width / 2 - this.windowWidth / 2) + (constants.mainMenu.panelWidth / 2), 20);
     const bg = this.add.graphics();
 
     bg.fillStyle(0x222222, 1);

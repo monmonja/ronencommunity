@@ -10,7 +10,7 @@ function createBg({
   width,
   height,
   padding = 4,
-  color = 0x111,
+  color = constants.colors.mainPanelBg,
   bgAlpha = 1,
   strokeColor ,
 } = {}) {
@@ -23,7 +23,7 @@ function createBg({
   bg.fillStyle(color, bgAlpha);
 
   if (strokeColor) {
-    bg.lineStyle(2, strokeColor, 1);
+    bg.lineStyle(1, strokeColor, 1);
   }
 
   bg.beginPath();
@@ -43,25 +43,25 @@ function createBg({
 
 export function createMainPanelBg ({ scene } = {}) {
   const container = scene.add.container(-2, 0);
-
-  container.add(createBg({
-    scene,
-    x: 0,
-    y: 0,
-    width: constants.mainMenu.panelWidth + 5,
-    color: 0x121212,
-    bgAlpha: 0.3,
-    height: scene.scale.height,
-    padding: 2,
-  }));
+  //
+  // container.add(createBg({
+  //   scene,
+  //   x: 0,
+  //   y: 0,
+  //   width: constants.mainMenu.panelWidth + 5,
+  //   color: constants.colors.mainPanelBg,
+  //   bgAlpha: 0.4,
+  //   height: scene.scale.height,
+  //   padding: 2,
+  // }));
 
   container.add(createBg({
     scene,
     x: 0,
     y: 0,
     width: constants.mainMenu.panelWidth,
-    bgAlpha: 0.9,
-    strokeColor: 0x9dfd90,
+    bgAlpha: 0.8,
+    strokeColor: constants.colors.mainPanelStoke,
     height: scene.scale.height,
   }));
 }
@@ -75,7 +75,7 @@ export class MainPanelScene extends Phaser.Scene {
     this.load.image("energy-icon", "{{config.cdnLink}}/game-assets/common/images/energy.png");
     this.load.image("profile-frame", "{{config.cdnLink}}/game-assets/common/images/profile-frame.png");
     this.load.image("settings", "{{config.cdnLink}}/game-assets/common/images/settings.png");
-    this.load.image("profile-pic", `{{config.cdnLink}}/game-assets/flappy-baxie/images/baxie-gronke.png`);
+    this.load.image("profile-pic", `{{config.cdnLink}}/ugc/baxie/baxie.png`);
   }
 
   create() {

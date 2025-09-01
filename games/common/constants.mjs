@@ -10,7 +10,9 @@ export default {
   },
   colors: {
     blocker: 0x333333,
-    blockerAlpha: 0.5
+    blockerAlpha: 0.5,
+    mainPanelBg: 0x121212,
+    mainPanelStoke: 0x9dfd90,
   },
   fonts: {
     troika: "troika",

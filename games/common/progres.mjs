@@ -18,6 +18,7 @@ export function createProgressBar({ scene, width, height, launchScreen } = {}) {
     scene.load.on("complete", () => {
       progressBar.destroy();
       progressBox.destroy();
+      scene.scene.stop();
       scene.scene.launch(launchScreen);
     });
 }

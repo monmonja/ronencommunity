@@ -36,6 +36,13 @@ export function initStaticRoutes(app) {
       maxAge: "7d"
     })
   );
+  app.use(
+    "/ugc",
+    expressStatic.static(resolvePath("../../../public/ugc"), {
+      extensions: ["png", "jpg", "jpeg", "gif", "svg", "webp"],
+      maxAge: "7d"
+    })
+  );
 
   // Serve Fonts
   app.use(

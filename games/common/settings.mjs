@@ -25,8 +25,9 @@ export function addSettingsIcon({ scene } = {}) {
 
   // Profile picture
   const profilePic = scene.add.image(38, 22, "profile-pic")
-    .setScale(0.7)
+    .setScale(0.2)
     .setOrigin(0.5, 0);
+  profilePic.texture.setFilter(Phaser.Textures.NEAREST);
 
   // Create graphics for mask
   const maskShape = scene.make.graphics();
@@ -126,7 +127,7 @@ export class SettingsScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setInteractive();
 
-    this.panel = this.add.container(this.scale.width / 2 - this.windowWidth / 2, 20);
+    this.panel = this.add.container((this.scale.width / 2 - this.windowWidth / 2) + (constants.mainMenu.panelWidth / 2), 20);
     const bg = this.add.graphics();
 
     bg.fillStyle(0x222222, 1);

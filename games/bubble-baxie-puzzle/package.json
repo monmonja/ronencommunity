@@ -3,6 +3,7 @@
   "name": "Bubble Baxie puzzle",
   "description": "A bubble puzzle clone",
   "lastUpdate": 1755820900000,
+  "visible": false,
   "changeLog": [
     {
       "date": 1755820900000,

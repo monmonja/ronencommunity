@@ -24,6 +24,7 @@ export function createOverlay({
   button.removeAll(true);
 
   button.add([bg]);
+  button.setInteractive();
 
   return button;
 }

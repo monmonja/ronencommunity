@@ -4,8 +4,8 @@ import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Games from "../models/games.mjs";
 import Energies from "../models/energies.mjs";
 import {logError} from "../components/logger.mjs";
-import Raffles from "../models/raffles.mjs";
 import config from "../config/default.json" with { type: "json" };
+import energyConfig from "../config/energies.json" with { type: "json" };
 import crypto from "crypto";
 import {Contract, formatEther, Interface, JsonRpcProvider, parseUnits} from "ethers";
 import {handleValidation} from "../utils/validations.mjs";
@@ -35,7 +35,7 @@ export function initEnergyRoutes(app) {
         address: req.session.wallet.address.toLowerCase(),
         gameId: game.slug,
       });
-      game.config = config.energies;
+      game.config = energyConfig;
 
       delete game.changeLog;
 
@@ -79,7 +79,7 @@ export function initEnergyRoutes(app) {
       }
 
       game.available = available;
-      game.config = config.energies;
+      game.config = energyConfig;
       delete game.changeLog;
 
       return res.json(game);
@@ -144,7 +144,7 @@ export function initEnergyRoutes(app) {
         return res.status(401).json({ verified: false, status: "failed", message: "Not logged in" });
       }
 
-      const existing = await Raffles.isRecordExists({ txHash });
+      const existing = await Energies.isRecordExists({ txHash });
 
       if (existing) {
         return res.status(409).json({ verified: false, status: "failed", message: "Transaction already used" });
@@ -205,14 +205,14 @@ export function initEnergyRoutes(app) {
             token = "RONEN";
           }
 
-          if (actualRecipient.toLowerCase() !== config.web3.raffleAddress.toLowerCase()) {
-            res.status(200).json({ verified: true, status: "failed", message: "Not sending to the raffle wallet" });
+          if (actualRecipient.toLowerCase() !== config.web3.purchaseAddress.toLowerCase()) {
+            res.status(200).json({ verified: true, status: "failed", message: "Not sending to the purchase wallet" });
             logError({
               message: "Failed in buy-energy",
               auditData: {
                 message: "Wallet is not the going to the same address.",
                 to: receipt.to.toLowerCase(),
-                configTo: config.web3.raffleAddress.toLowerCase(),
+                configTo: config.web3.purchaseAddress.toLowerCase(),
               },
             });
 
