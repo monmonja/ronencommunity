@@ -10,7 +10,7 @@ export function initEnergy (): void {
     }
 
     return new Promise(async (resolve) => {
-      const result = await sendToken(token,"{{config.web3.raffleAddress}}", price);
+      const result = await sendToken(token,"{{config.web3.purchaseAddress}}", price);
 
       resolve(result);
     });
@@ -25,7 +25,7 @@ export function initEnergy (): void {
     return new Promise(async (resolve) => {
       const { nonce } = await fetch("/energy/nonce", { credentials: "include" }).then(r => r.json());
 
-      const joinRafflePost = async function () {
+      const buyEnergyPost = async function () {
         const response = await fetch("/energy/buy", {
           method: "POST",
           // @ts-expect-error Custom header
@@ -45,7 +45,7 @@ export function initEnergy (): void {
         const result = await response.json();
 
         if (result.status === "pending") {
-          setTimeout(joinRafflePost, 1000);
+          setTimeout(buyEnergyPost, 1000);
         } else if (result.status === "success") {
           resolve(result);
         } else if (result.status === "failed") {
@@ -53,7 +53,7 @@ export function initEnergy (): void {
         }
       };
 
-      await joinRafflePost();
+      await buyEnergyPost();
     });
   };
 }
