@@ -210,8 +210,9 @@ export function initEnergyRoutes(app) {
             logError({
               message: "Failed in buy-energy",
               auditData: {
+                token,
                 message: "Wallet is not the going to the same address.",
-                to: receipt.to.toLowerCase(),
+                to: actualRecipient.toLowerCase(),
                 configTo: config.web3.purchaseAddress.toLowerCase(),
               },
             });
