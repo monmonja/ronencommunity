@@ -187,7 +187,7 @@ export function initEnergyRoutes(app) {
 
           if (tx.data === "0x" && tx.value > 0) {
             actualRecipient = receipt.to.toLowerCase();
-            purchasedEnergy = config["energies"].filter((i) => i["ron"].toString() === Number(formatEther(tx.value)).toString());
+            purchasedEnergy = energyConfig.filter((i) => i["ron"].toString() === Number(formatEther(tx.value)).toString());
           } else {
             const ERC20_ABI = ["function transfer(address to, uint256 amount)"];
             const iFace = new Interface(ERC20_ABI);
@@ -201,7 +201,7 @@ export function initEnergyRoutes(app) {
             ], provider);
             const decimals = await contract.decimals();
 
-            purchasedEnergy = config["energies"].filter((i) => parseUnits(i["ronen"].toString(), decimals) === parsed.args.amount);
+            purchasedEnergy = energyConfig.filter((i) => parseUnits(i["ronen"].toString(), decimals) === parsed.args.amount);
             token = "RONEN";
           }
 
