@@ -17,7 +17,7 @@ export function requireWalletSession(req, res, next) {
     return next(); // session is valid
   }
 
-  res.status(401).json({ success: false, message: "Wallet session required" });
+  res.status(401).send("Wallet session required. Please <a href='/'>login first</a>." );
 }
 
 // Session middleware factory
