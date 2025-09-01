@@ -11,7 +11,10 @@
     "table": {
       "wallets": "wallets",
       "raffles": "raffles",
-      "raffleWinners": "raffle-winners"
+      "raffleWinners": "raffle-winners",
+      "energies": "energies",
+      "purchases": "purchases",
+      "consumes": "consumes"
     }
   },
   "web3":  {
