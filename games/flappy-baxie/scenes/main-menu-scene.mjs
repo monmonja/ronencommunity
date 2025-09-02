@@ -29,34 +29,34 @@ export default class  MainMenuScene extends Phaser.Scene {
     }
 
     document.fonts.load('16px troika').then(() => {
-      const center = this.sys.game.config.width / 2;
-      const logo = this.add.text(center, 84, 'Flappy Baxie', {
+      const logo = this.add.text(0, 84, 'Flappy Baxie', {
         fontFamily: 'troika',
-        fontSize: '42px',
+        fontSize: '50px',
         color: '#dda23e'
       }).setOrigin(0.5, 0);
 
       logo.setShadow(2, 2, '#000', 4, true, true);
 
-      const selectText = this.add.text(center, 134, 'Select your baxie', {
+      const selectText = this.add.text(0, 140, 'Select your baxie', {
         fontFamily: 'troika',
-        fontSize: '25px',
+        fontSize: '30px',
         color: '#dda23e'
       }).setOrigin(0.5, 0);
       selectText.setShadow(2, 2, '#000', 4, true, true);
 
-      const containerItems = [ selectText];
-      const startX = 320;
-      const startY = 235;
-      const spaceX = 80;
-      const spaceY = 90;
+      const containerItems = [logo, selectText];
+      const startX = -90;
+      const startY = 255;
+      const spaceX = 90;
+      const spaceY = 100;
 
       Object.keys(baxies).forEach((key, index) => {
         const row = index < 3 ? 0 : 1;
         const col = row === 0 ? index : index - 3;
         const x = startX + col * spaceX - (row === 1 ? spaceX / 2 : 0);
 
-        const baxie = this.add.image(x, startY + row * spaceY, baxies[key]);
+        const baxie = this.add.image(x, startY + row * spaceY, baxies[key])
+          .setScale(1.2);
 
         baxie.setInteractive();
         baxie.on("pointerover", () => {
@@ -84,7 +84,9 @@ export default class  MainMenuScene extends Phaser.Scene {
         containerItems.push(baxie);
       });
 
-      const container = this.add.container(0, 0, containerItems);
+      const center = this.scale.width / 2;
+      const container = this.add.container(center + (constants.mainMenu.panelWidth / 2), 0, containerItems);
+
       container.setDepth(30);
       container.visible = true;
     });

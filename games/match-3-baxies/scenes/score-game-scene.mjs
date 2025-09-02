@@ -6,7 +6,7 @@ import constants from "../../common/constants.mjs";
 
 export const levels = [
   {
-    maxScore: 30,
+    maxScore: 300,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     imageScale: 0.8,
@@ -14,7 +14,7 @@ export const levels = [
     rows: 4,
   },
   {
-    maxScore: 60,
+    maxScore: 600,
     baxieKeys: ['gronke', 'pink', 'green'],
     cellSize: 70,
     imageScale: 0.8,
@@ -22,7 +22,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 100,
+    maxScore: 1000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
@@ -30,7 +30,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 150,
+    maxScore: 1500,
     baxieKeys: ['gronke', 'pink', 'green', 'blue'],
     cellSize: 70,
     imageScale: 0.8,
@@ -38,7 +38,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 200,
+    maxScore: 2000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple'],
     cellSize: 70,
     imageScale: 0.8,
@@ -46,7 +46,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 270,
+    maxScore: 2700,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
     cellSize: 70,
     imageScale: 0.8,
@@ -54,7 +54,7 @@ export const levels = [
     rows: 5,
   },
   {
-    maxScore: 360,
+    maxScore: 3600,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange'],
     cellSize: 63,
     imageScale: 0.7,
@@ -62,7 +62,7 @@ export const levels = [
     rows: 6,
   },
   {
-    maxScore: 500,
+    maxScore: 5000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 63,
     imageScale: 0.7,
@@ -70,7 +70,7 @@ export const levels = [
     rows: 6,
   },
   {
-    maxScore: 650,
+    maxScore: 6500,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 63,
     imageScale: 0.7,
@@ -78,7 +78,7 @@ export const levels = [
     rows: 6,
   },
   {
-    maxScore: 800,
+    maxScore: 8000,
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 60,
     imageScale: 0.7,
@@ -86,7 +86,7 @@ export const levels = [
     rows: 7,
   },
   {
-    maxScore: 1000, // anything above 6500
+    maxScore: 10000, // anything above 6500
     baxieKeys: ['gronke', 'pink', 'green', 'blue', 'purple', 'orange', 'yellow'],
     cellSize: 60,
     imageScale: 0.7,
@@ -145,7 +145,7 @@ export default class ScoreGameScene extends Phaser.Scene {
   createScoreBoard({ x, y, eventType, label } = {}) {
     this.game.events.emit('addMainPanelItem', ({ scene }) => {
       const container = this.add.container(x, y);
-      const width = 80 - 18;
+      const width = constants.scoreBoard.width;
       const height = 80;
       const bg = scene.add.graphics();
 
@@ -250,7 +250,20 @@ export default class ScoreGameScene extends Phaser.Scene {
 
     // clear previous grid
     this.gridGraphics.clear();
-    this.gridGraphics.fillStyle(0x316180, 0.7); // background color
+
+    // --- Drop shadow ---
+    const shadowOffset = 4;
+    this.gridGraphics.fillStyle(0x000000, 0.5); // black shadow with alpha
+    this.gridGraphics.fillRoundedRect(
+      offsetX + shadowOffset,
+      offsetY + shadowOffset,
+      this.columns * this.cellSize,
+      this.rows * this.cellSize,
+      2
+    );
+
+    // --- Main grid background ---
+    this.gridGraphics.fillStyle(0x316180, 0.8); // background color
     this.gridGraphics.fillRoundedRect(
       offsetX,
       offsetY,
@@ -474,9 +487,110 @@ export default class ScoreGameScene extends Phaser.Scene {
     });
   }
 
+  // helper: get the texture key (safe for Phaser Image / Sprite)
+  getSpriteKey(r, c) {
+    const s = this.sprites?.[r]?.[c];
+    if (!s) return null;
+    // Phaser GameObjects usually expose the texture key at sprite.texture.key
+    if (s.texture && s.texture.key) return s.texture.key;
+    // fallback to frame name if available
+    if (s.frame && s.frame.name != null) return String(s.frame.name);
+    return null;
+  }
+
+// Group incoming flat cells into horizontal/vertical groups BUT only
+// when the sprite texture key matches across the whole group.
+  groupMatchesByImage(cells) {
+    const cellsSet = new Set(cells.map(({ r, c }) => `${r},${c}`));
+    const groups = [];
+    const processedH = new Set(); // track horizontal groups we've already added
+    const processedV = new Set(); // track vertical groups we've already added
+
+    for (const cell of cells) {
+      const { r, c } = cell;
+      const baseKey = this.getSpriteKey(r, c);
+      if (!baseKey) continue;
+
+      const pos = `${r},${c}`;
+
+      // --- Horizontal expansion ---
+      // expand left
+      let left = c;
+      while (cellsSet.has(`${r},${left - 1}`) && this.getSpriteKey(r, left - 1) === baseKey) {
+        left--;
+      }
+      // expand right
+      let right = c;
+      while (cellsSet.has(`${r},${right + 1}`) && this.getSpriteKey(r, right + 1) === baseKey) {
+        right++;
+      }
+
+      if (right - left + 1 >= 3) {
+        // build group and check if any member is not yet processed horizontally
+        const group = [];
+        let anyUnprocessed = false;
+        for (let cc = left; cc <= right; cc++) {
+          const k = `${r},${cc}`;
+          group.push({ r, c: cc });
+          if (!processedH.has(k)) anyUnprocessed = true;
+        }
+        if (anyUnprocessed) {
+          groups.push(group);
+          for (let cc = left; cc <= right; cc++) processedH.add(`${r},${cc}`);
+        }
+      }
+
+      // --- Vertical expansion ---
+      // expand up
+      let top = r;
+      while (cellsSet.has(`${top - 1},${c}`) && this.getSpriteKey(top - 1, c) === baseKey) {
+        top--;
+      }
+      // expand down
+      let bottom = r;
+      while (cellsSet.has(`${bottom + 1},${c}`) && this.getSpriteKey(bottom + 1, c) === baseKey) {
+        bottom++;
+      }
+
+      if (bottom - top + 1 >= 3) {
+        const group = [];
+        let anyUnprocessed = false;
+        for (let rr = top; rr <= bottom; rr++) {
+          const k = `${rr},${c}`;
+          group.push({ r: rr, c });
+          if (!processedV.has(k)) anyUnprocessed = true;
+        }
+        if (anyUnprocessed) {
+          groups.push(group);
+          for (let rr = top; rr <= bottom; rr++) processedV.add(`${rr},${c}`);
+        }
+      }
+    }
+
+    return groups;
+  }
+
+  // scoring: base 10 per gem + a small bonus for >3 so 4 -> 45, 5 -> 60, etc.
+  calculateScoreFromGroups(groups) {
+    let total = 0;
+    for (const g of groups) {
+      const len = g.length;
+      if (len < 3) continue;
+      const base = len * 10;
+      const bonus = (len > 3) ? (len - 3) * 5 : 0; // 3->0, 4->5, 5->10, ...
+      total += base + bonus;
+    }
+    return total;
+  }
+
   clearMatches(cells) {
     return new Promise((resolve) => {
-      this.score += cells.length * 10;
+      console.log(cells)
+      const groups = this.groupMatchesByImage(cells);
+
+      // 2) score them
+      const gained = this.calculateScoreFromGroups(groups);
+      this.score += gained;
       this.game.events.emit("scoreChanged", this.score);
 
       const oldLevel = this.level;

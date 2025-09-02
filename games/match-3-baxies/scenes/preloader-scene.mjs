@@ -23,19 +23,19 @@ export default class PreloaderScene extends Phaser.Scene {
     });
 
     document.fonts.load('16px troika').then(() => {
-      const match = this.add.text(this.sys.game.config.width / 2, 100, 'Match', {
+      const match = this.add.text(this.sys.game.config.width / 2, 110, 'Match', {
         fontSize: '90px',
         fontFamily: 'troika',
-        color: '#2f8011',
+        color: '#ddc33e',
         fontStyle: 'bold'
       }).setOrigin(0.5, 0.5);
       match.setStroke('#112704', 3);
       match.setShadow(2, 2, '#222', 4, false, true);
 
-      const threeBaxies = this.add.text(this.sys.game.config.width / 2, 160, '3 BAXIES', {
+      const threeBaxies = this.add.text(this.sys.game.config.width / 2, 170, '3 BAXIES', {
         fontSize: '50px',
         fontFamily: 'troika',
-        color: '#2f8011',
+        color: '#ddc33e',
         fontStyle: 'bold'
       }).setOrigin(0.5, 0.5);
 

@@ -10,8 +10,8 @@ import EnergiesScene from "../common/scene/energies-scene.mjs";
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
-  width: 800,
-  height: 450,
+  width: 1024,
+  height: 576,
   parent: 'game-content',
   backgroundColor: '#111',
   physics: {
@@ -24,8 +24,9 @@ const game = new Phaser.Game({
     }
   },
   scale: {
-    mode: Phaser.Scale.FIT,       // keep aspect ratio, fit screen
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    orientation: Phaser.Scale.LANDSCAPE
   },
   scene: [
     BootScene,

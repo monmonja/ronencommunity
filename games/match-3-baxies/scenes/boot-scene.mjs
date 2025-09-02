@@ -3,7 +3,7 @@ export default class BootScene extends Phaser.Scene {
     super({key: 'BootScene'});
   }
   preload() {
-    this.load.image('bg', '{{config.cdnLink}}/game-assets/match-3-baxies/images/bg-2.webp');
+    this.load.image('bg', '{{config.cdnLink}}/game-assets/match-3-baxies/images/bg.webp');
   }
 
   create() {

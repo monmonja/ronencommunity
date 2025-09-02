@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 import { assets } from "../constants.mjs";
+import constants from "../../common/constants.mjs";
 
 const levels = [
   {
     maxScore: 3,
     velocityX: -120,
-    nextFrame: 100,
+    nextFrame: 120,
   },
   {
     maxScore: 4,
@@ -84,7 +85,7 @@ export default class GameScene extends Phaser.Scene {
   createScoreBoard() {
     this.game.events.emit('clearMainPanelItem');
     this.game.events.emit('addMainPanelItem', ({ scene }) => {
-      const width = 80 - 18;
+      const width = constants.scoreBoard.width;
       const height = 80;
       const bg = scene.add.graphics();
       bg.fillStyle(0x9dfd90, 0.3);
@@ -127,7 +128,6 @@ export default class GameScene extends Phaser.Scene {
     this.gapsGroup = this.physics.add.group()
     this.pipesGroup = this.physics.add.group()
     this.floorGroup = this.physics.add.group()
-
 
 
     this.upButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -182,11 +182,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.backgroundDay.visible) {
-      this.backgroundDay.tilePositionX += 1;
+      this.backgroundDay.tilePositionX += 0.6;
     }
 
     if (this.backgroundNight.visible) {
-      this.backgroundNight.tilePositionX += 1;
+      this.backgroundNight.tilePositionX += 0.6;
     }
   }
 
@@ -220,9 +220,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
 
-  makePipes(initialX = 820) {
-    const pipeTopY = Phaser.Math.Between(-120, 40);
-    const ronenCoin = this.add.image(initialX, pipeTopY + 240, assets.scene.ronenCoin)
+  makePipes(initialX = 1100) {
+    const pipeTopY = Phaser.Math.Between(-100, 40);
+    let coinYPos = 255;
+
+    if (this.score > 5) {
+      coinYPos = 250;
+    } else if (this.score > 10) {
+      coinYPos = 240;
+    } else if (this.score > 15) {
+      coinYPos = 230;
+    } else if (this.score > 20) {
+      coinYPos = 227;
+    }
+
+    const ronenCoin = this.add.image(initialX, pipeTopY + coinYPos, assets.scene.ronenCoin)
 
     this.gapsGroup.add(ronenCoin);
     ronenCoin.body.allowGravity = false;
@@ -230,7 +242,7 @@ export default class GameScene extends Phaser.Scene {
     const pipeTop = this.pipesGroup.create(initialX, pipeTopY, this.currentPipe.top)
     pipeTop.body.allowGravity = false
 
-    const pipeBottom = this.pipesGroup.create(initialX, pipeTopY + 500, this.currentPipe.bottom)
+    const pipeBottom = this.pipesGroup.create(initialX, pipeTopY + (coinYPos * 2), this.currentPipe.bottom)
     pipeBottom.body.allowGravity = false
   }
 
@@ -257,6 +269,7 @@ export default class GameScene extends Phaser.Scene {
     this.floorGroup.clear(true, true)
 
     this.player = this.physics.add.sprite(220, 265, this.selectedBaxie)
+      .setScale(1.2);
     this.player.setCollideWorldBounds(true)
     this.player.body.allowGravity = false;
 
@@ -264,16 +277,16 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.pipesGroup, this.hitBaxie, null, this);
     this.physics.add.overlap(this.player, this.gapsGroup, this.updateScore, null, this);
     //
-    this.floor = this.floorGroup.create(400, 450, assets.scene.floor)
-      .setScale(0.4, 0.3)
+    this.floor = this.floorGroup.create(0, 450, assets.scene.floor)
+      .setOrigin(0, 0);
     this.floor.body.allowGravity = false
     this.floor.setDepth(30);
 
-    // this.floor.anims.play('moving', true)
 
     this.physics.resume();
-    this.makePipes(500);
-    this.makePipes(740);
+    this.makePipes(450);
+    this.makePipes(700);
+    this.makePipes(1000);
 
   }
 }

@@ -8,26 +8,28 @@ export function createButton({
 
   const bg = scene.add.graphics();
 
-  // Optional: fake inset shadow - smaller, inside shape
-  bg.fillStyle(0x718ff0, 1);
+  // top
+  bg.fillStyle(0x4f9f44, 1);
   bg.fillRoundedRect(0, 0, width, height / 2, 6);
-  bg.fillStyle(0x2d4eb3, 1);
+  // below
+  bg.fillStyle(0x556853, 1);
   bg.fillRoundedRect(0, 6, width, height - 6, 6);
 
   // Draw base background
-  bg.fillStyle(0x406fff, 1);
+  bg.fillStyle(0x537a4e, 1);
   bg.fillRoundedRect(2, 4, width - 4, height - 8, 6);
 
   // Draw border
-  bg.lineStyle(2, 0x000000);
+  bg.lineStyle(2, 0x223220);
   bg.strokeRoundedRect(0, 0, width, height, 6);
 
   if (text) {
-    const label = scene.add.text(width / 2, height / 2, text, {
-      fontSize: '24px',
+    const label = scene.add.text(width / 2, height / 2  + 2, text, {
+      fontSize: '26px',
       fontFamily: 'troika',
       color: '#ffffff'
     }).setOrigin(0.5, 0.5);
+    label.setShadow(2, 2, "#222", 4, false, true);
 
     button.add([bg, label]);
   } else {

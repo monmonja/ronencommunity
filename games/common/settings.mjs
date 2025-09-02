@@ -5,14 +5,14 @@ import constants from "./constants.mjs";
 export function addSettingsIcon({ scene } = {}) {
   const x = 0;
   const y = 10;
-  const width = 50;
+  const width = 60;
   const container = scene.add.container(x, y);
   const bg = scene.add.graphics();
 
   const profilePicWidth = width + 10;
-  const profilePicHeight = 60;
+  const profilePicHeight = 70;
 
-  bg.fillStyle(0x9dfd90, 0.3);
+  bg.fillStyle(0x91c7fc, 0.3);
   bg.fillRoundedRect(10, 18, profilePicWidth, profilePicHeight, {
     tl: 24, // top-left
     tr: 30, // top-right
@@ -24,8 +24,8 @@ export function addSettingsIcon({ scene } = {}) {
 
 
   // Profile picture
-  const profilePic = scene.add.image(38, 22, "profile-pic")
-    .setScale(0.2)
+  const profilePic = scene.add.image(43, 22, "profile-pic")
+    .setScale(0.25)
     .setOrigin(0.5, 0);
   profilePic.texture.setFilter(Phaser.Textures.NEAREST);
 
@@ -48,8 +48,8 @@ export function addSettingsIcon({ scene } = {}) {
 // Add to container
   container.add(profilePic);
 
-  const frame = scene.add.image(38, 10, "profile-frame")
-    .setScale(1.3)
+  const frame = scene.add.image(43, 10, "profile-frame")
+    .setScale(1.5)
     .setOrigin(0.5, 0)
     .setInteractive();
 
