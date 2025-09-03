@@ -256,7 +256,7 @@ export function initRafflesRoutes(app) {
     rateLimiterMiddleware,
     async (req, res) => {
       try {
-        const raffleId = Raffles.getRaffle(getUtcNow());
+        const raffleId = Raffles.getRaffle(getUtcNow()).id;
         const mongoDbConnection = await getConnection();
 
         //  Check if a winner already exists
@@ -279,18 +279,16 @@ export function initRafflesRoutes(app) {
         }
 
         const pickWeightedWinner = (entries) => {
-          const totalAmount = entries.reduce((sum, e) => sum + e.amount, 0);
-
           let cumulative = 0;
           const ranges = entries.map(entry => {
             const start = cumulative;
 
-            cumulative += entry.amount / totalAmount;
+            cumulative += entry.totalAmount;
 
-            return { wallet: entry.from, start, end: cumulative };
+            return { wallet: entry._id, start, end: cumulative };
           });
 
-          const r = crypto.randomInt(0, 1e9) / 1e9;
+          const r = Math.random() * cumulative;
 
           return ranges.find(range => r >= range.start && r < range.end)?.wallet;
         };
