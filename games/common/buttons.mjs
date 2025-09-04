@@ -54,7 +54,7 @@ export function createButton({
   return button;
 }
 
-export function createCloseButton({ scene, x, y } = {}) {
+export function createCloseButton({ scene, x, y, onPointerDown } = {}) {
   const closeButton = scene.add.container(x, y)
     .setInteractive();
   const width = 32;
@@ -93,7 +93,7 @@ export function createCloseButton({ scene, x, y } = {}) {
       duration: 500,
       ease: "Cubic.easeIn",
       onComplete: () => {
-        scene.scene.stop();   // remove SettingsScene
+        onPointerDown();   // remove SettingsScene
       }
     });
   });

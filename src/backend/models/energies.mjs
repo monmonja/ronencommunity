@@ -56,7 +56,7 @@ export default class Energies {
 
   static async getAvailableEnergies({ address, gameId}) {
     const energyFromDb = await this.getEnergy({ address, gameId });
-    const dailyEnergy = Games.getDailyEnergy(gameId);
+    const dailyEnergy = Games.getDailyEnergy(gameId) ?? 0;
 
     const purchasedEnergy = await PurchasedEnergies.getEnergy({ address });
 

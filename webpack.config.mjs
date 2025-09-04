@@ -26,18 +26,29 @@ export default (env, argv) => {
   });
 
   // --- Handle ./games/*/*.mjs ---
-  const gamesDir = "./games";
+  const mainGameDir = "./games";
 
-  fs.readdirSync(gamesDir).forEach(subDir => {
-    const gamePath = path.join(gamesDir, subDir);
+  fs.readdirSync(mainGameDir).forEach((dirName) => {
+    const gamePath = path.join(mainGameDir, dirName);
 
     if (fs.statSync(gamePath).isDirectory()) {
-      const mjsFile = `${subDir}.mjs`; // folder name = filename
-      const mjsPath = path.join(gamePath, mjsFile);
+      const mjsPath = path.join(gamePath, `${dirName}.mjs`);
 
       if (fs.existsSync(mjsPath)) {
-        jsFiles[`${subDir}-${distVersion}`] = "./" + mjsPath;
+        jsFiles[`${dirName}-${distVersion}`] = "./" + mjsPath;
       }
+
+      fs.readdirSync(gamePath).forEach((subDirName) => {
+        const subGamePath = path.join(mainGameDir, dirName, subDirName);
+
+        if (fs.statSync(subGamePath).isDirectory()) {
+          const subMjsPath = path.join(subGamePath, `${subDirName}.mjs`);
+          console.log(subMjsPath)
+          if (fs.existsSync(subMjsPath)) {
+            jsFiles[`${subDirName}-${distVersion}`] = "./" + subMjsPath;
+          }
+        }
+      });
     }
   });
 
