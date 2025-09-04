@@ -297,6 +297,9 @@ export default class EnergiesScene extends Phaser.Scene {
       scene: this,
       x: this.windowWidth - 44,
       y: 15,
+      onPointerDown: () => {
+        this.scene.stop();
+      }
     }));
     this.panel.add(this.createVerifyingOverlay({
       startX,

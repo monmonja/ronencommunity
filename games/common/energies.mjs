@@ -4,7 +4,6 @@ import constants from "./constants.mjs";
 
 export function fetchEnergy(scene) {
   return new Promise((resolve, reject) => {
-    console.log(scene.game.customConfig)
     fetch(`/energy/get/${scene.game.customConfig.gameId}`, {
       headers: {
         "Content-Type": "application/json",
@@ -12,7 +11,6 @@ export function fetchEnergy(scene) {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log('----------', JSON.stringify(result), result.config)
         scene.registry.set(constants.registry.energy, result);
         scene.game.events.emit(constants.events.energyChanged, result);
         resolve(result);
@@ -68,7 +66,7 @@ export function createEnergyUI({ scene, x, y, width } = {}) {
   container.add(bg);
 
   const energy = scene.registry.get(constants.registry.energy);
-  console.log('energy', energy)
+
   const energyTxt = scene.add.text(49, 18, energy.available, {
     fontSize: "16px",
     fontFamily: constants.fonts.newsreader,

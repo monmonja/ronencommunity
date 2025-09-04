@@ -264,6 +264,9 @@ export class SettingsScene extends Phaser.Scene {
       scene: this,
       x: this.windowWidth - 44,
       y: 15,
+      onPointerDown: () => {
+        this.scene.stop();
+      }
     }));
   }
 }

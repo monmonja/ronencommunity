@@ -71,7 +71,6 @@ export default class OptionsScene extends Phaser.Scene {
 
   createMusicOption() {
     const isPlaying = localStorage.getItem("match-3-baxies-music-muted");
-    console.log("isPlaying", isPlaying)
 
     this.add.text(35 , 152, "Background Music", {
       fontFamily: "troika",

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games - Ronen Community</title>
+  <link rel="stylesheet" href="/css/games-<%= config.distVersion %>.css">
+  <%- include('../partials/analytics.html') %>
+</head>
+<body>
+  <%- include('../partials/top-menu.html') %>
+  <%- include('../partials/ads-top-banner.html') %>
+  <div class="page-content">
+    <div class="requires-login">
+      Access to this page requires login.
+    </div>
+
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-raffle.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/games-<%= config.distVersion %>.js"></script>
+</body>
+</html>

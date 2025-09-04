@@ -2,10 +2,14 @@
   "slug": "flappy-baxie",
   "name": "Flappy Baxie",
   "description": "Flappy bird clone with baxie",
-  "lastUpdate": 1756044765000,
+  "lastUpdate": 1757033476000,
   "visible": true,
   "dailyEnergy": 3,
   "changeLog": [
+    {
+      "date": 1757033476000,
+      "changes": "Integrate energy system, new images, new layout."
+    },
     {
       "date": 1756044765000,
       "changes": "New images, bg image is moving, new bg music, settings page."

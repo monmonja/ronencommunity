@@ -39,6 +39,9 @@ export default class GameOverScene extends Phaser.Scene {
       scene: this,
       x: overlayWidth - 10 - 32,
       y: 10,
+      onPointerDown: () => {
+        this.scene.stop();
+      }
     });
     const items = [closeBtn];
 

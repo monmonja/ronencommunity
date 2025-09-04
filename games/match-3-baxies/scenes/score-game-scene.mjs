@@ -585,7 +585,6 @@ export default class ScoreGameScene extends Phaser.Scene {
 
   clearMatches(cells) {
     return new Promise((resolve) => {
-      console.log(cells)
       const groups = this.groupMatchesByImage(cells);
 
       // 2) score them

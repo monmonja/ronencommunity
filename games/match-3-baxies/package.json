@@ -2,10 +2,14 @@
   "slug": "match-3-baxies",
   "name": "Match 3 Baxies",
   "description": "A match 3 game with baxies",
-  "lastUpdate": 1756044765000,
+  "lastUpdate": 1757033476000,
   "dailyEnergy": 3,
   "visible": true,
   "changeLog": [
+    {
+      "date": 1757033476000,
+      "changes": "Integrate energy system, new score system, new images, new layout."
+    },
     {
       "date": 1756044765000,
       "changes": "Settings page."

@@ -14,6 +14,13 @@
 
 }
 
+.requires-login {
+  color: white;
+  margin-top: 32px;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
 .game-catalog {
   color: white;
   margin-top: 32px;
@@ -78,4 +85,5 @@
   font-size: 80%;
   margin-bottom: 12px;
   color: white;
+  flex: 1;
 }

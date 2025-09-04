@@ -17,7 +17,7 @@ export function requireWalletSession(req, res, next) {
     return next(); // session is valid
   }
 
-  res.status(401).send("Wallet session required. Please <a href='/'>login first</a>." );
+  return res.status(401).render("games/required-login");
 }
 
 // Session middleware factory
@@ -177,6 +177,18 @@ export function forceHTTPSMiddleware(req, res, next) {
   }
 
   next();
+}
+
+export function disableStackTraceMiddleware(err, req, res, next) {
+  if (err) {
+    if (config.isProd) {
+      res.status(500).send("Internal Server Error");
+    } else {
+      next(err);
+    }
+  } else {
+    next();
+  }
 }
 
 export function securityHeadersMiddleware(req, res, next) {

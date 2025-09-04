@@ -14,7 +14,7 @@ import {
   sessionMiddleWare,
   ejsVariablesMiddleware,
   forceHTTPSMiddleware,
-  securityHeadersMiddleware, cookieCheckMiddleware,
+  securityHeadersMiddleware, cookieCheckMiddleware, disableStackTraceMiddleware,
 } from "./components/middlewares.mjs";
 import { rateLimiterMiddleware } from "./components/rate-limiter.mjs";
 import { initStaticRoutes } from "./routes/static.mjs";
@@ -32,6 +32,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.disable("x-powered-by");
+
 app.use(forceHTTPSMiddleware);
 app.use(cookieParser());
 app.use(cors());
@@ -68,6 +69,8 @@ app.get(
 app.use((req, res) => {
   res.status(404).send("Not Found");
 });
+
+app.use(disableStackTraceMiddleware);
 
 app.listen(port, () => {
   // eslint-disable-next-line no-console
