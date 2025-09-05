@@ -24,6 +24,7 @@ import { initAuthRoutes } from "./routes/auth.mjs";
 import { initWikisRoutes } from "./routes/wikis.mjs";
 import { initEnergyRoutes } from "./routes/energies.mjs";
 import {initProfileRoutes} from "./routes/profile.mjs";
+import Games from "./models/games.mjs";
 
 const port = config.port;
 // Fix __dirname in ES Modules
@@ -65,6 +66,8 @@ app.get(
   (req, res) => {
     res.render("index", {
       selectedNav: 'wiki',
+      selectedWiki : '',
+      games: Games.getGames(),
     });
   });
 

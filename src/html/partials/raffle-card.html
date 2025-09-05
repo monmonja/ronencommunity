@@ -17,8 +17,12 @@
     </div>
     <div>
       <div class="raffle-id">#<%= raffle.id %></div>
-      <div class="disclaimer">Ends in <%= days %> days, <%= hours %> hours, <%= minutes %> minutes</div>
-      <a href="#" class="button" id="join-raffle-button">Join Raffle</a>
+      <% if (days > 0 && hours > 0 && minutes > 0) { %>
+        <div class="disclaimer">Ends in <%= days %> days, <%= hours %> hours, <%= minutes %> minutes</div>
+        <a href="#" class="button" id="join-raffle-button">Join Raffle</a>
+      <% } else { %>
+      <div class="disclaimer">Raffle ended</div>
+      <% } %>
     </div>
   </div>
 <% } %>

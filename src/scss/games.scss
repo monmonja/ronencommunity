@@ -5,6 +5,7 @@
 @use 'partials/overlay' as *;
 @use 'partials/card' as *;
 @use 'partials/raffle-card' as *;
+@use 'partials/game-card' as *;
 @use 'partials/footer' as *;
 
 .page-content {
@@ -25,72 +26,4 @@
   margin-bottom: 8px;
   text-transform: uppercase;
   font-size: 20px;
-}
-
-.game-list {
-  margin: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-
-  @include min-599 {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  @include min-768 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  @include min-1024 {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
-
-  .game-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    overflow: hidden;
-
-    &:hover {
-      border-color: color-mix(in oklab,oklch(76.5% .177 163.223) 40%,transparent);
-    }
-
-    picture {
-      display: block;
-      margin-bottom: 24px;
-
-      img {
-        display: block;
-        aspect-ratio: 16 / 9;
-        width: 100%;
-        object-fit: cover;
-        object-position: top center;
-      }
-    }
-
-    h3 {
-      font-size: 1.4rem;
-      text-transform: uppercase;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-
-    .description {
-      margin-bottom: 12px;
-    }
-
-    .button {
-      padding: 8px;
-      border-left: 0;
-      border-right: 0;
-      border-bottom: 0;
-    }
-  }
-}
-
-.last-updated {
-  font-size: 80%;
-  margin-bottom: 24px;
-  color: white;
-  flex: 1;
 }

@@ -5,6 +5,8 @@
 @use 'partials/card' as *;
 @use 'partials/overlay' as *;
 @use 'partials/footer' as *;
+@use 'partials/wiki-menu' as *;
+@use 'partials/game-card' as *;
 
 .page-content {
   padding: $padding-side;
@@ -14,3 +16,15 @@
   margin-top: 32px;
 }
 
+.wiki-menu {
+  row-gap: 12px;
+
+  label {
+    flex-direction: column;
+
+    img {
+      max-width: 124px;
+      height: 124px;
+    }
+  }
+}
