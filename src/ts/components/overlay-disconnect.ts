@@ -27,12 +27,29 @@ export async function logout() {
 
 export function initOverlayDisconnect(): void {
   const overlay = document.getElementById("overlay-disconnect");
+  const walletAddress = document.querySelector(".wallet-address");
+  const walletCopyBtn = document.getElementById("wallet-address-copy-btn");
 
   if (overlay) {
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
       overlay.classList.remove("show");
     });
+
+    if (walletCopyBtn && walletAddress) {
+      walletCopyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        try {
+          navigator.clipboard.writeText(walletAddress.getAttribute('data-wallet') ?? '');
+          alert("Copied");
+        } catch (err) {
+          console.error("Failed to copy:", err);
+        }
+
+        console.log();
+      });
+    }
 
     overlay.querySelector(".button")?.addEventListener("click", async () => {
       await logout();

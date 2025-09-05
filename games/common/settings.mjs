@@ -225,12 +225,6 @@ export class SettingsScene extends Phaser.Scene {
 
     this.scale.on("leavefullscreen", () => {
       document.body.classList.remove("fullscreen");
-      localStorage.setItem("fullscreen-mode",  "false");
-
-      if (offBtn) {
-        offBtn.setColor("#ffffff");
-        onBtn.setColor("#333");
-      }
     });
   }
 

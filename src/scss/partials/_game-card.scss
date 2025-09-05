@@ -7,15 +7,15 @@
   grid-template-columns: 1fr;
   gap: 12px;
 
-  @include min-599 {
+  @include min-480 {
     grid-template-columns: 1fr 1fr;
   }
 
-  @include min-768 {
+  @include min-720 {
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  @include min-1024 {
+  @include min-960 {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
