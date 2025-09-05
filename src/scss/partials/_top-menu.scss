@@ -2,18 +2,40 @@
 @use './variables' as *;
 
 #top-menu {
-  display: flex;
+  font-family: 'Press Start 2P', serif;
   justify-content: space-between;
-  background: $content-bg;
+  background-color: color-mix(in oklab, white 1%, transparent);
+  border-color: color-mix(in oklab, oklch(27.8% .033 256.848) 20%, transparent);
   padding: 8px $padding-side;
-  border-bottom: 1px solid $border-color;
   align-items: center;
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+
+  &.open {
+    #mobile-links {
+      display: block;
+    }
+  }
+
+  #top-menu-inner {
+    display: flex;
+    padding: 3px 0;
+    width: 100%;
+  }
+
+  a {
+    color: oklch(70.7% .022 261.325);
+    font-size: 14px;
+  }
 
   #logo {
     display: flex;
 
     img {
-      max-width: 48px;
+      max-width: 42px;
       display: block;
     }
   }
@@ -22,21 +44,47 @@
     display: flex;
     align-items: center;
     column-gap: 12px;
+
+    .button {
+      border: 1px solid white;
+      font-family: 'Newsreader', serif;
+      border-radius: 6px;
+      color: white;
+      font-size: 17px;
+      padding: 8px 16px;
+    }
   }
 
   #left-menu {
     display: flex;
     align-items: center;
     column-gap: 12px;
+    flex: 1;
 
-    ul {
+    @include min-768 {
+      flex: unset;
+    }
+  }
+
+  .desktop-links {
+    margin: 0;
+    list-style: none;
+    column-gap: 25px;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    display: none;
+
+    @include min-768 {
       display: flex;
-      margin: 0;
-      list-style: none;
-      column-gap: 12px;
+    }
 
-      li {
-        margin: 0;
+    li {
+      margin: 0;
+
+      &.selected {
+        border-bottom: 2px solid $border-color;
+        padding-bottom: 4px;
       }
     }
   }
@@ -49,5 +97,45 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  #mobile-menu {
+    width: 24px;
+    margin-left: 9px;
+    background: transparent;
+    outline: 0;
+    border: 0;
+
+    svg {
+      stroke: white;
+    }
+
+    @include min-768 {
+      display: none;
+    }
+  }
+
+  #mobile-links {
+    position: relative;
+    width: 100%;
+    left: 0;
+    margin: 0;
+    z-index: 4;
+    padding-top: 12px;
+    display: none;
+
+    li {
+      padding: 12px;
+      margin: 0;
+
+      &.selected {
+        background-color: color-mix(in oklab, oklch(62.7% .194 149.214) 20%, transparent);
+        border-radius: 10px;
+
+        a {
+          color: white;
+        }
+      }
+    }
   }
 }

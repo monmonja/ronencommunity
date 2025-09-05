@@ -27,7 +27,6 @@
 
 .page-content {
   display: flex;
-  padding: $padding-side;
   flex-direction: column;
 
   #game-content {
@@ -42,11 +41,8 @@
   }
 
   #game-wrapper {
-    border: 1px solid $border-color;
-    min-height: 300px;
     text-align: center;
     width: 100%;
-    background: $content-bg;
   }
 
   .game-details-header {
@@ -55,7 +51,7 @@
   }
 
   .game-details {
-    margin-top: -1px;
+    margin-top: 32px;
     text-align: left;
 
     h1 {

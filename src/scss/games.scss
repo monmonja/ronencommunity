@@ -9,9 +9,7 @@
 
 .page-content {
   display: flex;
-  padding: $padding-side;
   flex-direction: column;
-
 }
 
 .requires-login {
@@ -50,15 +48,21 @@
   .game-card {
     display: flex;
     flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+
+    &:hover {
+      border-color: color-mix(in oklab,oklch(76.5% .177 163.223) 40%,transparent);
+    }
 
     picture {
       display: block;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
 
       img {
         display: block;
+        aspect-ratio: 16 / 9;
         width: 100%;
-        height: 150px;
         object-fit: cover;
         object-position: top center;
       }
@@ -77,13 +81,16 @@
 
     .button {
       padding: 8px;
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
     }
   }
 }
 
 .last-updated {
   font-size: 80%;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
   color: white;
   flex: 1;
 }

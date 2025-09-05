@@ -63,7 +63,9 @@ app.get(
   cookieCheckMiddleware,
   rateLimiterMiddleware,
   (req, res) => {
-    res.render("index");
+    res.render("index", {
+      selectedNav: 'wiki',
+    });
   });
 
 app.use((req, res) => {

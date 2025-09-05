@@ -146,7 +146,8 @@ export function walletRaffleEntryMiddleware() {
           totalAmount: await Raffles.getTotalAmount({
             raffleId: raffle.id,
           }),
-          ...raffleEndsInDHM()
+          ...raffleEndsInDHM(),
+          selectedNav: 'raffles',
         });
       }
 
@@ -165,7 +166,8 @@ export function walletRaffleEntryMiddleware() {
         totalAmount: await Raffles.getTotalAmount({
           raffleId: raffle.id,
         }),
-        ...raffleEndsInDHM()
+        ...raffleEndsInDHM(),
+        selectedNav: 'raffles',
       });
     }
   };

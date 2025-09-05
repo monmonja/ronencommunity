@@ -57,7 +57,7 @@ export default class EnergiesScene extends Phaser.Scene {
     const labelTxt = this.add.text(this.buttonWidth - 36,  this.buttonHeight / 2, `${ronen}\nRONEN\nor\n${ron}\nRON`, {
       fontSize: "15px",
       align: "center",
-      fontFamily: constants.fonts.newsreader,
+      fontFamily: constants.fonts.pressStart2P,
       color: "#1f4213",
       fontStyle: "bold"
     }).setOrigin(0.5, 0.5);
@@ -212,7 +212,7 @@ export default class EnergiesScene extends Phaser.Scene {
       "Verifying purchase. Please wait...",
       {
         fontSize: "16px",
-        fontFamily: constants.fonts.newsreader,
+        fontFamily: constants.fonts.pressStart2P,
         color: "#ffffff",
         fontWeight: "bold",
         wordWrap: { width: 400, useAdvancedWrap: true }
@@ -245,7 +245,7 @@ export default class EnergiesScene extends Phaser.Scene {
       "Purchased energy can be used in any games.",
       {
         fontSize: "16px",
-        fontFamily: constants.fonts.newsreader,
+        fontFamily: constants.fonts.pressStart2P,
         color: "#ffffff",
         fontWeight: "bold",
         wordWrap: { width: 400, useAdvancedWrap: true }

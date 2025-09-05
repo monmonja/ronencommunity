@@ -1,27 +1,25 @@
 <div id="top-menu">
-  <div id="left-menu">
-    <div id="logo">
-      <a href="/">
-        <img src="/img/logo.png?v=2" alt="Ronen Community">
-      </a>
+  <div id="top-menu-inner">
+    <div id="left-menu">
+      <button id="mobile-menu" aria-label="Toggle menu"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+      <div id="logo">
+        <a href="/">
+          <img src="/img/logo.png?v=2" alt="Ronen Community">
+        </a>
+      </div>
     </div>
-    <ul>
-      <li>
-        <a href="/wiki/ronen">Wiki</a>
-      </li>
-      <li>
-        <a href="/games">Games</a>
-      </li>
-      <li>
-        <a href="/raffles">Raffles</a>
-      </li>
+    <ul class="desktop-links">
+      <%- include('./top-menu-items.html') %>
     </ul>
+    <div id="right-menu">
+      <% if (!wallet) { %>
+        <a id="connect-wallet" class="button" href="#">Login</a>
+      <% } else { %>
+        <a id="disconnect-wallet" class="button"><%= wallet.address.slice(0, 6) + '••' + wallet.address.slice(-4) %></a>
+      <% } %>
+    </div>
   </div>
-  <div id="right-menu">
-    <% if (!wallet) { %>
-      <a id="connect-wallet" class="button" href="#">Login</a>
-    <% } else { %>
-      <a id="disconnect-wallet" class="button"><%= wallet.address.slice(0, 6) + '••' + wallet.address.slice(-4) %></a>
-    <% } %>
-  </div>
+  <ul id="mobile-links">
+    <%- include('./top-menu-items.html') %>
+  </ul>
 </div>

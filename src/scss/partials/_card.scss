@@ -2,8 +2,14 @@
 @use './variables' as *;
 
 .card {
-  background: $content-bg;
-  border: 1px solid $border-color;
+  background-image: linear-gradient(
+      to right bottom,
+      color-mix(in oklab, oklch(20.8% .042 265.755) 80%, transparent) 0%,
+      color-mix(in oklab, oklch(27.9% .041 260.031) 60%, transparent) 100%
+  );
+  backdrop-filter: blur(8px);
+  border: 2px solid color-mix(in oklab, $border-color 20%, transparent);
+  border-radius: 14px;
   flex: 1;
   color: white;
   padding: 24px;

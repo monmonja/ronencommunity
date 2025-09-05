@@ -40,6 +40,7 @@ export function initWikisRoutes(app) {
           res.render("wiki/template", {
             content: path.join("..", "wiki", req.params.path, "index.html"),
             selectedWiki: req.params.path,
+            selectedNav: 'wikis',
           });
         }
       } else {

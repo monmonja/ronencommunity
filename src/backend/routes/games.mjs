@@ -42,6 +42,7 @@ export function initGamesRoutes(app) {
         totalAmount: raffle ? await Raffles.getTotalAmount({
           raffleId: raffle.id,
         }) : 0,
+        selectedNav: 'games',
         ...raffleEndsInDHM()
       });
     });
@@ -66,6 +67,7 @@ export function initGamesRoutes(app) {
         gameId: req.params.path,
         games: Games.getGames(),
         game: Games.getGame(req.params.path),
+        selectedNav: 'games',
       });
     });
 }

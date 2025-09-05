@@ -89,9 +89,9 @@ export default class Raffles {
           }
         },
         { $sort: { totalAmount: -1, latestTimestamp: -1 } }, // sort by total amount desc
-        { $limit: 50 }                  // limit to top 30 groups
+        { $limit: 500 }                  // limit to top 30 groups
       ])
-      .limit(50)
+      .limit(500)
       .toArray();
 
     if (results.length > 0) {

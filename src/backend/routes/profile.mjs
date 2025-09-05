@@ -29,6 +29,7 @@ export function initProfileRoutes(app) {
         consumes: await Consumes.getConsumes({
           address,
         }),
+        selectedNav: 'profiles',
       });
     });
 }

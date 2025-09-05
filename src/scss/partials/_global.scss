@@ -10,6 +10,15 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -17,8 +26,8 @@
 }
 
 body {
-  background: #222;
-  font-family: Newsreader, serif;
+  background: oklch(0.2101 0.0318 264.66);
+  font-family: 'Newsreader', serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
@@ -44,14 +53,41 @@ ol, ul {
   white-space: nowrap;
 }
 
+.page-content {
+  padding: 20px;
+}
+
 #top-banner {
-  padding: 15px 0 0;
+  //padding: 15px 0 0;
   text-align: center;
 }
 
 .intro {
   color: white;
   margin-bottom: 32px;
+}
+
+h2.header-title {
+  font-family: 'Press Start 2P', serif;
+  font-size: 14px;
+  color: white;
+  text-align: center;
+  padding: 8px;
+  margin-bottom: 32px;
+  position: relative;
+  text-transform: uppercase;
+
+  &::after {
+    content: ' ';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    background: $emerald500;
+    width: 64px;
+    height: 4px;
+    transform: translateX(-50%);
+  }
+
 }
 
 .button {
@@ -65,11 +101,16 @@ ol, ul {
   text-decoration: none;
 }
 
+section {
+  margin-bottom: 40px;
+}
+
 table {
   border-spacing: 0;
   border-left: 1px solid $border-color;
   border-top: 1px solid $border-color;
   color: white;
+  width: 100%;
 
   td,
   th {

@@ -30,12 +30,14 @@ export function initRafflesRoutes(app) {
             raffleId: raffle.id,
           }),
           allRaffles: await Raffles.getAllRaffles(),
-          ...raffleEndsInDHM()
+          ...raffleEndsInDHM(),
+          selectedNav: 'raffles',
         });
       } else {
         return res.render("raffle/index", {
           raffle,
           allRaffles: await Raffles.getAllRaffles(),
+          selectedNav: 'raffles',
         });
       }
     });
@@ -91,7 +93,8 @@ export function initRafflesRoutes(app) {
             raffleId: raffle.id,
           }),
           allRaffles: await Raffles.getAllRaffles(),
-          ...raffleEndsInDHM()
+          ...raffleEndsInDHM(),
+          selectedNav: 'raffles',
         });
       } else {
         return res.status(401).json({ message: "No raffle with this Id." });

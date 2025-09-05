@@ -69,7 +69,7 @@ export function createEnergyUI({ scene, x, y, width } = {}) {
 
   const energyTxt = scene.add.text(49, 18, energy.available, {
     fontSize: "16px",
-    fontFamily: constants.fonts.newsreader,
+    fontFamily: constants.fonts.pressStart2P,
     color: "#ffffff",
     fontWeight: "bold"
   }).setOrigin(0.5, 0.5);

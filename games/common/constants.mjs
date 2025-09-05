@@ -16,7 +16,7 @@ export default {
   },
   fonts: {
     troika: "troika",
-    newsreader: "Newsreader",
+    pressStart2P: "Press Start 2P",
   },
   scoreBoard: {
     width: 71
