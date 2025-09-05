@@ -24,7 +24,7 @@ export function createProgressBar({ scene, width, height, launchScreen } = {}) {
     text: 'Start Game',
     onPointerDown: () => {
       const isFullscreen = localStorage.getItem("fullscreen-mode") ?? 'true';
-console.log('isFullscreen', isFullscreen)
+
       if (isFullscreen === "true") {
         scene.scale.startFullscreen();
         document.body.classList.add("fullscreen");
@@ -40,5 +40,9 @@ console.log('isFullscreen', isFullscreen)
 
   scene.load.on("complete", () => {
     startBtn.visible = true;
+  });
+
+  scene.scale.on("leavefullscreen", () => {
+    document.body.classList.remove("fullscreen");
   });
 }

@@ -222,10 +222,6 @@ export class SettingsScene extends Phaser.Scene {
     });
     fullscreenGroup.add(offBtn);
     this.panel.add(fullscreenGroup);
-
-    this.scale.on("leavefullscreen", () => {
-      document.body.classList.remove("fullscreen");
-    });
   }
 
   createHeader() {
