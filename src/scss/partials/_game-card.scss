@@ -3,21 +3,10 @@
 
 .game-list {
   margin: 0;
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
-
-  @include min-480 {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  @include min-720 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  @include min-960 {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
 }
 
 .game-card {
@@ -25,6 +14,8 @@
   flex-direction: column;
   padding: 0;
   overflow: hidden;
+  min-width: 260px;
+  max-width: 260px;
 
   &:hover {
     border-color: color-mix(in oklab,oklch(76.5% .177 163.223) 40%,transparent);
@@ -37,6 +28,14 @@
   picture {
     display: block;
     margin-bottom: 24px;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: 0 0 12px inset #000;
+    }
 
     img {
       display: block;
@@ -59,10 +58,11 @@
   }
 
   .button {
-    padding: 8px;
+    padding: 14px 0 12px;
     border-left: 0;
     border-right: 0;
     border-bottom: 0;
+    font-family: 'Press Start 2P', serif;
   }
 
   .last-updated {

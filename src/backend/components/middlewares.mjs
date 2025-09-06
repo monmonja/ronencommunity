@@ -17,7 +17,9 @@ export function requireWalletSession(req, res, next) {
     return next(); // session is valid
   }
 
-  return res.status(401).render("games/required-login");
+  return res.status(401).render("games/required-login", {
+    selectedNav: 'games',
+  });
 }
 
 // Session middleware factory
