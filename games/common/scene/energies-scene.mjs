@@ -1,6 +1,7 @@
 import constants from "../constants.mjs";
 import {createCloseButton} from "../buttons.mjs";
 import {fetchEnergy} from "../energies.mjs";
+import {interactiveBoundsChecker} from "../rotate-utils.mjs";
 
 export default class EnergiesScene extends Phaser.Scene {
   windowWidth = 410;
@@ -83,7 +84,7 @@ export default class EnergiesScene extends Phaser.Scene {
     itemContainer.setSize(this.buttonWidth, this.buttonHeight);
     itemContainer.setInteractive(
       new Phaser.Geom.Rectangle(this.buttonWidth / 2, this.buttonHeight / 2, this.buttonWidth, this.buttonHeight),
-      Phaser.Geom.Rectangle.Contains
+      interactiveBoundsChecker,
     );
     itemContainer.on("pointerover", () => {
       this.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
@@ -145,7 +146,7 @@ export default class EnergiesScene extends Phaser.Scene {
     tokenContainer.setSize(width, height);
     tokenContainer.setInteractive(
       new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
-      Phaser.Geom.Rectangle.Contains
+      interactiveBoundsChecker,
     );
     tokenContainer.on("pointerover", () => {
       this.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer

@@ -46,12 +46,12 @@ export default class OptionsScene extends Phaser.Scene {
 
     const bg = this.add.graphics();
     bg.fillStyle(0x2f8011, 1);
-    bg.fillRoundedRect(15, 60, this.sys.game.config.width - 30, 400, 4);
+    bg.fillRoundedRect(15, 60, this.game.scale.width - 30, 400, 4);
     topBg.add([bg]);
   }
 
   createLogo() {
-    const topBg = this.add.container(this.sys.game.config.width / 2 - 8, 35);
+    const topBg = this.add.container(this.game.scale.width / 2 - 8, 35);
     const bg = this.add.graphics();
     bg.fillStyle(0xffffff, 1);
     bg.fillRoundedRect(-35, -16, 80, 80, 40);
@@ -115,7 +115,7 @@ export default class OptionsScene extends Phaser.Scene {
 
     createButton({
       scene: this,
-      x: this.sys.game.config.width / 2 - (150 / 2),
+      x: this.game.scale.width / 2 - (150 / 2),
       y: 350,
       width: 150,
       height: 50,

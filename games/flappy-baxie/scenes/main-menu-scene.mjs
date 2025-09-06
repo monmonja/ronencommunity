@@ -2,6 +2,8 @@ import { assets } from "../constants.mjs";
 import {addSettingsIcon} from "../../common/settings.mjs";
 import {useEnergy} from "../../common/energies.mjs";
 import constants from "../../common/constants.mjs";
+import Phaser from "phaser";
+import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 
 const baxies = {
   'gronke': 'baxie-gronke',
@@ -58,7 +60,12 @@ export default class  MainMenuScene extends Phaser.Scene {
         const baxie = this.add.image(x, startY + row * spaceY, baxies[key])
           .setScale(1.2);
 
-        baxie.setInteractive();
+        baxie.setData("offsetX", 38);
+        baxie.setData("offsetY", 40);
+        baxie.setInteractive(
+          new Phaser.Geom.Rectangle(0, 0, 75, 82),
+          interactiveBoundsChecker,
+        );
         baxie.on("pointerover", () => {
           this.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
         });

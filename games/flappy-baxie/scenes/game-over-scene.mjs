@@ -6,7 +6,7 @@ export default class GameOverScene extends Phaser.Scene {
   }
 
   create() {
-    const center = this.sys.game.config.width / 2;
+    const center = this.game.scale.width / 2;
 
     const gameOver = this.add.text(center, 186, 'Game Over', {
       fontFamily: 'troika',

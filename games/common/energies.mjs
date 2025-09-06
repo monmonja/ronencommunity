@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import {createButton, createCloseButton} from "./buttons.mjs";
 import constants from "./constants.mjs";
+import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
 export function fetchEnergy(scene) {
   return new Promise((resolve, reject) => {
@@ -42,11 +42,13 @@ export function useEnergy({ scene, gameId } = {}) {
 
 export function createEnergyUI({ scene, x, y, width } = {}) {
   const height = 33;
+  let drawn = false;
   const container = scene.add.container(x, y)
     .setSize(width, height)
+    .setName('Energy Container')
     .setInteractive(
       new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
-      Phaser.Geom.Rectangle.Contains
+      interactiveBoundsChecker,
     );
   container.on("pointerover", () => {
     scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer

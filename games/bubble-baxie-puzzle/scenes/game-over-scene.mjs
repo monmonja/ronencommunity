@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {assets} from "../../flappy-baxie/constants.mjs";
+import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 
 export default class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -11,7 +12,7 @@ export default class GameOverScene extends Phaser.Scene {
   }
 
   createRestartButton() {
-    const center = this.sys.game.config.width / 2;
+    const center = this.game.scale.width / 2;
     const buttonWidth = 150;
     const buttonHeight = 50;
 
@@ -44,7 +45,7 @@ export default class GameOverScene extends Phaser.Scene {
     button.setSize(buttonWidth, buttonHeight);
     button.setInteractive(
       new Phaser.Geom.Rectangle(buttonWidth / 2, buttonHeight / 2, buttonWidth, buttonHeight),
-      Phaser.Geom.Rectangle.Contains
+      interactiveBoundsChecker,
     );
     button.on('pointerdown', () => {
       this.events.emit("scoreChanged", 0);

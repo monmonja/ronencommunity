@@ -1,4 +1,5 @@
 import constants from "./constants.mjs";
+import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
 export function createButton({
   scene, x, y, width, height, text,
@@ -39,7 +40,7 @@ export function createButton({
   button.setSize(width, height);
   button.setInteractive(
     new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
-    Phaser.Geom.Rectangle.Contains
+    interactiveBoundsChecker,
   );
   button.on("pointerover", () => {
     scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
@@ -55,12 +56,16 @@ export function createButton({
 }
 
 export function createCloseButton({ scene, x, y, onPointerDown } = {}) {
-  const closeButton = scene.add.container(x, y)
-    .setInteractive();
   const width = 32;
   const height = 32;
   const radius = 6;
   const bg = scene.add.graphics();
+  const closeButton = scene.add.container(x, y)
+    .setInteractive(
+      new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
+      interactiveBoundsChecker,
+    );
+
 
   bg.fillStyle(0x9dfd90, 0.2);
   bg.fillRoundedRect(0, 0, width, height, radius);
@@ -78,7 +83,7 @@ export function createCloseButton({ scene, x, y, onPointerDown } = {}) {
   closeButton.setSize(width, height);
   closeButton.setInteractive(
     new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
-    Phaser.Geom.Rectangle.Contains
+    interactiveBoundsChecker,
   );
   closeButton.on("pointerover", () => {
     scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer

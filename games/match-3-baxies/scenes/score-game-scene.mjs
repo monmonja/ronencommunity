@@ -3,6 +3,7 @@ import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../../common/buttons.mjs";
 import {addSettingsIcon} from "../../common/settings.mjs";
 import constants from "../../common/constants.mjs";
+import {getRotatedCoordinate} from "../../common/rotate-utils.mjs";
 
 export const levels = [
   {
@@ -338,8 +339,8 @@ export default class ScoreGameScene extends Phaser.Scene {
 
   getOffset() {
     const uiSceneWidth = constants.mainMenu.panelWidth;
-    const offsetX = (this.sys.game.config.width / 2) - ((this.columns * this.cellSize) / 2) + (uiSceneWidth / 2);
-    const offsetY = (this.sys.game.config.height / 2) - ((this.rows * this.cellSize) / 2);
+    const offsetX = (this.game.scale.width / 2) - ((this.columns * this.cellSize) / 2) + (uiSceneWidth / 2);
+    const offsetY = (this.game.scale.height / 2) - ((this.rows * this.cellSize) / 2);
 
     return [
       offsetX,
@@ -348,10 +349,12 @@ export default class ScoreGameScene extends Phaser.Scene {
   }
 
   screenToCell(x, y) {
+    const newXY = getRotatedCoordinate(this, x, y);
+
     const [offsetX, offsetY] = this.getOffset();
 
-    const c = Math.floor((x - offsetX) / this.cellSize);
-    const r = Math.floor((y - offsetY) / this.cellSize);
+    const c = Math.floor((newXY.x - offsetX) / this.cellSize);
+    const r = Math.floor((newXY.y - offsetY) / this.cellSize);
     if (!this.inBounds(r, c)) return null;
     return { r, c };
   }

@@ -29,6 +29,12 @@
       align-items: center;
       justify-content: center;
 
+      > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       @media screen and (orientation: portrait) {
         canvas {
           transform: rotate(-90deg);

@@ -9,15 +9,18 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create() {
+    this.world = this.add.container(0, 0);
+
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)
       .setInteractive();
+    this.world.add(this.backgroundDay);
 
     this.scene.launch('MainPanelScene');
 
     document.fonts.load('16px troika').then(() => {
-      const match = this.add.text(this.sys.game.config.width / 2, 110, 'Match', {
+      const match = this.add.text(this.game.scale.width / 2, 110, 'Match', {
         fontSize: '90px',
         fontFamily: 'troika',
         color: '#ddc33e',
@@ -26,7 +29,7 @@ export default class MainMenuScene extends Phaser.Scene {
       match.setStroke('#112704', 3);
       match.setShadow(2, 2, '#222', 4, false, true);
 
-      const threeBaxies = this.add.text(this.sys.game.config.width / 2, 170, '3 BAXIES', {
+      const threeBaxies = this.add.text(this.game.scale.width / 2, 170, '3 BAXIES', {
         fontSize: '50px',
         fontFamily: 'troika',
         color: '#ddc33e',
@@ -37,7 +40,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
       // createButton({
       //   scene: this,
-      //   x: this.sys.game.config.width / 2 - (160 / 2),
+      //   x: this.game.scale.width / 2 - (160 / 2),
       //   y: 230,
       //   width: 160,
       //   height: 50,
@@ -49,7 +52,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
       createButton({
         scene: this,
-        x: this.sys.game.config.width / 2 - (160 / 2),
+        x: this.game.scale.width / 2 - (160 / 2),
         y: 250,
         // y: 290,
         width: 170,

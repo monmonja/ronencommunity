@@ -1,19 +1,24 @@
 import Phaser from "phaser";
 import {createButton, createCloseButton} from "./buttons.mjs";
 import constants from "./constants.mjs";
+import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
 export function addSettingsIcon({ scene } = {}) {
   const x = 0;
   const y = 10;
   const width = 60;
-  const container = scene.add.container(x, y);
+  const container = scene.add.container(x, y)
+    .setInteractive(
+      new Phaser.Geom.Rectangle(0, y / 2, 80, 90),
+      interactiveBoundsChecker,
+    );
   const bg = scene.add.graphics();
 
   const profilePicWidth = width + 10;
   const profilePicHeight = 70;
 
   bg.fillStyle(0x91c7fc, 0.3);
-  bg.fillRoundedRect(10, 18, profilePicWidth, profilePicHeight, {
+  bg.fillRoundedRect(10, 8, profilePicWidth, profilePicHeight, {
     tl: 24, // top-left
     tr: 30, // top-right
     bl: 24,  // bottom-left
@@ -21,10 +26,8 @@ export function addSettingsIcon({ scene } = {}) {
   });
   container.add(bg);
 
-
-
   // Profile picture
-  const profilePic = scene.add.image(43, 22, "profile-pic")
+  const profilePic = scene.add.image(43, 17, "profile-pic")
     .setScale(0.25)
     .setOrigin(0.5, 0);
   profilePic.texture.setFilter(Phaser.Textures.NEAREST);
@@ -34,7 +37,7 @@ export function addSettingsIcon({ scene } = {}) {
   maskShape.fillStyle(0xffffff);
 
   // Draw circle for mask
-  maskShape.fillRoundedRect(10, 18, profilePicWidth, profilePicHeight, {
+  maskShape.fillRoundedRect(10, 13, profilePicWidth, profilePicHeight, {
     tl: 24, // top-left
     tr: 30, // top-right
     bl: 24,  // bottom-left
@@ -48,28 +51,30 @@ export function addSettingsIcon({ scene } = {}) {
 // Add to container
   container.add(profilePic);
 
-  const frame = scene.add.image(43, 10, "profile-frame")
+  const frame = scene.add.image(43, 3, "profile-frame")
     .setScale(1.5)
-    .setOrigin(0.5, 0)
-    .setInteractive();
+    .setOrigin(0.5, 0);
 
   container.add(frame);
   container.add(profilePic);
 
-  const settingsIcon = scene.add.image(8, 8, "settings")
+  const settingsIcon = scene.add.image(8, 0, "settings")
     .setOrigin(0, 0)
     .setScale(0.65)
-    .setInteractive();
+    .setInteractive(
+      new Phaser.Geom.Rectangle(4, 4, 24, 24),
+      interactiveBoundsChecker,
+    );
 
   container.add(settingsIcon);
 
-  frame.on("pointerover", () => {
+  container.on("pointerover", () => {
     scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
   });
-  frame.on("pointerout", () => {
+  container.on("pointerout", () => {
     scene.input.manager.canvas.style.cursor = "default";
   });
-  frame.on("pointerdown", () => {
+  container.on("pointerdown", () => {
     scene.scene.launch("SettingsScene");
     scene.scene.bringToTop("SettingsScene");
   });
@@ -153,7 +158,10 @@ export class SettingsScene extends Phaser.Scene {
       color: isPlaying === "true" ? "#FFF" : "#333",
     }).setOrigin(0, 0.5);
 
-    onBtn.setInteractive();
+    onBtn.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, 30, 20),
+      interactiveBoundsChecker,
+    );
     onBtn.on("pointerdown", () => {
       onBtn.setColor("#FFF");
       offBtn.setColor("#333");
@@ -168,7 +176,10 @@ export class SettingsScene extends Phaser.Scene {
       color: isPlaying === "false" ? "#FFF" : "#333",
     }).setOrigin(0, 0.5);
 
-    offBtn.setInteractive();
+    offBtn.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, 35, 20),
+      interactiveBoundsChecker,
+    );
     offBtn.on("pointerdown", () => {
       offBtn.setColor("#FFF");
       onBtn.setColor("#333");
@@ -197,7 +208,10 @@ export class SettingsScene extends Phaser.Scene {
       color: isFullscreen === "true" ? "#FFF" : "#333",
     }).setOrigin(0, 0.5);
 
-    onBtn.setInteractive();
+    onBtn.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, 30, 20),
+      interactiveBoundsChecker,
+    );
     onBtn.on("pointerdown", () => {
       onBtn.setColor("#ffffff");
       offBtn.setColor("#333");
@@ -213,7 +227,10 @@ export class SettingsScene extends Phaser.Scene {
       color: isFullscreen === "false" ? "#FFF" : "#333",
     }).setOrigin(0, 0.5);
 
-    offBtn.setInteractive();
+    offBtn.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, 35, 20),
+      interactiveBoundsChecker,
+    );
     offBtn.on("pointerdown", () => {
       offBtn.setColor("#ffffff");
       onBtn.setColor("#333");
