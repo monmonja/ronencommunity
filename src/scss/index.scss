@@ -16,14 +16,26 @@
   margin-top: 32px;
 }
 
+h1 {
+  font-size: 30px;
+  font-family: 'Press Start 2P', serif;
+  padding-bottom: 30px;
+  color: white;
+  text-align: center;
+  padding-top: 60px;
+  line-height: 1.2em;
+}
+
 .intro {
   color: white;
-  padding: 60px 0;
+  padding: 0 0 60px;
+  text-align: center;
 
   li {
-    font-size: 24px;
+    font-size: 20px;
     font-family: 'Press Start 2P', serif;
     padding-bottom: 12px;
+    padding-left: 12px;
   }
 }
 
