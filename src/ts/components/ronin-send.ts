@@ -84,11 +84,28 @@ export async function sendToken(
       // Encode transfer(address,uint256)
       const amountWei = BigInt(Math.floor(amountNum * Math.pow(10, decimals)));
       const data = encodeTransfer(to, amountWei);
+
+      // Estimate the gas required
+      const gasEstimateHex = await provider.request({
+        method: "eth_estimateGas",
+        params: [{
+          from: fromAddress,
+          to: tokenAddress,
+          data: data,
+        }]
+      });
+
+      const gasPriceHex = await provider.request({
+        method: "eth_gasPrice",
+        params: []
+      });
+
       const txParams = {
         from: fromAddress,
         to: tokenAddress,
         data,
-        gas: "0x186a0", // ~100000 gas
+        gas: gasEstimateHex, // Use the estimated gas
+        gasPrice: gasPriceHex, // Add the current gas price
       };
 
       const txHash: string = await provider.request({
