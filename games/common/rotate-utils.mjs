@@ -32,7 +32,7 @@ export function interactiveBoundsChecker(hitArea,x,y, gameObject) {
       hitArea.height,
     );
 
-    if (!gameObject.drawn) {
+    if (!gameObject.drawn && "{{config.isProd}}" === "false") {
       gameObject.drawn = true;
       let debug = gameObject.scene.add.graphics();
       debug.fillStyle(0x000000, 0.3);
