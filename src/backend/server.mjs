@@ -25,6 +25,7 @@ import { initWikisRoutes } from "./routes/wikis.mjs";
 import { initEnergyRoutes } from "./routes/energies.mjs";
 import {initProfileRoutes} from "./routes/profile.mjs";
 import Games from "./models/games.mjs";
+import {initGameProfilesRoutes} from "./routes/game-profiles.mjs";
 
 const port = config.port;
 // Fix __dirname in ES Modules
@@ -58,6 +59,7 @@ initGamesRoutes(app);
 initWikisRoutes(app);
 initEnergyRoutes(app);
 initProfileRoutes(app);
+initGameProfilesRoutes(app);
 
 app.get(
   "/",

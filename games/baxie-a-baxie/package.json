@@ -1,0 +1,14 @@
+{
+  "slug": "baxie-a-baxie",
+  "name": "Baxie a baxie",
+  "description": "A sheep a sheep clone",
+  "lastUpdate": 1757784963000,
+  "visible": true,
+  "dailyEnergy": 1,
+  "changeLog": [
+    {
+      "date": 1757784963000,
+      "changes": "Initial release of the game."
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
 export function createButton({
   scene, x, y, width, height, text,
-  onPointerDown, image
+  onPointerDown, image, radius = 6
 } = {}) {
   const button = scene.add.container(x, y);
 
@@ -11,18 +11,18 @@ export function createButton({
 
   // top
   bg.fillStyle(0x4f9f44, 1);
-  bg.fillRoundedRect(0, 0, width, height / 2, 6);
+  bg.fillRoundedRect(0, 0, width, height / 2, radius);
   // below
   bg.fillStyle(0x556853, 1);
-  bg.fillRoundedRect(0, 6, width, height - 6, 6);
+  bg.fillRoundedRect(0, 6, width, height - 6, radius);
 
   // Draw base background
   bg.fillStyle(0x537a4e, 1);
-  bg.fillRoundedRect(2, 4, width - 4, height - 8, 6);
+  bg.fillRoundedRect(2, 4, width - 4, height - 8, radius);
 
   // Draw border
   bg.lineStyle(2, 0x223220);
-  bg.strokeRoundedRect(0, 0, width, height, 6);
+  bg.strokeRoundedRect(0, 0, width, height, radius);
 
   if (text) {
     const label = scene.add.text(width / 2, height / 2  + 2, text, {
@@ -54,6 +54,67 @@ export function createButton({
 
   return button;
 }
+
+export function createCircleButton({
+ scene, x, y, radius = 10, text,
+ onPointerDown, image,
+  topHighlightColor = 0x4f9f44,
+  innerBaseColor = 0x537a4e,
+  borderColor = 0x223220,
+} = {}) {
+  const button = scene.add.container(x, y);
+
+  const bg = scene.add.graphics();
+
+  // Top highlight
+  bg.fillStyle(topHighlightColor, 1);
+  bg.fillCircle(radius, radius, radius);
+
+  // Inner base
+  bg.fillStyle(innerBaseColor, 1);
+  bg.fillCircle(radius, radius, radius - 4);
+
+  // Border
+  bg.lineStyle(2, borderColor);
+  bg.strokeCircle(radius, radius, radius);
+
+  if (text) {
+    const label = scene.add.text(radius, radius, text, {
+      fontSize: '26px',
+      fontFamily: 'troika',
+      color: '#ffffff'
+    }).setOrigin(0.5, 0.5);
+    label.setShadow(2, 2, "#222", 4, false, true);
+
+    button.add([bg, label]);
+  } else if (image) {
+    image.setPosition(radius, radius);
+    button.add([bg, image]);
+  } else {
+    button.add(bg);
+  }
+
+  button.setSize(radius * 2, radius * 2);
+  button.setInteractive(
+    new Phaser.Geom.Rectangle(radius, radius, radius * 2, radius * 2),
+    interactiveBoundsChecker,
+  );
+
+  button.on("pointerover", () => {
+    scene.input.manager.canvas.style.cursor = "pointer";
+  });
+  button.on("pointerout", () => {
+    scene.input.manager.canvas.style.cursor = "default";
+  });
+  button.on("pointerdown", () => {
+    if (onPointerDown) {
+      onPointerDown();
+    }
+  });
+
+  return button;
+}
+
 
 export function createCloseButton({ scene, x, y, onPointerDown } = {}) {
   const width = 32;

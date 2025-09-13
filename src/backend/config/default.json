@@ -14,19 +14,20 @@
       "raffleWinners": "raffle-winners",
       "energies": "energies",
       "purchases": "purchases",
-      "consumes": "consumes"
+      "consumes": "consumes",
+      "gameProfiles": "game-profiles"
     }
   },
   "web3":  {
-    "rpcUrl": "https://saigon-testnet.roninchain.com/rpc",
-    "chainName": "ronin-saigon",
-    "chainId": 2021,
+    "rpcUrl": "https://api.roninchain.com/rpc",
+    "chainName": "ronin",
+    "chainId": 2020,
     "raffleAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
     "purchaseAddress": "0x42e119e6911b0C293cef4Ce237F7dDe6364A73fD",
-    "defaultAmount": 0.1,
+    "defaultAmount": 1,
     "adminWallet": "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
-    "rollbar": "",
-    "ronenContract": "0x82f5483623D636BC3deBA8Ae67E1751b6CF2Bad2"
+    "rollbar": "6339738d5a7348f0866c726e50648a49",
+    "ronenContract": "0x279e8e892edbd7bf3d7b9eedc2f482d88e4cc9ef"
   },
   "raffles": [
     {

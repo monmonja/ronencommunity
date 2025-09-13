@@ -1,0 +1,60 @@
+import Phaser from 'phaser';
+import {createButton} from "../../common/buttons.mjs";
+import constants from "../../common/constants.mjs";
+import {useEnergy} from "../../common/energies.mjs";
+
+export default class MainMenuScene extends Phaser.Scene {
+  constructor() {
+    super('MainMenuScene');
+  }
+
+  create() {
+    this.world = this.add.container(0, 0);
+
+    this.backgroundDay = this.add
+      .image(0, 0, 'bg')
+      .setOrigin(0, 0)
+      .setInteractive();
+    this.world.add(this.backgroundDay);
+
+    this.scene.launch('MainPanelScene');
+
+    document.fonts.load('16px troika').then(() => {
+      const match = this.add.text(this.game.scale.width / 2, 110, 'Maze Coin', {
+        fontSize: '90px',
+        fontFamily: 'troika',
+        color: '#ddc33e',
+        fontStyle: 'bold'
+      }).setOrigin(0.5, 0.5);
+      match.setStroke('#112704', 3);
+      match.setShadow(2, 2, '#222', 4, false, true);
+
+      createButton({
+        scene: this,
+        x: this.game.scale.width / 2 - (160 / 2),
+        y: 250,
+        // y: 290,
+        width: 170,
+        height: 60,
+        text: "Play now",
+        onPointerDown: () => {
+          const energy = this.registry.get(constants.registry.energy);
+
+          if (energy.available > 0) {
+            useEnergy({
+              scene: this,
+              gameId: this.game.customConfig.gameId,
+            }).then((result) => {
+              if (result.available > 0) {
+                this.scene.launch('DPadScene');
+                this.scene.start('GameScene');
+              }
+            })
+          } else {
+            this.scene.launch('EnergiesScene');
+          }
+        }
+      });
+    });
+  }
+}

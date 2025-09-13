@@ -1,0 +1,14 @@
+{
+  "slug": "baxie-a-baxie",
+  "name": "Baxie Simulation",
+  "description": "Baxie Simulation",
+  "lastUpdate": 1757033476000,
+  "visible": false,
+  "dailyEnergy": 300,
+  "changeLog": [
+    {
+      "date": 1755820800000,
+      "changes": "Initial release of the game."
+    }
+  ]
+}

@@ -1,24 +1,13 @@
 import Phaser from "phaser";
 import constants from "./constants.mjs";
 import {interactiveBoundsChecker} from "./rotate-utils.mjs";
+import FetchUrl from "./utils/fetch-url.mjs";
 
 export function fetchEnergy(scene) {
-  return new Promise((resolve, reject) => {
-    fetch(`/energy/get/${scene.game.customConfig.gameId}`, {
-      headers: {
-        "Content-Type": "application/json",
-      }
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        scene.registry.set(constants.registry.energy, result);
-        scene.game.events.emit(constants.events.energyChanged, result);
-        resolve(result);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+  scene.load.addFile(new FetchUrl(scene.load, 'energies', `/energy/get/${scene.game.customConfig.gameId}`, (energies) => {
+    scene.registry.set(constants.registry.energy, energies);
+    scene.game.events.emit(constants.events.energyChanged, energies);
+  }));
 }
 
 export function useEnergy({ scene, gameId } = {}) {

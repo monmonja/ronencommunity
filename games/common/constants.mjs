@@ -2,11 +2,16 @@ export default {
   mainMenu: {
     panelWidth: 90
   },
+  scenes: {
+    mainPanel: 'MainPanelScene'
+  },
   events: {
-    energyChanged: "energyChanged"
+    energyChanged: "energyChanged",
+    gameProfileChanged: "gameProfileChanged"
   },
   registry: {
-    energy: "energy"
+    energy: "energy",
+    gameProfile: "gameProfile"
   },
   colors: {
     blocker: 0x333333,

@@ -1,0 +1,14 @@
+{
+  "slug": "maze-coin",
+  "name": "Maze Coin",
+  "description": "A maze with coin like pacman",
+  "lastUpdate": 1757033476000,
+  "visible": false,
+  "dailyEnergy": 300,
+  "changeLog": [
+    {
+      "date": 1755820800000,
+      "changes": "Initial release of the game."
+    }
+  ]
+}
