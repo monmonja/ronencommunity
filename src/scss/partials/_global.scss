@@ -63,6 +63,8 @@ ol, ul {
   color: white;
 
   #top-banner-inner {
+    max-width: 100%;
+    overflow: hidden;
     display: inline-block;
     color: white;
     text-align: left;

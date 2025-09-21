@@ -16,6 +16,12 @@
   li {
     min-width: 100px;
     margin: 0;
+    width: 100%;
+
+    ol {
+      margin-left: 47px;
+      list-style: "|--   ";
+    }
   }
 
   a {

@@ -22,6 +22,7 @@
     text-transform: uppercase;
     text-align: left;
     margin-bottom: 24px;
+    line-height: 1.3em;
 
     @include min-768 {
       margin-top: 0;
@@ -34,6 +35,8 @@
     width: 100%;
     left: 0;
     z-index: 3;
+    overflow: auto;
+    transition: max-height 0.4s ease;
 
     @include min-768 {
       width: 250px;
@@ -61,6 +64,8 @@
     }
 
     &:has(#mobile-wiki:checked) {
+      height: 400px;
+
       .card {
         max-height: 1000px;
       }
@@ -70,7 +75,6 @@
       @include max-767 {
         overflow: hidden;
         max-height: 0;
-        transition: max-height 0.4s ease;
 
         border-radius: 0;
         border: 0;
@@ -171,4 +175,8 @@ h2 {
 
 .sub-section {
   margin-top: 32px;
+}
+
+.rp-info {
+  font-size: 70%;
 }
