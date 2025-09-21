@@ -66,6 +66,10 @@
     &:has(#mobile-wiki:checked) {
       height: 400px;
 
+      @include min-768 {
+        height: auto;
+      }
+
       .card {
         max-height: 1000px;
       }
