@@ -4,11 +4,96 @@
 @use 'partials/top-menu' as *;
 @use 'partials/wiki-menu' as *;
 @use 'partials/overlay' as *;
+@use 'partials/card' as *;
 @use 'partials/footer' as *;
 
 .page-content {
-  display: flex;
-  flex-direction: column;
+  @include min-768 {
+    display: flex;
+    flex-direction: row-reverse;
+    column-gap: 32px;
+  }
+
+  h1 {
+    font-family: 'Press Start 2P', serif;
+    font-size: 20px;
+    color: white;
+    position: relative;
+    text-transform: uppercase;
+    text-align: left;
+    margin-bottom: 24px;
+
+    @include min-768 {
+      margin-top: 0;
+    }
+  }
+
+  .aside {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    z-index: 3;
+
+    @include min-768 {
+      width: 250px;
+      position: static;
+      z-index: 1;
+    }
+
+    .mobile-menu {
+      display: block;
+      background: color-mix(in oklab, oklch(20.8% .042 265.755) 80%, transparent);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 12px 24px;
+      border-top: 2px solid color-mix(in oklab, $border-color 20%, transparent);
+      cursor: pointer;
+
+      @include min-768 {
+        display: none;
+      }
+    }
+
+    #mobile-wiki {
+      position: absolute;
+      left: -10000px;
+    }
+
+    &:has(#mobile-wiki:checked) {
+      .card {
+        max-height: 1000px;
+      }
+    }
+
+    .card {
+      @include max-767 {
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.4s ease;
+
+        border-radius: 0;
+        border: 0;
+        padding-bottom: 0;
+        padding-top: 0;
+      }
+    }
+
+    h3 {
+      margin-bottom: 12px;
+      font-family: 'Press Start 2P', serif;
+      font-size: 14px;
+      color: white;
+      position: relative;
+      text-transform: uppercase;
+      text-align: left;
+      display: none;
+
+      @include min-768 {
+        display: block;
+      }
+    }
+  }
 
   &:has(input[name="menu"]:checked) {
     @include max-767 {
@@ -25,6 +110,10 @@
   ol {
     list-style: disc;
     margin-left: 14px;
+
+    ol {
+      margin-top: 12px;
+    }
   }
 }
 

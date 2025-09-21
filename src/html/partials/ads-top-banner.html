@@ -1,4 +1,11 @@
 <div id="top-banner">
+  <div id="top-banner-inner">
+    <% if (country === "US") { %>
+      Please donate to support the website: <a id="top-banner-address" href="https://app.roninchain.com/address/0xf84810C321Fe1d9baB045b67893C61Be756FE6c6">0xf84810C321Fe1d9baB045b67893C61Be756FE6c6</a>
+    <% } else { %>
+      <%- affiliateAds %>
+    <% } %>
+  </div>
   <!--- Ronen top banner
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1194005732560122"
           crossorigin="anonymous"></script>

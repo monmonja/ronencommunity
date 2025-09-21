@@ -1,4 +1,5 @@
 import { initTopMenu } from "./components/top-menu";
+import { initTopBanner } from "./components/top-banner";
 import { initAuth } from "./components/auth";
 import { initGameItems } from "./components/game-items";
 import { initOverlayRaffle } from "./components/overlay-raffle";
@@ -7,6 +8,7 @@ import {initEnergy} from "./components/energy";
 
 document.addEventListener("DOMContentLoaded", () => {
   initTopMenu();
+  initTopBanner();
   initAuth();
   initGameItems();
   initOverlayRaffle();

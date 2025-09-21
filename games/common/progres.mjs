@@ -40,6 +40,9 @@ export function createProgressBar({ scene, width, height, launchScreen } = {}) {
 
   scene.load.on("complete", () => {
     startBtn.visible = true;
+
+    scene.scene.stop();
+    scene.scene.launch(launchScreen);
   });
 
   scene.scale.on("leavefullscreen", () => {

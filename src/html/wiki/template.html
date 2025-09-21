@@ -13,8 +13,16 @@
   <%- include('../partials/top-menu.html') %>
   <%- include('../partials/ads-top-banner.html') %>
   <div class="page-content">
-    <h2 class="header-title">Games</h2>
-    <%- include('../partials/wiki-menu.html') %>
+    <div class="aside">
+      <label class="mobile-menu">
+        Other Wikis
+        <input type="checkbox" name="mobile-wiki" id="mobile-wiki" />
+      </label>
+      <div class="card">
+        <h3>Other Wikis</h3>
+        <%- include('../partials/wiki-menu.html') %>
+      </div>
+    </div>
     <div id="content">
       <%- include(content) %>
     </div>

@@ -1,10 +1,11 @@
 {
-  "slug": "baxie-a-baxie",
+  "slug": "baxie-simulation",
   "name": "Baxie Simulation",
   "description": "Baxie Simulation",
   "lastUpdate": 1757033476000,
   "visible": false,
   "dailyEnergy": 300,
+  "gameRoomSlug": "bsim",
   "changeLog": [
     {
       "date": 1755820800000,

@@ -2,44 +2,20 @@
 @use './variables' as *;
 
 .wiki-menu {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   z-index: 1;
   position: relative;
   list-style: none;
-  margin: 0 0 92px;
-  grid-template-columns: 1fr 1fr;
-
-  @include min-768 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  @include min-1024 {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
 
   &::-webkit-scrollbar {
     display: none;
   }
 
-  @include min-768 {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   li {
     min-width: 100px;
     margin: 0;
-
-    &.selected {
-      border-bottom: 2px solid $border-color;
-      position: absolute;
-      bottom: -70px;
-      width: 100%;
-
-      label {
-        justify-content: center;
-      }
-    }
   }
 
   a {

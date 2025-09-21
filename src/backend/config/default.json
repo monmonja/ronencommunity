@@ -3,6 +3,7 @@
   "port": 3000,
   "cdnLink": "",
   "distVersion": "1",
+  "wsUrl": "ws://localhost:3000",
   "session": {
     "secret": "localhost"
   },

@@ -1,7 +1,8 @@
-import { ICON_SET } from "../constants.mjs";
 import {addBgMusic} from "../../common/settings.mjs";
-import {fetchEnergy} from "../../common/energies.mjs";
+import {fetchEnergy, useEnergy} from "../../common/energies.mjs";
 import {createProgressBar} from "../../common/progres.mjs";
+
+import Baxie from "../../common/baxie/baxie.ts";
 
 export default class PreloaderScene extends Phaser.Scene {
   constructor() {
@@ -18,7 +19,8 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      launchScreen: 'MainMenuScene',
+      launchScreen: 'TestScene',
+      // launchScreen: 'GameScene',
     });
 
     document.fonts.load('16px troika').then(() => {
@@ -37,15 +39,11 @@ export default class PreloaderScene extends Phaser.Scene {
     this.load.image('undo', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/undo.png`)
     this.load.image('shuffle', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/shuffle.png`)
     this.load.audio('bgm', '{{config.cdnLink}}/game-assets/match-3-baxies/audio/bg.mp3');
-
-    // Load tile icons
-    const uniqueIcons = [...new Set(ICON_SET)];
-    uniqueIcons.forEach(iconUrl => {
-      this.load.image(iconUrl, iconUrl);
-    });
   }
 
   create() {
     addBgMusic(this);
+
+
   }
 }

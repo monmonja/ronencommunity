@@ -4,12 +4,8 @@ import MongoStore from "connect-mongo";
 import session from "express-session";
 
 import config from "../config/default.json" with { type: "json" };
-import { getUtcNow } from "../utils/date-utils.mjs";
-import { raffleEndsInDHM } from "../utils/raffle-utils.mjs";
+import geoip from "geoip-country";
 import {logError} from "./logger.mjs";
-import Raffles from "../models/raffles.mjs";
-import Games from "../models/games.mjs";
-import Energies from "../models/energies.mjs";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
@@ -22,8 +18,7 @@ export function requireWalletSession(req, res, next) {
   });
 }
 
-// Session middleware factory
-export async function sessionMiddleWare() {
+export function sessionMiddleWare() {
   return session({
     secret: config.session.secret,
     saveUninitialized: true,
@@ -102,77 +97,32 @@ export function cookieCheckMiddleware(req, res, next) {
   next();
 }
 
-export function walletRaffleEntryMiddleware() {
-  return async (req, res, next) => {
-    const raffle = Raffles.getRaffle(getUtcNow());
-    const game = Games.getGame(req.params.path);
+export function geoMiddleware(req, res, next) {
+  // get client IP (consider proxies)
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
 
-    if (!game) {
-      return res.status(403).json({ success: false, message: "No games with this id." });
-    }
+  const geo = geoip.lookup(ip);
 
-    if (req.session.wallet) {
-      const wallet = req.session.wallet.address.toLowerCase();
+  // make country available to all templates
+  res.locals.country = geo?.country || "Unknown";
 
-      if (config.isProd && wallet === config.web3.adminWallet.toLowerCase()) {
-        return next();
-      }
+  next();
+}
 
-      const availableEnergy = await Energies.getAvailableEnergies({
-        address: wallet,
-        gameId: req.params.path
-      });
+export function affiliateMiddleware(req, res, next) {
+  const promos = [
+    'Please donate to support the website: <a id="top-banner-address" href="https://app.roninchain.com/address/0xf84810C321Fe1d9baB045b67893C61Be756FE6c6">0xf84810C321Fe1d9baB045b67893C61Be756FE6c6</a>',
+    // End Date:Oct 05, 2025 at 11:59 PM PDT
+    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3IzeLZU">Getting into the Game: A Web3 and Crypto Buying Guide for Newbies</a>`,
+    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3Vsrb8Q">Gaming Socks Do Not Disturb I'm Novelty Boys for Men Women Gamer Youth</a>`,
 
-      if (availableEnergy > 0) {
-        return next();
-      }
+  ];
 
-      const hasEntry = await Raffles.walletHasEntry({
-        raffleId: raffle.id,
-        wallet
-      });
+  // pick a random promo
+  res.locals.affiliateAds = promos[Math.floor(Math.random() * promos.length)];
 
-      if (!hasEntry) {
-        res.clearCookie("has-raffle-entry", { path: "/" });
-
-        res.set({
-          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0",
-          "Surrogate-Control": "no-store" // for CDNs like CloudFront
-        });
-
-        return res.render("raffle/required-for-games", {
-          game: Games.getGame(req.params.path),
-          raffle,
-          totalAmount: await Raffles.getTotalAmount({
-            raffleId: raffle.id,
-          }),
-          ...raffleEndsInDHM(),
-          selectedNav: 'raffles',
-        });
-      }
-
-      next();
-    } else {
-      res.set({
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
-        "Surrogate-Control": "no-store" // for CDNs like CloudFront
-      });
-
-      res.render("raffle/required-for-games", {
-        game: Games.getGame(req.params.path),
-        raffle,
-        totalAmount: await Raffles.getTotalAmount({
-          raffleId: raffle.id,
-        }),
-        ...raffleEndsInDHM(),
-        selectedNav: 'raffles',
-      });
-    }
-  };
+  next();
 }
 
 export function forceHTTPSMiddleware(req, res, next) {
