@@ -4,9 +4,14 @@ import InputText from 'phaser3-rex-plugins/plugins/inputtext.js';
 import {createGameRoom, joinGameRoom} from "../../common/scene/rooms-scene.mjs";
 import { SimpleTextBox } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 
-export default class MainMenuScene extends Phaser.Scene {
+export default class RoomSelectionScene extends Phaser.Scene {
   constructor() {
-    super('MainMenuScene');
+    super('RoomSelectionScene');
+  }
+
+  init(data) {
+    this.selectedBaxies = data.selectedBaxies || [];
+    console.log('this.selectedBaxies', this.selectedBaxies)
   }
 
   create() {
@@ -60,7 +65,8 @@ export default class MainMenuScene extends Phaser.Scene {
               JSON.stringify({
                 type: "joinRoom",
                 gameId: this.game.customConfig.gameId,
-                roomId: response.roomId
+                roomId: response.roomId,
+                selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
               })
             );
           };
@@ -110,7 +116,8 @@ export default class MainMenuScene extends Phaser.Scene {
               JSON.stringify({
                 type: "joinRoom",
                 gameId: this.game.customConfig.gameId,
-                roomId: response.roomId
+                roomId: response.roomId,
+                selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
               })
             );
             this.ws.onmessage = (msg) => {

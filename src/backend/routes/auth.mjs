@@ -5,7 +5,7 @@ import { validateCsrfMiddleware } from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {logError} from "../components/logger.mjs";
-import Wallets from "../models/wallets.mjs";
+import WalletsModel from "../models/wallets-model.mjs";
 
 export function initAuthRoutes(app) {
   app.post(
@@ -59,7 +59,7 @@ export function initAuthRoutes(app) {
             req.session.csrfToken = crypto.randomBytes(32).toString("hex");
 
             // Save wallet
-            await Wallets.addRecord({
+            await WalletsModel.addRecord({
               address,
             });
 

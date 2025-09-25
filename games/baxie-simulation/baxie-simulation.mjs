@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import MainMenuScene from './scenes/main-menu-scene.mjs';
+import SyncMenuScene from './scenes/sync-menu-scene.mjs';
+import SelectionScene from './scenes/selection-scene.mjs';
+import RoomSelectionScene from './scenes/room-selection-scene.mjs';
 import GameScene from "./scenes/game-scene.ts";
 import PreloaderScene from "./scenes/preloader-scene.mjs";
 import RoomsScene from "../common/scene/rooms-scene.mjs";
@@ -10,8 +12,10 @@ import TestScene from "./scenes/test-scene.mjs";
 createGame({
   gameScenesArray: [
     PreloaderScene,
-    TestScene,
-    MainMenuScene,
+    // TestScene,
+    SyncMenuScene,
+    SelectionScene,
+    RoomSelectionScene,
     GameScene,
     UIScene,
     RoomsScene,

@@ -3,7 +3,7 @@ import requestIP from "request-ip";
 
 // Create once — shared across requests
 const rateLimiter = new RateLimiterMemory({
-  points: 120, // Allow 6 points
+  points: 240, // Allow 6 points
   duration: 120, // Per 120 seconds
 });
 

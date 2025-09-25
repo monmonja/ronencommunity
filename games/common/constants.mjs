@@ -11,6 +11,7 @@ export default {
   },
   registry: {
     energy: "energy",
+    baxies: "baxies",
     gameProfile: "gameProfile"
   },
   colors: {

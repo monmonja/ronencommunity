@@ -24,6 +24,7 @@ export class HorizontalScrollContainer extends Phaser.GameObjects.Container {
     this.maybeClick = false;
 
     this.innerContainer = scene.add.container(0, 0); // holds all items
+    this.innerContainer.setName("innerContainer");
     this.add(this.innerContainer);
 
     scene.events.once('postupdate', () => {
@@ -33,6 +34,7 @@ export class HorizontalScrollContainer extends Phaser.GameObjects.Container {
 
       // Now you can create a mask at the global position
       const maskShape = scene.add.graphics();
+      // maskShape.fillStyle(0xffffff, 0.2);
       maskShape.fillStyle(0xffffff);
       maskShape.fillRect(worldX, worldY, width, height);
       maskShape.setVisible(false)
@@ -127,16 +129,21 @@ export class HorizontalScrollContainer extends Phaser.GameObjects.Container {
     });
   }
 
-  addItem(item: Phaser.GameObjects.Container, spacing: number = 10) {
+  addItem(item: Phaser.GameObjects.Container, spacing: number = 10, x:number, y:number) {
     // Position item at the end of innerContainer
-    item.x = this.innerWidth;
-    item.y = this.heightValue / 2 - item.height / 2;
+    item.x = x ?? this.innerWidth;
+    item.y = y ?? this.heightValue / 2 - item.height / 2;
 
     this.innerContainer.add(item);
 
     this.items.push(item);
 
-    this.innerWidth += item.width + spacing;
+    if (x) {
+      this.innerWidth = x + item.width + spacing;
+    } else {
+      this.innerWidth += item.width + spacing;
+    }
+
     this.innerContainer.width = this.innerWidth;
   }
 }

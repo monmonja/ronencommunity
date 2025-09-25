@@ -30,7 +30,7 @@ import { initEnergyRoutes } from "./routes/energies.mjs";
 import {initProfileRoutes} from "./routes/profile.mjs";
 import Games from "./models/games.mjs";
 import {initGameProfilesRoutes} from "./routes/game-profiles.mjs";
-import {initWalletRoutes} from "./routes/wallet.mjs";
+import {initWalletRoutes} from "./routes/wallet-route.mjs";
 import {initGameRoomsRoutes} from "./routes/game-rooms-route.mjs";
 
 const port = config.port;

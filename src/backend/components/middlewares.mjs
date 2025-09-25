@@ -173,7 +173,7 @@ export function securityHeadersMiddleware(req, res, next) {
     "style-src 'self' 'unsafe-inline'; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.ronencommunity.com; " +
     "frame-src 'self' https://*.google.com; " +
-    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cdn.ronencommunity.com; " +
+    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cdn.ronencommunity.com https://metadata.ronen.network; " +
     "frame-ancestors 'none'; " +
     "object-src 'none'"
   );

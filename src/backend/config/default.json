@@ -16,7 +16,8 @@
       "energies": "energies",
       "purchases": "purchases",
       "consumes": "consumes",
-      "gameProfiles": "game-profiles"
+      "gameProfiles": "game-profiles",
+      "nfts": "nfts"
     }
   },
   "web3":  {

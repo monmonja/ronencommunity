@@ -19,8 +19,8 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      launchScreen: 'TestScene',
-      // launchScreen: 'GameScene',
+      // launchScreen: 'TestScene',
+      launchScreen: 'SyncMenuScene',
     });
 
     document.fonts.load('16px troika').then(() => {

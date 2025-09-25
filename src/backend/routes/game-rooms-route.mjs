@@ -7,6 +7,7 @@ import Games from "../models/games.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
 import cookie from "cookie";
+import GameRoomsModel from "../models/game-rooms-model.mjs";
 
 let rooms = {};
 
@@ -50,7 +51,7 @@ export function initGameRoomsRoutes(app, server) {
     // Handle incoming messages
     ws.on("message", (msg) => {
       const data = JSON.parse(msg);
-console.log('data', data)
+
       if (typeof data.gameId === "undefined") {
         return ws.send(JSON.stringify({ error: "No gameId" }));
       } else if (data.roomId.startsWith('bsim-')) {
@@ -79,16 +80,7 @@ console.log('data', data)
       }
 
       const address = req.session.wallet?.address.toLowerCase();
-      const shortHand = address ? address.slice(0, 4) + '-' + address.slice(-4) : '';
-      const roomId = `${game.gameRoomSlug}-${shortHand}-${Math.random().toString(36).substring(2, 10)}`;
-
-      rooms[roomId] = {
-        players: [{
-          address
-        }],
-        game: game.slug,
-        canJoin: true,
-      };
+      const roomId = GameRoomsModel.createRoom({ address, game });
 
       return res.json({
         roomId,
@@ -120,17 +112,15 @@ console.log('data', data)
       }
 
       const roomId = req.params.roomId;
+      const address = req.session.wallet?.address.toLowerCase();
 
-      if (rooms[roomId] && rooms[roomId].canJoin) {
-        rooms[roomId].players.push({
-          address: req.session.wallet?.address.toLowerCase(),
-        });
-        rooms[roomId].canJoin = false;
-
+      if (GameRoomsModel.joinRoom({ roomId, address })) {
         return res.json({
           roomId,
           wsUrl: config.wsUrl,
         });
+      } else {
+        return res.status(400).json({ success: false, errors: "No room" });
       }
 
     });

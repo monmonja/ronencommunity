@@ -5,7 +5,7 @@ import {requireWalletSession, validateCsrfMiddleware} from "../components/middle
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {logError} from "../components/logger.mjs";
-import Wallets from "../models/wallets.mjs";
+import WalletsModel from "../models/wallets-model.mjs";
 import path from "path";
 import Purchases from "../models/purchases.mjs";
 import Consumes from "../models/consumes.mjs";
