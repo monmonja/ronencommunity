@@ -30,6 +30,7 @@ export function createButton({
       fontFamily: 'troika',
       color: '#ffffff'
     }).setOrigin(0.5, 0.5);
+    label.name = 'label';
     label.setShadow(2, 2, "#222", 4, false, true);
 
     button.add([bg, label]);

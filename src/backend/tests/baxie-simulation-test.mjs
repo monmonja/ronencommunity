@@ -7,8 +7,11 @@ const enemyAddress = '0xabcdef1234567890abcdef1234567890abcdef12';
 const playerWs = {
   send: (e) => {
     const data = JSON.parse(e);
-    if (data.type === 'StartGame') {
-      setTimeout(() => gameStart(data, playerAddress), 200);
+
+    if (data.type === 'startGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
+      setTimeout(() => startTesting(data, playerAddress), 200);
+    } else {
+      console.log('playerWS', JSON.stringify(data));
     }
   },
   session: {
@@ -20,8 +23,10 @@ const enemyWs = {
   send: (e) => {
     const data = JSON.parse(e);
 
-    if (data.type === 'StartGame') {
-      setTimeout(() => gameStart(data, enemyAddress), 200);
+    if (data.type === 'startGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
+      setTimeout(() => startTesting(data, enemyAddress), 200);
+    } else {
+      console.log(JSON.stringify(data));
     }
   },
   session: {
@@ -33,24 +38,52 @@ const game = Games.getGame('baxie-simulation');
 playerWs.session.wallet.address = playerAddress;
 enemyWs.session.wallet.address = enemyAddress;
 
-function gameStart(data, address) {
+const playerTestingFlow = [
+  { baxieId: '1250', skill: 'voltOverload', type: 'useSkill' },
+  { baxieId: '1251', skill: 'shadowStrike', type: 'useSkill' },
+  { type: 'endTurn' },
+];
+const enemyTestingFlow = [
+  { baxieId: '1269', skill: 'shadowStrike', type: 'useSkill' },
+  { type: 'endTurn' },
+];
+
+function startTesting(data, address) {
   if (playerAddress === address) {
     if (data.isYourTurn) {
-      console.log('your turn');
+      const currentTest = playerTestingFlow.shift();
+
+      if (data.type !== 'startGame') {
+        console.log(`    ${JSON.stringify(data)}`);
+      }
+      console.log(`\nplayer ${JSON.stringify(currentTest)}`);
+
       handleBaxieSimulationGameRoom(playerWs, {
-        type: 'useSkill',
+        type: currentTest.type,
+        selectedBaxieId: currentTest.baxieId,
         roomId: data.roomId,
-        selectedSkill: "electric bolt",
+        selectedSkill: currentTest.skill,
       });
+    } else {
+      console.log('player waiting for your turn', data.type);
     }
   } else if (enemyAddress === address) {
     if (data.isYourTurn) {
-      console.log('enemy turn');
+      const currentTest = enemyTestingFlow.shift();
+
+      if (data.type !== 'startGame') {
+        console.log(`    ${JSON.stringify(data)}`);
+      }
+
+      console.log(`\nenemy ${JSON.stringify(currentTest)}`);
       handleBaxieSimulationGameRoom(enemyWs, {
-        type: 'useSkill',
+        type: currentTest.type,
+        selectedBaxieId: currentTest.baxieId,
         roomId: data.roomId,
-        selectedSkill: "fire",
+        selectedSkill: currentTest.skill,
       });
+    } else {
+      console.log('enemy waiting for your turn', data.type);
     }
   }
 }
@@ -60,7 +93,7 @@ function init() {
   handleBaxieSimulationGameRoom(playerWs, {
     type: 'joinRoom',
     roomId,
-    selectedBaxies: ["1250"],
+    selectedBaxies: ["1250", "1251", "1252"],
   });
 
   setTimeout(() => {
@@ -68,7 +101,7 @@ function init() {
       handleBaxieSimulationGameRoom(enemyWs, {
         type: 'joinRoom',
         roomId,
-        selectedBaxies: ["1269"],
+        selectedBaxies: ["1269", "1271", "1265"],
       });
     }
   }, 300);

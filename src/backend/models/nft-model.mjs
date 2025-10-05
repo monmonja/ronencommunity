@@ -3,6 +3,7 @@ import {getUtcNow} from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getConnection} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
+import WalletsModel from "./wallets-model.mjs";
 
 const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
 
@@ -13,7 +14,7 @@ export default class NftModel {
   static async addRecord({ nftTokenId, nftId, data } = {}) {
     const mongoDbConnection = await getConnection();
 
-    await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
+    await mongoDbConnection.db().collection(config.mongo.table.nfts).updateOne(
       { nftTokenId, network: "ronin", nftId }, // match criteria
       {
         $setOnInsert: {
@@ -28,8 +29,19 @@ export default class NftModel {
   static async findById({ nftTokenId, nftId } = {}) {
     const mongoDbConnection = await getConnection();
 
-    return await mongoDbConnection.db().collection(config.mongo.table.wallets)
+    const data = await mongoDbConnection.db().collection(config.mongo.table.nfts)
       .findOne({ nftTokenId, network: "ronin", nftId });
+
+    if (data) {
+      return data;
+    } else {
+      return await WalletsModel.getNFTMetadata({
+        nftTokenId,
+        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${nftId}`,
+        nftId,
+        forceRefresh: true,
+      })
+    }
   }
 
   /**

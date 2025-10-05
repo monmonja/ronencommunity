@@ -139,13 +139,16 @@ export default class WalletsModel {
     return wallet.nfts.items;
   }
 
-  static async getNFTMetadata(nftTokenId, tokenURI, nftId) {
+  static async getNFTMetadata({ nftTokenId, tokenURI, nftId, forceRefresh = false } = {}) {
     let url = tokenURI;
+    let nftItem;
 
-    const nftItem = await NftModel.findById({ nftTokenId, nftId } );
+    if (!forceRefresh) {
+      nftItem = await NftModel.findById({nftTokenId, nftId});
+    }
 
-    if (nftItem) {
-      return nftItem.data;
+    if (nftItem && !forceRefresh) {
+      return nftItem;
     } else {
 console.log('get new info for', nftTokenId, nftId, tokenURI);
       // handle ipfs:// URIs
@@ -160,7 +163,7 @@ console.log('get new info for', nftTokenId, nftId, tokenURI);
       const data = await res.json();
       await NftModel.addRecord({ nftTokenId, nftId, data } )
 
-      return data;
+      return { nftTokenId, nftId, data };
     }
   }
 }

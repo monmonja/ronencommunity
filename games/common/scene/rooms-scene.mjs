@@ -4,9 +4,26 @@ import {fetchEnergy} from "../energies.mjs";
 import {interactiveBoundsChecker} from "../rotate-utils.mjs";
 
 
-export function createGameRoom({ scene, gameId } = {}) {
+export function createGameRoom({ gameId } = {}) {
   return new Promise((resolve, reject) => {
     fetch(`/game-rooms/create/${gameId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
+
+export function createCpuGameRoom({ gameId } = {}) {
+  return new Promise((resolve, reject) => {
+    fetch(`/game-rooms/create-cpu/${gameId}`, {
       headers: {
         "Content-Type": "application/json",
       }

@@ -80,13 +80,44 @@ export function initGameRoomsRoutes(app, server) {
       }
 
       const address = req.session.wallet?.address.toLowerCase();
-      const roomId = GameRoomsModel.createRoom({ address, game });
+      const roomId = await GameRoomsModel.createRoom({ address, game });
 
       return res.json({
         roomId,
         wsUrl: config.wsUrl,
       });
+    });
 
+  app.get(
+    "/game-rooms/create-cpu/:path",
+    param("path")
+      .matches(/^[a-z0-9-]+$/)
+      .withMessage("Invalid game"),
+    requireWalletSession,
+    cookieCheckMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      if (!handleValidation(req, res)) {
+        return;
+      }
+
+      const game = Games.getGame(req.params.path);
+
+      if (!game && game.gameRoomSlug) {
+        return res.status(400).json({ success: false, errors: "No game" });
+      }
+
+      const address = req.session.wallet?.address.toLowerCase();
+      const roomId = await GameRoomsModel.createRoom({
+        address,
+        game,
+        vsCPU: true,
+      });
+
+      return res.json({
+        roomId,
+        wsUrl: config.wsUrl,
+      });
     });
 
   app.get(

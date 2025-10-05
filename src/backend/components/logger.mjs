@@ -10,7 +10,7 @@ const rollbar = new Rollbar({
 export function logError({ message, auditData } = {}) {
   console.log('config.isProd', config.isProd)
   if (config.isProd) {
-    rollbar.log(message, { auditData });
+    // rollbar.log(message, { auditData });
   }
 
   // eslint-disable-next-line no-console

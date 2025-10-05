@@ -18,7 +18,9 @@ import {
   securityHeadersMiddleware,
   cookieCheckMiddleware,
   disableStackTraceMiddleware,
-  geoMiddleware, affiliateMiddleware,
+  geoMiddleware,
+  affiliateMiddleware,
+  noCacheDevelopment,
 } from "./components/middlewares.mjs";
 import { rateLimiterMiddleware } from "./components/rate-limiter.mjs";
 import { initStaticRoutes } from "./routes/static.mjs";
@@ -42,6 +44,7 @@ const server = http.createServer(app);
 
 app.disable("x-powered-by");
 
+app.use(noCacheDevelopment);
 app.use(forceHTTPSMiddleware);
 app.use(geoMiddleware);
 app.use(affiliateMiddleware);

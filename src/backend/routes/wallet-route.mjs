@@ -3,8 +3,6 @@ import { verifyMessage } from "ethers";
 import { body, param, validationResult } from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
-import config from "../config/default.json" with { type: "json" };
-import {logError} from "../components/logger.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
 
 export function initWalletRoutes(app) {
@@ -18,7 +16,13 @@ export function initWalletRoutes(app) {
     rateLimiterMiddleware,
     async (req, res) => {
       const nftTokenId = 'baxies';
-      res.json(await WalletsModel.getNFTMetadata(nftTokenId, `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${req.params.tokenId}`, req.params.tokenId));
+      const data = await WalletsModel.getNFTMetadata({
+        nftTokenId,
+        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${req.params.tokenId}`,
+        nftId: req.params.tokenId,
+      });
+
+      res.json(data);
     });
 
   app.get(
@@ -30,7 +34,7 @@ export function initWalletRoutes(app) {
       const nftTokeId = 'baxies';
       const userWallet = req.session.wallet.address;
 
-      if (await WalletsModel.hasNftSyncToday(nftTokeId, userWallet)) {
+      if (false && await WalletsModel.hasNftSyncToday(nftTokeId, userWallet)) {
         console.log('Getting NFTs for', userWallet);
         res.json(await WalletsModel.getNftItems(nftTokeId, userWallet));
       } else {

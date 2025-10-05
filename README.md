@@ -23,3 +23,7 @@ To get ronen on saigon network use
 # Config tools
 to calculate raffleStartDate use
 https://www.epochconverter.com/
+
+
+# simulation
+node .\src\backend\tests\baxie-simulation-test.mjs

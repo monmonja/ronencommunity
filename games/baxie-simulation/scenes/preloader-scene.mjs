@@ -2,8 +2,6 @@ import {addBgMusic} from "../../common/settings.mjs";
 import {fetchEnergy, useEnergy} from "../../common/energies.mjs";
 import {createProgressBar} from "../../common/progres.mjs";
 
-import Baxie from "../../common/baxie/baxie.ts";
-
 export default class PreloaderScene extends Phaser.Scene {
   constructor() {
     super({key: 'PreloaderScene'});
@@ -20,7 +18,7 @@ export default class PreloaderScene extends Phaser.Scene {
       width: 220,
       height: 14,
       // launchScreen: 'TestScene',
-      launchScreen: 'SyncMenuScene',
+      launchScreen: 'RoomSelectionScene',
     });
 
     document.fonts.load('16px troika').then(() => {
@@ -35,6 +33,7 @@ export default class PreloaderScene extends Phaser.Scene {
     });
 
     this.load.image('level-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/level-bg.webp`)
+    this.load.image('battle-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/battle-bg.webp`)
     this.load.image('restart', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/restart.png`)
     this.load.image('undo', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/undo.png`)
     this.load.image('shuffle', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/shuffle.png`)

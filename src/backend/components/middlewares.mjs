@@ -133,6 +133,23 @@ export function forceHTTPSMiddleware(req, res, next) {
   next();
 }
 
+export function noCacheDevelopment(req, res, next) {
+  if (!config.isProd) {
+    if (req.path.match(/\.(js|css)$/)) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (req.path.match(/\.(png|jpg|jpeg|gif|svg|woff2)$/)) {
+      // Allow caching for static assets like images/fonts
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
+    }
+
+    return next();
+  }
+
+  next();
+}
+
 export function disableStackTraceMiddleware(err, req, res, next) {
   if (err) {
     if (config.isProd) {

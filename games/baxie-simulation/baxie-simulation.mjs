@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import SyncMenuScene from './scenes/sync-menu-scene.mjs';
 import SelectionScene from './scenes/selection-scene.mjs';
 import RoomSelectionScene from './scenes/room-selection-scene.mjs';
-import GameScene from "./scenes/game-scene.ts";
+import GameScene from "./scenes/game-scene.mjs";
 import PreloaderScene from "./scenes/preloader-scene.mjs";
 import RoomsScene from "../common/scene/rooms-scene.mjs";
 import UIScene from "./scenes/ui-scene.mjs";
