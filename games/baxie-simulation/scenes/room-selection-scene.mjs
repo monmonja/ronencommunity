@@ -130,7 +130,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
         this.ws = new WebSocket(response.wsUrl);
 
-        this.ws.onopen = () => {
+        this.ws.addEventListener('open', () => {
           this.ws.send(
             JSON.stringify({
               type: 'joinRoom',
@@ -139,7 +139,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
             })
           );
-        };
+        });
 
         this.ws.onmessage = (msg) => {
           const data = JSON.parse(msg.data);
@@ -151,6 +151,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               enemy: data.enemy,
               isYourTurn: data.isYourTurn,
               turnIndex: data.turnIndex,
+              gameMode: data.gameMode,
             });
           }
         };
@@ -257,6 +258,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
                 enemy: data.enemy,
                 isYourTurn: data.isYourTurn,
                 turnIndex: data.turnIndex,
+                gameMode: data.gameMode,
               });
             }
           };
@@ -316,16 +318,22 @@ export default class RoomSelectionScene extends Phaser.Scene {
         }).then((response) => {
           this.ws = new WebSocket(response.wsUrl);
 
-          this.ws.onopen = () => {
+          this.ws.addEventListener("open", (event) => {
             this.ws.send(JSON.stringify({
               type: 'joinRoom',
               gameId: this.game.customConfig.gameId,
               roomId: response.roomId,
               selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
             }));
-          };
+          });
 
-          this.ws.onmessage = (msg) => {
+          this.ws.addEventListener("error", (msg) => {
+            console.log("WebSocket error:", msg)
+          });
+          this.ws.addEventListener("close", (msg) => {
+            console.log("WebSocket close:", msg)
+          });
+          this.ws.addEventListener("message", (msg) => {
             const data = JSON.parse(msg.data);
             if (data.type === 'startGame') {
               this.scene.start('GameScene', {
@@ -335,9 +343,10 @@ export default class RoomSelectionScene extends Phaser.Scene {
                 enemy: data.enemy,
                 isYourTurn: data.isYourTurn,
                 turnIndex: data.turnIndex,
+                gameMode: data.gameMode,
               });
             }
-          };
+          });
         });
       },
     })

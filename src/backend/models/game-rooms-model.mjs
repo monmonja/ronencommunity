@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import NftModel from "./nft-model.mjs";
 import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
+import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,10 +23,12 @@ const __dirname = path.dirname(__filename);
  * @property {boolean} canJoin - Whether new players can join the room
  * @property {boolean} vsCPU - Whether the game is against a CPU
  * @property {string} cpuAddress - Address of the CPU player (if vsCPU is true)
+ * @property {string} loserAddress - Address of the player who lost
+ * @property {string} gameMode - Game mode
  * @property {Date} lastUpdateSP - Last time sp were updated
  * @property {Date} start - Start time of the game
  */
-export default class GameRoomsModel {
+export class GameRoomsModel {
   /**
    * @type GameRoom
    */
@@ -52,6 +55,7 @@ export default class GameRoomsModel {
       canJoin: true,
       start: new Date(),
       vsCPU: false,
+      gameMode: GameModes.skillCountdown,
     };
 
     if (vsCPU) {

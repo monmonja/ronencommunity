@@ -1,6 +1,7 @@
 // @ts-ignore
 import Phaser from 'phaser';
 import {interactiveBoundsChecker} from "../rotate-utils.mjs";
+import {GameModes} from "./baxie-simulation.mjs";
 
 export default class BaxieUi extends Phaser.GameObjects.Container {
   attributes;
@@ -15,48 +16,150 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
   /**
    * @todo pass click function for selection, pass skill click function
    */
-  constructor(scene, data, roomId, x, y, renderPosition, isEnemy = false) {
+  constructor({ scene, data, roomId, x, y, renderPosition, isEnemy = false, gameMode } = {}) {
     super(scene, x, y); // Container will be positioned at (x,y)
-    console.log('data', data)
     this.tokenId = data.tokenId;
     this.image = data.image;
     this.skills = data.skills;
     this.stamina = data.stamina;
     this.currentHP = data.hp;
+    this.gameMode = gameMode;
     this.renderPosition = renderPosition;
     this.isEnemy = isEnemy;
     this.roomId = roomId;
     this.isYourTurn = false;
   }
 
+  startSkillCountdown(x, y, radius, duration) {
+    const countdown = this.scene.add.graphics();
+    countdown.setName('countdown');
+
+    const startTime = this.scene.time.now;
+
+    const self = this;
+
+    this.scene.events.on('update', updatePie, this);
+
+    function updatePie(time, delta) {
+      const elapsed = time - startTime;
+      const remaining = Math.max(0, duration - elapsed);
+      const progress = 1 - remaining / duration; // 0 → 1
+
+      countdown.clear();
+
+      // Draw base circle (transparent overlay if you like)
+      countdown.fillStyle(0x000000, 0);
+      countdown.fillCircle(x, y, radius);
+
+      // Draw the filling pie arc
+      countdown.beginPath();
+      countdown.moveTo(x, y);
+      countdown.fillStyle(0x000000, 0.2); // fill color for the pie (black overlay)
+      countdown.arc(
+        x,
+        y,
+        radius,
+        -Math.PI / 2,
+        -Math.PI / 2 + Math.PI * 2 * progress,
+        false
+      );
+      countdown.closePath();
+      countdown.fillPath();
+
+      // When finished
+      if (remaining <= 0) {
+        countdown.destroy();
+        self.scene.events.off('update', updatePie, self);
+      }
+    }
+
+    return countdown;
+  }
+
   renderSkills(container) {
-    // Clear existing children
-    container.removeAll(true);
+    let baxieSkillContainer = container.getByName(this.tokenId);
+
+    container.iterate((child) => {
+      if (child === baxieSkillContainer) {
+        child.setVisible(true);
+      } else {
+        child.setVisible(false);
+      }
+    });
+
+    if (baxieSkillContainer) {
+      return;
+    }
+
+    baxieSkillContainer = this.scene.add.container(0, 0);
+    baxieSkillContainer.setName(this.tokenId);
+    container.add(baxieSkillContainer);
 
     this.skills.forEach((skill, index) => {
-      const skillCircle = this.scene.add.rectangle(0, index * 30 + 15, 12, 0x6666ff);
-      container.add(skillCircle);
+      const radius = 50; // since width/height = 100px total
+      const x = index * ((radius * 2) + 30) + radius;
+      const y = radius;
 
-      const skillText = this.scene.add.text(0, index * 30, `${skill.func} (Cost: ${skill.cost})`, {
+      const skillContainer = this.scene.add.container(x, y);
+      const graphics = this.scene.add.graphics();
+
+// Outer black border (4px)
+      graphics.fillStyle(0x000000, 1);
+      graphics.fillCircle(0, 0, radius);
+
+      // Inner yellow border (10px inside)
+      graphics.fillStyle(0xffff00, 1);
+      graphics.fillCircle(0, 0, radius - 4);
+
+      // Inner black border (1px inside)
+      graphics.fillStyle(0x000000, 1);
+      graphics.fillCircle(0, 0, radius - 4 - 10);
+
+      // Core yellow circle (the main fill)
+      graphics.fillStyle(0xffff00, 1);
+      graphics.fillCircle(0, 0, radius - 4 - 10 - 1);
+      skillContainer.add(graphics);
+
+      const skillText = this.scene.add.text(0, radius + 20, `${skill.func}`, {
         fontSize: "16px",
         color: "#ffff00",
         backgroundColor: "#000000",
         padding: { x: 5, y: 5 },
-      }).setInteractive();
+      })
+        .setOrigin(0.5)
+        .setInteractive(
+          new Phaser.Geom.Rectangle(0, -(20 + (radius * 2)), radius * 2, radius * 2),
+          interactiveBoundsChecker,
+        )
+        .on("pointerover", () => {
+          this.scene.input.manager.canvas.style.cursor = "pointer";
+        })
+        .on("pointerout", () => {
+          this.scene.input.manager.canvas.style.cursor = "default";
+        })
+        .on('pointerdown', () => {
+          console.log(this.gameMode)
+          if (this.gameMode === GameModes.skillCountdown) {
+            if (skillContainer.getByName('countdown')) {
+              return;
+            }
+            skillContainer.add(this.startSkillCountdown(0, 0, radius, 1000 * skill.cooldown));
+          }
 
-      skillText.on('pointerdown', () => {
-        this.scene.ws.send(
-          JSON.stringify({
-            type: "useSkill",
-            selectedBaxieId: this.tokenId,
-            roomId: this.roomId,
-            selectedSkill: skill.func,
-            gameId: this.scene.game.customConfig.gameId,
-          })
-        );
-      });
+          console.log(this.scene.ws.readyState, 'readyState')
+          this.scene.ws.send(
+            JSON.stringify({
+              type: "useSkill",
+              selectedBaxieId: this.tokenId,
+              roomId: this.roomId,
+              selectedSkill: skill.func,
+              gameId: this.scene.game.customConfig.gameId,
+            })
+          );
+        });
 
-      container.add(skillText);
+      skillContainer.add(skillText);
+      baxieSkillContainer.add(skillContainer);
     });
   }
 
@@ -116,6 +219,10 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       fontSize: "20px",
       color: "#ffffff",
     }).setOrigin(0);
+
+    if (this.gameMode === GameModes.skillCountdown) {
+      this.spText.visible = false;
+    }
 
     // Add them to the container
     this.add([graphics, nameText, this.hpText, this.spText]);

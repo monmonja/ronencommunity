@@ -46,6 +46,13 @@ export function interactiveBoundsChecker(hitArea,x,y, gameObject) {
 
     return Phaser.Geom.Rectangle.Contains(rotatedBounds, percentY * canvas.width, percentX * canvas.height);
   } else {
+    // if (!gameObject.drawn && "{{config.isProd}}" === "false") {
+    //   gameObject.drawn = true;
+    //   let debug = gameObject.scene.add.graphics();
+    //   debug.fillStyle(0x000000, 0.3);
+    //   debug.fillRoundedRect(x, y, hitArea.width, hitArea.height, 6);
+    // }
+
     return Phaser.Geom.Rectangle.Contains(hitArea, x, y);
   }
 

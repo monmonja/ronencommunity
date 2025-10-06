@@ -1,4 +1,5 @@
 import {EFFECTS} from "./effects.mjs";
+import {GameModes} from "../../../../games/common/baxie/baxie-simulation.mjs";
 
 export default class Baxie {
   /**
@@ -9,7 +10,11 @@ export default class Baxie {
   currentStamina = 0;
   currentAttack = 0;
   currentDefense = 0;
+  /**
+   * @type BaxieEffect
+   */
   effects = [];
+
   skills = [];
 
   constructor(nftData) {
@@ -195,14 +200,14 @@ export default class Baxie {
   }
 
   // Generic skill executor
-  useSkill(skillName, enemies, allies = []) {
+  useSkill(skillName, enemies, allies = [], gameMode = GameModes.turnBasedSP) {
     const skill = this.skills.find(s => s.func === skillName);
 
     if (!skill) {
       throw new Error(`Skill ${skillName} not found`);
     }
 
-    if (this.currentStamina < skill.cost) {
+    if (gameMode === GameModes.turnBasedSP && this.currentStamina < skill.cost) {
       throw new Error(`Not enough stamina`);
     }
 

@@ -15,8 +15,18 @@
  * @property {number} mystic - Baxie mystic
  * @property {number} purity - Baxie purity
  */
-
-
+/**
+ * @typedef {Object} BaxieSkill
+ * @property {string} func - Skill function identifier
+ * @property {number} cost - Stamina cost to use the skill
+ * @property {number} cooldown - Stamina cooldown after using the skill
+ */
+/**
+ * @typedef {Object} BaxieEffect
+ * @property {string} type - Effect type (e.g., 'staminaReduction')
+ * @property {number} [value] - Effect value (e.g., amount of stamina reduced)
+ * @property {number} turnsLeft - Number of turns the effect lasts
+ */
 /**
  * @typedef {Object} BaxieEffect
  * @property {string} type - Effect type (e.g., 'staminaReduction')

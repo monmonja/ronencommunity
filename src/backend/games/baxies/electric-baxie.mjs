@@ -3,9 +3,9 @@ import { EFFECTS } from "./effects.mjs";
 
 export default class ElectricBaxie extends Baxie {
   skills = [
-    { func: 'voltOverload', cost: 40 },
-    { func: 'chargeUp', cost: 30 },
-    { func: 'stormBreaker', cost: 10 },
+    { func: 'voltOverload', cost: 40, cooldown: 15 },
+    { func: 'chargeUp', cost: 30, cooldown: 15 },
+    { func: 'stormBreaker', cost: 10, cooldown: 15 },
   ];
 
   constructor(props) {

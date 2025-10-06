@@ -1,13 +1,11 @@
 import * as Phaser from 'phaser';
 import BaxieUi from "../../common/baxie/baxie-ui.mjs";
 import {createButton} from "../../common/buttons.mjs";
+import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
 
 export default class GameScene extends Phaser.Scene {
-  round;
   enemyTeam;
   playerTeam;
-  turnQueue;
-  currentTurnBaxie;
   isPlayerTurn;
   skillContainer;
 
@@ -19,28 +17,55 @@ export default class GameScene extends Phaser.Scene {
   init(data) {
     this.ws = data.ws;
     this.roomId = data.roomId;
-    this.playerTeam = data.player.map((baxieData, i) => new BaxieUi(this, baxieData, this.roomId, 200, 120 * (i + 1), i));
-    this.enemyTeam = data.enemy.map((baxieData, i) => new BaxieUi(this, baxieData, this.roomId, 800, 120 * (i + 1), i, true));
-    this.isYourTurn = data.isYourTurn;
+    this.playerTeam = data.player.map((baxieData, i) => new BaxieUi({
+      scene: this,
+      data: baxieData,
+      roomId: this.roomId,
+      x: 200,
+      y: 120 * (i + 1),
+      renderPosition: i,
+      gameMode: data.gameMode,
+    }));
+    this.enemyTeam = data.enemy.map((baxieData, i) => new BaxieUi({
+      scene: this,
+      data: baxieData,
+      roomId: this.roomId,
+      x: 800,
+      y: 120 * (i + 1),
+      renderPosition: i,
+      isEnemy: true,
+      gameMode: data.gameMode,
+    }));
+    this.isYourTurn = data.gameMode === GameModes.skillCountdown ? true: data.isYourTurn;
     this.turnIndex = data.turnIndex;
+    this.gameMode = data.gameMode;
 
     if (this.isYourTurn) {
       this.playerTeam.forEach((baxie) => {
         baxie.setYourTurn(true);
       });
     }
-
+    this.ws.onclose = (message) => {
+      console.log('ws closed', message);
+    }
+    this.ws.onerror = (message) => {
+      console.log('ws onerror', message);
+    }
     this.ws.onmessage = (message) => {
       const data = JSON.parse(message.data);
 
-      if (data.type === 'endUseSkill') {
+      if (data.type === 'gameOver') {
+        console.log(data.message)
+      } else if (data.type === 'endUseSkill') {
         console.log(data.message)
       } else if (data.type === 'yourTurn') {
-        this.yourTurnText.visible = true;
-        this.yourTurnBtn.visible = true;
-        this.playerTeam.forEach((baxie) => {
-          baxie.setYourTurn(true);
-        });
+        if (this.gameMode === GameModes.turnBasedSP) {
+          this.yourTurnText.visible = true;
+          this.yourTurnBtn.visible = true;
+          this.playerTeam.forEach((baxie) => {
+            baxie.setYourTurn(true);
+          });
+        }
       } else if (data.type === 'updateStats') {
         // {"type":"updateStats","player":[{"tokenId":"1250","hp":100,"stamina":48,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1250.png","skills":[{"func":"voltOverload","cost":40},{"func":"chargeUp","cost":30},{"func":"stormBreaker","cost":10}]},{"tokenId":"1251","hp":100,"stamina":87,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1251.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1252","hp":100,"stamina":78,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1252.png","skills":[{"func":"voltOverload","cost":40},{"func":"chargeUp","cost":30},{"func":"stormBreaker","cost":10}]}],"enemy":[{"tokenId":"1269","hp":100,"stamina":89,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1269.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1271","hp":100,"stamina":109,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1271.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1265","hp":100,"stamina":78,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1265.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]}]}
         this.playerTeam.forEach((baxie) => {
@@ -69,7 +94,6 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0, 0);
 
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});
-
     this.yourTurnBtn = createButton({
         scene: this,
         x: 600,
@@ -94,6 +118,11 @@ export default class GameScene extends Phaser.Scene {
       })
 
     if (!this.isYourTurn) {
+      this.yourTurnText.visible = false;
+      this.yourTurnBtn.visible = false;
+    }
+
+    if (this.gameMode === GameModes.skillCountdown) {
       this.yourTurnText.visible = false;
       this.yourTurnBtn.visible = false;
     }

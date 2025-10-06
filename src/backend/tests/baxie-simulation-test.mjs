@@ -1,4 +1,4 @@
-import GameRoomsModel from "../models/game-rooms-model.mjs";
+import { GameRoomsModel } from "../models/game-rooms-model.mjs";
 import Games from "../models/games.mjs";
 import {handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
 

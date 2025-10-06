@@ -7,7 +7,7 @@ import Games from "../models/games.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
 import cookie from "cookie";
-import GameRoomsModel from "../models/game-rooms-model.mjs";
+import { GameRoomsModel } from "../models/game-rooms-model.mjs";
 
 let rooms = {};
 
@@ -16,47 +16,59 @@ export function initGameRoomsRoutes(app, server) {
   server.on("upgrade", (request, socket, head) => {
     try {
       // Parse cookies
-      const cookies = cookie.parse(request.headers.cookie || "");
-      const sessionId = cookies["connect.sid"]; // default cookie name, adjust if different
+      const cookies = cookie.parse(request.headers.cookie || '');
+      const sessionId = cookies['connect.sid'];
 
       if (!sessionId) {
-        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-        socket.destroy();
-        return;
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        return socket.destroy();
       }
-      const sessionParser = sessionMiddleWare();
+      const sessionParser = sessionMiddleWare(); // returns middleware function
 
-      // Use sessionParser to populate request.session
       sessionParser(request, {}, () => {
         if (!request.session) {
-          socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-          socket.destroy();
-          console.log('No session cookie2');
-          return;
+          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+          return socket.destroy();
         }
 
-        // Upgrade the connection
         wss.handleUpgrade(request, socket, head, (ws) => {
-          // Attach session to WebSocket
-          ws.session = request.session;
-          wss.emit("connection", ws, request);
+          ws.session = request.session; // attach session
+          wss.emit('connection', ws, request);
         });
       });
     } catch (err) {
-      console.error("WebSocket upgrade error:", err);
+      console.error('WebSocket upgrade error:', err);
+      socket.destroy();
     }
   });
 
   wss.on("connection", (ws) => {
+    ws.isAlive = true;
+    ws.on('pong', () => ws.isAlive = true);
+
     // Handle incoming messages
     ws.on("message", (msg) => {
-      const data = JSON.parse(msg);
+      try {
+        console.log('message')
+        const data = JSON.parse(msg);
 
-      if (typeof data.gameId === "undefined") {
-        return ws.send(JSON.stringify({ error: "No gameId" }));
-      } else if (data.roomId.startsWith('bsim-')) {
-        handleBaxieSimulationGameRoom(ws, data, rooms);
+        if (!data.gameId) {
+          ws.send(JSON.stringify({ error: 'No gameId' }));
+          return;
+        }
+
+        if (data.roomId?.startsWith('bsim-')) {
+          handleBaxieSimulationGameRoom(ws, data, rooms);
+        }
+      } catch (err) {
+        console.error('Invalid WS message:', err);
       }
+    });
+    ws.on('close', (code, reason) => {
+      console.log('Socket closed', code, reason);
+    });
+    ws.on('error', (err) => {
+      console.error('Socket error', err);
     });
   });
 
