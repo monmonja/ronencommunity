@@ -97,9 +97,10 @@ export default class SelectionScene extends Phaser.Scene {
       height: 50,
       text: 'Rooms',
       onPointerDown: async () => {
-        // if (this.selectedBaxies.length === 3) {
-        if (this.selectedBaxies.length === 1) {
-          this.scene.start('RoomSelectionScene', { selectedBaxies: this.selectedBaxies });
+        if (this.selectedBaxies.length === 3) {
+          this.scene.start('RoomSelectionScene', {
+            selectedBaxies: this.selectedBaxies.map((b) => ({ tokenId: b.tokenId }))
+          });
         } else {
           const warningText = this.add.text(this.scale.width - slotSize - 100 + 20, this.scale.height - 100, `Select 3 baxies to start`, {
             fontSize: "16px",
@@ -176,7 +177,7 @@ export default class SelectionScene extends Phaser.Scene {
         .then((response) => {
 
           const key = `baxie-${baxie.tokenId}`;
-          this.load.image(key, response.image);
+          this.load.image(key, response.data.image);
 
           // listen for this file only
           this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (loadedKey) => {

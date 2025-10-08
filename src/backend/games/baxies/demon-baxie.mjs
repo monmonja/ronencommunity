@@ -3,9 +3,9 @@ import {EFFECTS} from "./effects.mjs";
 
 export default class DemonBaxie extends Baxie {
   skills = [
-    { func: 'shadowStrike', cost: 40 },
-    { func: 'cursedChains', cost: 30 },
-    { func: 'soulFeast', cost: 10 },
+    { func: 'shadowStrike', cost: 40, cooldown: 15, image: 'shadow-shadow-strike' },
+    { func: 'cursedChains', cost: 30, cooldown: 15, image: 'shadow-cursed-chains' },
+    { func: 'soulFeast', cost: 10, cooldown: 15, image: 'shadow-soul-feast' },
   ];
 
   constructor(props) {

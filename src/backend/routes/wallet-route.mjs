@@ -34,7 +34,7 @@ export function initWalletRoutes(app) {
       const nftTokeId = 'baxies';
       const userWallet = req.session.wallet.address;
 
-      if (false && await WalletsModel.hasNftSyncToday(nftTokeId, userWallet)) {
+      if (await WalletsModel.hasNftSyncToday(nftTokeId, userWallet)) {
         console.log('Getting NFTs for', userWallet);
         res.json(await WalletsModel.getNftItems(nftTokeId, userWallet));
       } else {

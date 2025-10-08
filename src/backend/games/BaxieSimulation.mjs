@@ -34,22 +34,37 @@ function simulateCPUSkills (ws, data) {
   const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
 
   function tryAttack() {
+    if (isGameOver(currentRoom)) {
+      return;
+    }
+
     const canAttackBaxie = player.baxies.filter((b) => b.isAlive() && b.canAttack());
     const selectedBaxie = canAttackBaxie[Math.random() * canAttackBaxie.length | 0];
-    console.log(selectedBaxie, Math.random() * canAttackBaxie.length)
     const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
 
     if (selectedBaxie.canAttack()) {
       const skill = selectedBaxie.skills.filter((s) => s.func === selectedSkill)[0];
-      if (selectedBaxie.currentStamina >= skill.cost) {
+      let canAttack = selectedBaxie.currentStamina >= skill.cost;
+
+      if (currentRoom.gameMode === GameModes.skillCountdown) {
+        canAttack = true;
+      }
+
+      if (canAttack) {
         handleUseSkill(mockWs, {
           roomId: data.roomId,
           selectedBaxieId: selectedBaxie.tokenId,
           selectedSkill: selectedSkill,
         });
-        setTimeout(() => {
-          handleEndTurn(ws, data);
-        }, 5000);
+        if (currentRoom.gameMode === GameModes.turnBasedSP) {
+          setTimeout(() => {
+            handleEndTurn(ws, data);
+          }, 5000);
+        } else if (currentRoom.gameMode === GameModes.skillCountdown) {
+          setTimeout(() => {
+            tryAttack();
+          }, 3000); //5000
+        }
       } else {
         tryAttack();
         console.log('CPU baxie not enough stamina', selectedBaxie.currentStamina, skill.cost);
@@ -111,9 +126,21 @@ async function handleJoinRoom(ws, data) {
         }
       });
 
-      if (currentRoom.vsCPU && currentRoom.playerTurn === currentRoom.cpuAddress) {
-        const mockWs = { session: { wallet: { address: currentRoom.cpuAddress } } };
-        simulateCPUSkills(mockWs, data);
+      if (currentRoom.vsCPU ) {
+        let startCPU = false;
+
+        if (currentRoom.playerTurn === currentRoom.cpuAddress && currentRoom.gameMode === GameModes.turnBasedSP) {
+          startCPU = true;
+        } else if (currentRoom.gameMode === GameModes.skillCountdown) {
+          startCPU = true;
+        }
+
+        if (startCPU) {
+          setTimeout(() => {
+            const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
+            simulateCPUSkills(mockWs, data);
+          }, 2000);
+        }
       }
     }
   } catch (e) {
@@ -239,7 +266,6 @@ console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${da
     canAttack = true;
   }
 
-  console.log('canAttack', canAttack)
   if (canAttack) {
     const message = selectedBaxie.useSkill(data.selectedSkill, enemy.baxies, player.baxies, currentRoom.gameMode);
     console.log('message', message)

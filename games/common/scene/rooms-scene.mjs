@@ -2,11 +2,12 @@ import constants from "../constants.mjs";
 import {createCloseButton} from "../buttons.mjs";
 import {fetchEnergy} from "../energies.mjs";
 import {interactiveBoundsChecker} from "../rotate-utils.mjs";
+import {getCookie} from "../utils/cookies.mjs";
 
 
-export function createGameRoom({ gameId } = {}) {
+export function createGameRoom({ gameId, gameMode } = {}) {
   return new Promise((resolve, reject) => {
-    fetch(`/game-rooms/create/${gameId}`, {
+    fetch(`/game-rooms/create/${gameId}/${gameMode}`, {
       headers: {
         "Content-Type": "application/json",
       }
@@ -21,12 +22,18 @@ export function createGameRoom({ gameId } = {}) {
   });
 }
 
-export function createCpuGameRoom({ gameId } = {}) {
+export function createCpuGameRoom({ gameId, gameMode, characterIds } = {}) {
   return new Promise((resolve, reject) => {
     fetch(`/game-rooms/create-cpu/${gameId}`, {
+      method: "POST",
+      // @ts-expect-error Custom header
       headers: {
         "Content-Type": "application/json",
-      }
+      },
+      body: JSON.stringify({
+        gameMode,
+        characterIds,
+      })
     })
       .then((res) => res.json())
       .then((result) => {

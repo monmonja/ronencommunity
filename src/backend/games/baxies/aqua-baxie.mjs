@@ -3,9 +3,9 @@ import {EFFECTS} from "./effects.mjs";
 
 export default class AquaBaxie extends Baxie {
   skills = [
-    { func: 'tidalShield', cost: 35 },
-    { func: 'bubbleTrap', cost: 30 },
-    { func: 'oceansEmbrace', cost: 40 },
+    { func: 'tidalShield', cost: 35, cooldown: 15, image: 'water-tidal-shield' },
+    { func: 'bubbleTrap', cost: 30, cooldown: 15, image: 'water-bubble-trap' },
+    { func: 'oceansEmbrace', cost: 40, cooldown: 15, image: 'water-oceans-embrace' },
   ];
 
   constructor(props) {

@@ -14,6 +14,45 @@ export default class GameScene extends Phaser.Scene {
     this.isPlayerTurn = true;
   }
 
+  showEnemySkillIndicator({ x, y, skillName }) {
+    const formatted = skillName.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+    // Create a container to hold the background and text
+    const container = this.add.container(x, y);
+
+    // Text
+    const text = this.add.text(0, 0, formatted, {
+      fontSize: '16px',
+      color: '#ffffff',
+      align: 'center',
+      padding: { x: 8, y: 4 }
+    }).setOrigin(0.5);
+
+    // Background rectangle based on text size
+    const bg = this.add.rectangle(
+      0,
+      0,
+      text.width + 16, // extra padding
+      text.height + 8,
+      0x000000,
+      0.3 // alpha for semi-transparent black
+    ).setOrigin(0.5);
+
+    // Add background first, then text on top
+    container.add([bg, text]);
+
+    // Optional: float up and fade out
+    this.tweens.add({
+      targets: container,
+      y: y,
+      alpha: 0,
+      duration: 3000,
+      ease: 'EaseOut',
+      onComplete: () => container.destroy()
+    });
+  }
+
+
   init(data) {
     this.ws = data.ws;
     this.roomId = data.roomId;
@@ -21,8 +60,9 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: 200,
-      y: 120 * (i + 1),
+      // x: i === 1 ? 180 : 160,
+      x: 160,
+      y: 125 * i + 70,
       renderPosition: i,
       gameMode: data.gameMode,
     }));
@@ -30,8 +70,8 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: 800,
-      y: 120 * (i + 1),
+      x: 750,
+      y: 125 * i + 70,
       renderPosition: i,
       isEnemy: true,
       gameMode: data.gameMode,
@@ -57,7 +97,19 @@ export default class GameScene extends Phaser.Scene {
       if (data.type === 'gameOver') {
         console.log(data.message)
       } else if (data.type === 'endUseSkill') {
-        console.log(data.message)
+        const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
+        let x = baxieUI.x - 90;
+        if (x < 300) {
+          x = baxieUI.x + baxieUI.width + 100;
+        }
+        console.log(baxieUI.width)
+
+        this.showEnemySkillIndicator({
+          x: x,
+          y: baxieUI.y + 20,
+          skillName: data.skill,
+        })
+        console.log(data)
       } else if (data.type === 'yourTurn') {
         if (this.gameMode === GameModes.turnBasedSP) {
           this.yourTurnText.visible = true;
@@ -134,7 +186,8 @@ export default class GameScene extends Phaser.Scene {
       baxie.enemies = this.playerTeam ?? [];
     });
 
-    this.skillContainer = this.add.container(300, 400);
+    this.skillContainer = this.add.container((this.game.scale.width / 2) - 180, 400);
+    this.skillContainer.setName('skillContainer');
     this.playerTeam.forEach((baxie) => {
       baxie.renderCharacter(this.skillContainer, true);
     });

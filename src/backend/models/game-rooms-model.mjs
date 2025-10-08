@@ -34,7 +34,10 @@ export class GameRoomsModel {
    */
   static rooms = {};
 
-  static async createRoom({ address, game, vsCPU = false } = {}) {
+  static async createRoom({ address, game, vsCPU = false,
+                            gameMode = GameModes.skillCountdown,
+                            characterIds
+  } = {}) {
     const shortHand = address ? address.slice(0, 4) + '-' + address.slice(-4) : '';
     const roomId = `${game.gameRoomSlug}-${shortHand}-${Math.random().toString(36).substring(2, 10)}`;
 
@@ -55,7 +58,7 @@ export class GameRoomsModel {
       canJoin: true,
       start: new Date(),
       vsCPU: false,
-      gameMode: GameModes.skillCountdown,
+      gameMode,
     };
 
     if (vsCPU) {
@@ -65,10 +68,14 @@ export class GameRoomsModel {
         address: GameRoomsModel.rooms[roomId].cpuAddress,
       };
 
-      const selectedBaxies = [123, 124, 128];
+      characterIds = characterIds || [];
+      if (characterIds.length !== 3) {
+        characterIds  = [1, 3, 4]
+      }
+      console.log(characterIds, 'characterIds')
 
       const nftDocs = await Promise.all(
-        selectedBaxies.map((baxieId) =>
+        characterIds.map((baxieId) =>
           NftModel.findById({ nftTokenId: 'baxies', nftId: baxieId })
         )
       );

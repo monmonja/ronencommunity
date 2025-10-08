@@ -17,7 +17,7 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      // launchScreen: 'TestScene',
+      // launchScreen: 'SyncMenuScene',
       launchScreen: 'RoomSelectionScene',
     });
 
@@ -38,6 +38,30 @@ export default class PreloaderScene extends Phaser.Scene {
     this.load.image('undo', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/undo.png`)
     this.load.image('shuffle', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/shuffle.png`)
     this.load.audio('bgm', '{{config.cdnLink}}/game-assets/match-3-baxies/audio/bg.mp3');
+
+    this.load.image('electric-charge-up', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/electric-charge-up.png`);
+    this.load.image('electric-storm-breaker', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/electric-storm-breaker.png`);
+    this.load.image('electric-volt-overload', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/electric-volt-overload.png`);
+
+    this.load.image('fairy-arcane-blessing', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fairy-arcane-blessing.png`);
+    this.load.image('fairy-celestial-harmony', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fairy-celestial-harmony.png`);
+    this.load.image('fairy-pixie-veil', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fairy-pixie-veil.png`);
+
+    this.load.image('fire-blazing-burst', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fire-blazing-burst.png`);
+    this.load.image('fire-inferno-wave', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fire-inferno-wave.png`);
+    this.load.image('fire-phoenix-reign', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/fire-phoenix-reign.png`);
+
+    this.load.image('plant-bloom-overgrowth', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/plant-bloom-overgrowth.png`);
+    this.load.image('plant-natures-resurgence', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/plant-natures-resurgence.png`);
+    this.load.image('plant-thorn-guard', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/plant-thorn-guard.png`);
+
+    this.load.image('shadow-cursed-chains', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/shadow-cursed-chains.png`);
+    this.load.image('shadow-shadow-strike', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/shadow-shadow-strike.png`);
+    this.load.image('shadow-soul-feast', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/shadow-soul-feast.png`);
+
+    this.load.image('water-bubble-trap', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/water-bubble-trap.png`);
+    this.load.image('water-oceans-embrace', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/water-oceans-embrace.png`);
+    this.load.image('water-tidal-shield', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/water-tidal-shield.png`);
   }
 
   create() {

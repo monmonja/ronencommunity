@@ -3,9 +3,9 @@ import {EFFECTS} from "./effects.mjs";
 
 export default class FairyBaxie extends Baxie {
   skills = [
-    { func: 'arcaneBlessing', cost: 35 },
-    { func: 'pixieVeil', cost: 25 },
-    { func: 'celestialHarmony', cost: 40 },
+    { func: 'arcaneBlessing', cost: 35, cooldown: 15, image: 'fairy-arcane-blessing' },
+    { func: 'pixieVeil', cost: 25, cooldown: 15, image: 'fairy-pixie-veil' },
+    { func: 'celestialHarmony', cost: 40, cooldown: 15, image: 'fairy-celestial-harmony' },
   ];
 
   //  Heals all allies by 12% HP, boosts their Attack by 5% for 2 turns.

@@ -3,9 +3,9 @@ import {EFFECTS} from "./effects.mjs";
 
 export default class FireBaxie extends Baxie {
   skills = [
-    { func: 'blazingBurst', cost: 35 },
-    { func: 'infernoWave', cost: 40 },
-    { func: 'phoenixReign', cost: 10 }, // passive/conditional
+    { func: 'blazingBurst', cost: 35, cooldown: 15, image: 'fire-blazing-burst' },
+    { func: 'infernoWave', cost: 40, cooldown: 15, image: 'fire-inferno-wave' },
+    { func: 'phoenixReign', cost: 10, cooldown: 15, image: 'fire-phoenix-reign' }, // passive/conditional
   ];
 
   // Blazing Burst – 140% damage, 20% chance burn (2 turns)

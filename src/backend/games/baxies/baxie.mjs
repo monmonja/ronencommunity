@@ -185,7 +185,7 @@ export default class Baxie {
     if (full) {
       return {
         tokenId: this.tokenId,
-        hp: this.currentHP,
+        hp: Math.ceil(this.currentHP),
         stamina: this.currentStamina,
         image: this.image,
         skills: this.skills,
@@ -193,7 +193,7 @@ export default class Baxie {
     } else {
       return {
         tokenId: this.tokenId,
-        hp: this.currentHP,
+        hp: Math.ceil(this.currentHP),
         stamina: this.currentStamina,
       }
     }

@@ -2,6 +2,9 @@
 import Phaser from 'phaser';
 import {interactiveBoundsChecker} from "../rotate-utils.mjs";
 import {GameModes} from "./baxie-simulation.mjs";
+import ProgressBar from "../ui/progress-bar.mjs";
+import BackgroundRect from "../ui/background-rect.mjs";
+import constants from "../constants.mjs";
 
 export default class BaxieUi extends Phaser.GameObjects.Container {
   attributes;
@@ -11,20 +14,22 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
   effects = [];
   skills = [];
   width= 100;
-  height= 100;
+  height= 120;
 
   /**
    * @todo pass click function for selection, pass skill click function
    */
-  constructor({ scene, data, roomId, x, y, renderPosition, isEnemy = false, gameMode } = {}) {
+  constructor({ scene, data, roomId, x, y, isEnemy = false, gameMode } = {}) {
     super(scene, x, y); // Container will be positioned at (x,y)
+    this.setName(`baxie-${data.tokenId}`);
     this.tokenId = data.tokenId;
     this.image = data.image;
     this.skills = data.skills;
-    this.stamina = data.stamina;
+    this.currentSP = data.stamina;
+    this.maxSP = data.stamina;
     this.currentHP = data.hp;
+    this.maxHP = data.hp;
     this.gameMode = gameMode;
-    this.renderPosition = renderPosition;
     this.isEnemy = isEnemy;
     this.roomId = roomId;
     this.isYourTurn = false;
@@ -76,8 +81,28 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     return countdown;
   }
 
+  formatSkillName (str)  {
+    // Insert space before capital letters
+    const spaced = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+    // Split into words
+    const words = spaced.split(' ');
+
+    // If more than one word, split into two lines
+    if (words.length > 1) {
+      return `${words[0]}\n${words.slice(1).join(' ')}`;
+    }
+
+    // Otherwise just return the spaced version
+    return spaced;
+  }
+
   renderSkills(container) {
     let baxieSkillContainer = container.getByName(this.tokenId);
+    console.log('this.currentHP', this.currentHP)
+    if (this.currentHP === 0) {
+      return;
+    }
 
     container.iterate((child) => {
       if (child === baxieSkillContainer) {
@@ -101,26 +126,12 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       const y = radius;
 
       const skillContainer = this.scene.add.container(x, y);
-      const graphics = this.scene.add.graphics();
+      const image = this.scene.add.image(0, 0, skill.image)
+        .setScale(0.1)
+        .setOrigin(0.5);
+      skillContainer.add(image);
 
-// Outer black border (4px)
-      graphics.fillStyle(0x000000, 1);
-      graphics.fillCircle(0, 0, radius);
-
-      // Inner yellow border (10px inside)
-      graphics.fillStyle(0xffff00, 1);
-      graphics.fillCircle(0, 0, radius - 4);
-
-      // Inner black border (1px inside)
-      graphics.fillStyle(0x000000, 1);
-      graphics.fillCircle(0, 0, radius - 4 - 10);
-
-      // Core yellow circle (the main fill)
-      graphics.fillStyle(0xffff00, 1);
-      graphics.fillCircle(0, 0, radius - 4 - 10 - 1);
-      skillContainer.add(graphics);
-
-      const skillText = this.scene.add.text(0, radius + 20, `${skill.func}`, {
+      const skillText = this.scene.add.text(0, radius + 20, this.formatSkillName(skill.func), {
         fontSize: "16px",
         color: "#ffff00",
         backgroundColor: "#000000",
@@ -164,7 +175,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
   }
 
   preload() {
-    // this.scene.load.image(`image-${this.tokenId}`, this.image);
+    this.scene.load.image(`image-${this.tokenId}`, this.image);
   }
 
   setYourTurn(yourTurn) {
@@ -174,8 +185,80 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     skillContainer.removeAll(true);
   }
 
-  renderHP(skillContainer, hasEvents = false) {
+  renderHPSP(labelPos) {
+    const hpBackgroundRect = new BackgroundRect(this.scene, {
+      x: labelPos,
+      y: 0,
+      width: 120,
+      height: (this.gameMode === GameModes.skillCountdown) ? 45 : 90,
+      // height: 90,
+      radius: 0,
+      innerBaseColor: 0x8b4e24,
+      topBgColor: 0xae8463,
+      bottomBgColor: 0x67341b
+    });
 
+    this.hpBar = new ProgressBar(this.scene, {
+      x: 44,
+      y: 18,
+      width: 60,
+      height: 5,
+      max: this.maxHP,
+      current: this.maxHP,
+      backgroundColor: 0x444444,
+      barColor: 0x00ff00,
+      borderColor: 0x000000
+    });
+    hpBackgroundRect.add(this.hpBar);
+
+    this.hpText = this.scene.add.text(72, 27, `${this.currentHP}/${this.maxHP}`, {
+      fontSize: "14px",
+      fontFamily: constants.fonts.troika,
+      color: "#ffffff",
+    }).setOrigin(0.5, 0);
+    hpBackgroundRect.add(this.hpText);
+
+    const hpLabel = this.scene.add.text(12, 10, 'HP', {
+      fontSize: "20px",
+      fontFamily: constants.fonts.troika,
+      color: "#ffffff",
+    }).setOrigin(0);
+    hpBackgroundRect.add(hpLabel);
+
+    this.spBar = new ProgressBar(this.scene, {
+      x: 44,
+      y: 58,
+      width: 60,
+      height: 5,
+      max: this.maxHP,
+      current: this.maxHP,
+      backgroundColor: 0x444444,
+      barColor: 0x00ff00,
+      borderColor: 0x000000
+    });
+    hpBackgroundRect.add(this.spBar);
+
+    this.spText = this.scene.add.text(72, 67, `${this.currentSP}/${this.maxSP}`, {
+      fontSize: "14px",
+      fontFamily: constants.fonts.troika,
+      color: "#ffffff",
+    }).setOrigin(0.5, 0);
+    hpBackgroundRect.add(this.spText);
+
+    const spLabel = this.scene.add.text(12, 50, 'SP', {
+      fontSize: "20px",
+      fontFamily: constants.fonts.troika,
+      color: "#ffffff",
+    }).setOrigin(0);
+    hpBackgroundRect.add(spLabel);
+
+    if (this.gameMode === GameModes.skillCountdown) {
+      this.spBar.visible = false;
+      this.spText.visible = false;
+      spLabel.visible = false;
+    }
+
+    return hpBackgroundRect;
   }
 
   renderCharacter(skillContainer, hasEvents = false) {
@@ -185,16 +268,16 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
 
     // Just a simple circle as a placeholder body
     const graphics = this.scene.add.graphics();
-    graphics.fillStyle(0xff4444, 0.3);
+    graphics.fillStyle(0xff4444, 0.1);
     graphics.fillRoundedRect(0, 0, this.width, this.height, 3);
 
     const image = this.scene.make.image({
       x: this.width / 2,
-      y: 10,
+      y: -10,
       key: `image-${this.tokenId}`,
       add: false,
     });
-    image.setScale(0.05);
+    image.setScale(0.07);
     image.setOrigin(0.5, 0)
     this.add(image);
 
@@ -206,26 +289,13 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     }).setOrigin(0);
 
     // Add HP text below
-    let labelPos = this.renderPosition === 1 ? 130: 120;
-    if (!this.isEnemy) {
-      labelPos = this.renderPosition === 1 ? -100: -110;
-    }
-    this.hpText = this.scene.add.text(labelPos, 25, `HP: ${this.currentHP}`, {
-      fontSize: "20px",
-      color: "#ffffff",
-    }).setOrigin(0);
-
-    this.spText = this.scene.add.text(labelPos, 45, `SP: ${this.stamina}`, {
-      fontSize: "20px",
-      color: "#ffffff",
-    }).setOrigin(0);
-
-    if (this.gameMode === GameModes.skillCountdown) {
-      this.spText.visible = false;
+    let labelPos = -130;
+    if (this.isEnemy) {
+      labelPos = 120;
     }
 
     // Add them to the container
-    this.add([graphics, nameText, this.hpText, this.spText]);
+    this.add([graphics, nameText, this.renderHPSP(labelPos)]);
 
     if (hasEvents) {
       this.setSize(this.width, this.height);
@@ -250,7 +320,29 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
   }
 
   updateStats(data) {
-    this.hpText.setText(`HP: ${data.hp}`);
-    this.spText.setText(`SP: ${data.stamina}`);
+    this.currentHP = data.hp;
+    this.currentSP = data.stamina;
+    this.hpText.setText(`${data.hp}/${this.maxHP}`);
+    this.hpBar.setValue(data.hp);
+    this.spText.setText(`${data.stamina}/${this.maxSP}`);
+    this.spBar.setValue(data.stamina);
+
+    if (this.currentHP === 0) {
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0,
+        duration: 2000,
+        ease: 'Power1',
+        onComplete: () => {
+          this.visible = false;
+        }
+      });
+
+      const child = this.scene.children.getByName('skillContainer').list.find(c => c.name === this.tokenId);
+      console.log(this.list, child)
+      if (child) {
+        child.setVisible(false); // preferred Phaser method
+      }
+    }
   }
 }

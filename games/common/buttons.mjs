@@ -3,25 +3,30 @@ import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
 export function createButton({
   scene, x, y, width, height, text,
-  onPointerDown, image, radius = 6
+  onPointerDown, image,
+  radius = 6,
+  topBgColor = 0x4f9f44,
+  bottomBgColor = 0x556853,
+  innerBaseColor = 0x537a4e,
+  borderColor = 0x223220,
 } = {}) {
   const button = scene.add.container(x, y);
 
   const bg = scene.add.graphics();
 
   // top
-  bg.fillStyle(0x4f9f44, 1);
+  bg.fillStyle(topBgColor, 1);
   bg.fillRoundedRect(0, 0, width, height / 2, radius);
   // below
-  bg.fillStyle(0x556853, 1);
+  bg.fillStyle(bottomBgColor, 1);
   bg.fillRoundedRect(0, 6, width, height - 6, radius);
 
   // Draw base background
-  bg.fillStyle(0x537a4e, 1);
+  bg.fillStyle(innerBaseColor, 1);
   bg.fillRoundedRect(2, 4, width - 4, height - 8, radius);
 
   // Draw border
-  bg.lineStyle(2, 0x223220);
+  bg.lineStyle(2, borderColor);
   bg.strokeRoundedRect(0, 0, width, height, radius);
 
   if (text) {

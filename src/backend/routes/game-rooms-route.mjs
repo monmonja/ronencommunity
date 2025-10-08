@@ -1,5 +1,5 @@
 import WebSocket, { WebSocketServer } from "ws";
-import { param} from "express-validator";
+import {body, param} from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, sessionMiddleWare} from "../components/middlewares.mjs";
 import {rateLimiterMiddleware} from "../components/rate-limiter.mjs";
 import {handleValidation} from "../utils/validations.mjs";
@@ -100,11 +100,16 @@ export function initGameRoomsRoutes(app, server) {
       });
     });
 
-  app.get(
+  app.post(
     "/game-rooms/create-cpu/:path",
     param("path")
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
+    body('characterIds')
+      .optional()
+      .matches(/^[0-9,]+$/).withMessage('Can only contain numbers and commas'),
+    body('gameMode')
+      .matches(/^[a-zA-Z]+$/).withMessage('Not a valid game mode'),
     requireWalletSession,
     cookieCheckMiddleware,
     rateLimiterMiddleware,
@@ -112,7 +117,7 @@ export function initGameRoomsRoutes(app, server) {
       if (!handleValidation(req, res)) {
         return;
       }
-
+      let { characterIds, gameMode } = req.body;
       const game = Games.getGame(req.params.path);
 
       if (!game && game.gameRoomSlug) {
@@ -124,6 +129,8 @@ export function initGameRoomsRoutes(app, server) {
         address,
         game,
         vsCPU: true,
+        gameMode,
+        characterIds: characterIds ? characterIds.split(',').map(id => parseInt(id, 10)) : [],
       });
 
       return res.json({

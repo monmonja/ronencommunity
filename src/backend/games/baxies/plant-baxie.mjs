@@ -2,9 +2,9 @@ import Baxie from './Baxie.mjs';
 
 export default class PlantBaxie extends Baxie {
   skills = [
-    { func: 'naturesResurgence', cost: 30 },
-    { func: 'thornGuard', cost: 25 },
-    { func: 'bloomOvergrowth', cost: 40 },
+    { func: 'naturesResurgence', cost: 30, cooldown: 15, image: 'plant-natures-resurgence' },
+    { func: 'thornGuard', cost: 25, cooldown: 15, image: 'plant-thorn-guard' },
+    { func: 'bloomOvergrowth', cost: 40, cooldown: 15, image: 'plant-bloom-overgrowth' },
   ];
 
   constructor(props) {
