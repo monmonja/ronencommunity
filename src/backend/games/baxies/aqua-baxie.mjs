@@ -1,15 +1,11 @@
 import Baxie from './Baxie.mjs';
 import {EFFECTS} from "./effects.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class AquaBaxie extends Baxie {
-  skills = [
-    { func: 'tidalShield', cost: 35, cooldown: 15, image: 'water-tidal-shield' },
-    { func: 'bubbleTrap', cost: 30, cooldown: 15, image: 'water-bubble-trap' },
-    { func: 'oceansEmbrace', cost: 40, cooldown: 15, image: 'water-oceans-embrace' },
-  ];
-
   constructor(props) {
     super(props);
+    this.populateSkills(['tidalShield', 'bubbleTrap', 'oceansEmbrace']);
   }
 
   // Tidal Shield – Shields all allies for 20% of max Stamina for 2 turns.
@@ -49,7 +45,7 @@ export default class AquaBaxie extends Baxie {
      * @type BaxieSkillReturnItem[]
      */
     const resultEnemies = [];
-    const target = enemies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+    const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
 
     const effectiveDefense = target.getCurrentDefense();
     const rawDamage = this.getCurrentAttack() - effectiveDefense;

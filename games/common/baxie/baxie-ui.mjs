@@ -185,10 +185,46 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     skillContainer.removeAll(true);
   }
 
-  renderHPSP(labelPos) {
+  renderHPSP(yPos, isEnemy = false) {
+    const hpSpContainer = this.scene.add.container(0, yPos);
+
+    // Just a simple circle as a placeholder body
+    const graphics = this.scene.add.graphics();
+    const radius = 40;
+    const x = isEnemy ? 210 : radius / 2;
+    const y = radius / 2;
+
+    graphics.fillStyle(0x000000, 0.3);
+    graphics.fillCircle(x, y, radius - (2 + 6 + 2) / 2);
+
+    // Draw outer black border (2px)
+    graphics.lineStyle(4, 0x000000, 1);
+    graphics.strokeCircle(x, y, radius);
+
+// Draw yellow border (6px)
+    graphics.lineStyle(6, 0xffff00, 1);
+    graphics.strokeCircle(x, y, radius - 4);
+
+// Draw inner black border (2px)
+    graphics.lineStyle(2, 0x000000, 1);
+    graphics.strokeCircle(x, y, radius - 4 - 6);
+
+    const image = this.scene.make.image({
+      x: isEnemy ? 210: 18,
+      y: -15,
+      key: `image-${this.tokenId}`,
+      add: false,
+    });
+    image.setScale(0.035);
+    image.setOrigin(0.5, 0)
+
+
+
+    const startHpBarX = 55;
+
     const hpBackgroundRect = new BackgroundRect(this.scene, {
-      x: labelPos,
-      y: 0,
+      x: startHpBarX,
+      y: -2,
       width: 120,
       height: (this.gameMode === GameModes.skillCountdown) ? 45 : 90,
       // height: 90,
@@ -197,6 +233,9 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       topBgColor: 0xae8463,
       bottomBgColor: 0x67341b
     });
+    hpSpContainer.add(hpBackgroundRect);
+    hpSpContainer.add(graphics);
+    hpSpContainer.add(image);
 
     this.hpBar = new ProgressBar(this.scene, {
       x: 44,
@@ -258,7 +297,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       spLabel.visible = false;
     }
 
-    return hpBackgroundRect;
+    return hpSpContainer;
   }
 
   renderCharacter(skillContainer, hasEvents = false) {
@@ -288,14 +327,9 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       color: "#ffffff",
     }).setOrigin(0);
 
-    // Add HP text below
-    let labelPos = -130;
-    if (this.isEnemy) {
-      labelPos = 120;
-    }
 
     // Add them to the container
-    this.add([graphics, nameText, this.renderHPSP(labelPos)]);
+    this.add([graphics, nameText ]);
 
     if (hasEvents) {
       this.setSize(this.width, this.height);

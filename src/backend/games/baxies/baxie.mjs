@@ -1,5 +1,6 @@
 import {EFFECTS} from "./effects.mjs";
 import {GameModes} from "../../../../games/common/baxie/baxie-simulation.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class Baxie {
   /**
@@ -10,12 +11,13 @@ export default class Baxie {
   currentStamina = 0;
   currentAttack = 0;
   currentDefense = 0;
+  position = 'B';
   /**
    * @type BaxieEffect
    */
   effects = [];
-
   skills = [];
+  fixedSkills = [];
 
   constructor(nftData) {
     this.tokenId = nftData.nftId;
@@ -42,6 +44,12 @@ export default class Baxie {
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
     console.log(`Baxie ${this.tokenId} created with HP: ${this.currentHP}, Stamina: ${this.currentStamina}, Attack: ${this.currentAttack}, Defense: ${this.currentDefense}, type ${this.attributes.class}`);
+  }
+
+  populateSkills(skills) {
+    const skillCount = Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
+
+    this.skills = SkillManager.getBaxieSkill(skills.slice(0, skillCount));
   }
 
   isAlive() {
@@ -189,6 +197,7 @@ export default class Baxie {
         stamina: this.currentStamina,
         image: this.image,
         skills: this.skills,
+        position: this.position,
       }
     } else {
       return {

@@ -1,15 +1,11 @@
 import Baxie from './Baxie.mjs';
 import { EFFECTS } from "./effects.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class ElectricBaxie extends Baxie {
-  skills = [
-    { func: 'voltOverload', cost: 40, cooldown: 15, image: 'electric-volt-overload' },
-    { func: 'chargeUp', cost: 30, cooldown: 15, image: 'electric-charge-up' },
-    { func: 'stormBreaker', cost: 10, cooldown: 15, image: 'electric-storm-breaker' },
-  ];
-
   constructor(props) {
     super(props);
+    this.populateSkills(['voltOverload', 'chargeUp', 'stormBreaker']);
   }
 
   // Strikes 2 random enemies (75% Attack each). 20% chance to stun for 1 turn.
@@ -25,7 +21,7 @@ export default class ElectricBaxie extends Baxie {
       const resultsEnemies = [];
 
       // Randomly target 2 enemies
-      const targets = enemies.sort(() => 0.5 - Math.random()).slice(0, 2);
+      const targets = SkillManager.getBaxieFromPosition(enemies, 2);
 
       targets.forEach((target) => {
         const effectiveDefense = target.getCurrentDefense();

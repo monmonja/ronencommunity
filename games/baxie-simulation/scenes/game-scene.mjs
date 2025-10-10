@@ -56,13 +56,13 @@ export default class GameScene extends Phaser.Scene {
   init(data) {
     this.ws = data.ws;
     this.roomId = data.roomId;
+    console.log('data.player', data.player)
     this.playerTeam = data.player.map((baxieData, i) => new BaxieUi({
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      // x: i === 1 ? 180 : 160,
-      x: 160,
-      y: 125 * i + 70,
+      x: baxieData.position === 'F' ? 300 : 230,
+      y: 110 * i + 100,
       renderPosition: i,
       gameMode: data.gameMode,
     }));
@@ -70,8 +70,9 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: 750,
-      y: 125 * i + 70,
+      // inverse for the enemy
+      x: baxieData.position === 'F' ? 630: 700,
+      y: 110 * i + 100,
       renderPosition: i,
       isEnemy: true,
       gameMode: data.gameMode,
@@ -188,10 +189,16 @@ export default class GameScene extends Phaser.Scene {
 
     this.skillContainer = this.add.container((this.game.scale.width / 2) - 180, 400);
     this.skillContainer.setName('skillContainer');
-    this.playerTeam.forEach((baxie) => {
+    this.playerContainer = this.add.container(50, 50);
+    this.enemyContainer = this.add.container(740, 50);
+    this.playerTeam.forEach((baxie, i) => {
+      this.playerContainer.add(baxie.renderHPSP(i * 90));
       baxie.renderCharacter(this.skillContainer, true);
     });
-    this.enemyTeam.forEach((baxie) => baxie.renderCharacter(this.skillContainer));
+    this.enemyTeam.forEach((baxie, i) => {
+      this.enemyContainer.add(baxie.renderHPSP(i * 90, true));
+      baxie.renderCharacter(this.skillContainer);
+    });
   }
 
 

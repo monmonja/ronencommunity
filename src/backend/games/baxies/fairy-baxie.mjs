@@ -1,12 +1,12 @@
 import Baxie from './Baxie.mjs';
 import {EFFECTS} from "./effects.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class FairyBaxie extends Baxie {
-  skills = [
-    { func: 'arcaneBlessing', cost: 35, cooldown: 15, image: 'fairy-arcane-blessing' },
-    { func: 'pixieVeil', cost: 25, cooldown: 15, image: 'fairy-pixie-veil' },
-    { func: 'celestialHarmony', cost: 40, cooldown: 15, image: 'fairy-celestial-harmony' },
-  ];
+  constructor(props) {
+    super(props);
+    this.populateSkills(['arcaneBlessing', 'pixieVeil', 'celestialHarmony']);
+  }
 
   //  Heals all allies by 12% HP, boosts their Attack by 5% for 2 turns.
   /**
@@ -45,7 +45,7 @@ export default class FairyBaxie extends Baxie {
      * @type {BaxieSkillReturnItem[]}
      */
     const alliesResults = [];
-    const ally = allies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+    const ally = SkillManager.getBaxieFromPosition(allies, 1, this.tokenId)[0];
 
     /**
      * @type BaxieEffect
@@ -70,7 +70,7 @@ export default class FairyBaxie extends Baxie {
      * @type {BaxieSkillReturnItem[]}
      */
     const alliesResults = [];
-    const ally = allies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+    const ally = SkillManager.getBaxieFromPosition(allies, 1, this.tokenId)[0];
 
     const staminaGain = Math.floor(ally.getMaxStamina() * 0.5);
     ally.currentStamina = Math.min(ally.currentStamina + staminaGain, ally.getMaxStamina());

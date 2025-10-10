@@ -1,15 +1,11 @@
 import Baxie from './Baxie.mjs';
 import {EFFECTS} from "./effects.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class DemonBaxie extends Baxie {
-  skills = [
-    { func: 'shadowStrike', cost: 40, cooldown: 15, image: 'shadow-shadow-strike' },
-    { func: 'cursedChains', cost: 30, cooldown: 15, image: 'shadow-cursed-chains' },
-    { func: 'soulFeast', cost: 10, cooldown: 15, image: 'shadow-soul-feast' },
-  ];
-
   constructor(props) {
     super(props);
+    this.populateSkills(['shadowStrike', 'cursedChains', 'soulFeast']);
   }
 
 
@@ -24,7 +20,7 @@ export default class DemonBaxie extends Baxie {
        * @type BaxieSkillReturnItem[]
        */
       const resultEnemies = [];
-      const target = enemies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+      const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
 
       const ignoreDefense = target.getCurrentDefense() * 0.2;
       const effectiveDefense = target.getCurrentDefense() - ignoreDefense;
@@ -61,7 +57,7 @@ export default class DemonBaxie extends Baxie {
        * @type BaxieSkillReturnItem[]
        */
       const resultEnemies = [];
-      const target = enemies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+      const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
 
       const damageMultiplier = 1.2;
       const effectiveDefense = target.getCurrentDefense();

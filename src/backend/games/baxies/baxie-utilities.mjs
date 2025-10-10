@@ -5,6 +5,10 @@ import AquaBaxie from "./aqua-baxie.mjs";
 import PlantBaxie from "./plant-baxie.mjs";
 import FireBaxie from "./fire-baxie.mjs";
 
+/**
+ * @param nftData
+ * @returns {ElectricBaxie|FireBaxie|PlantBaxie|AquaBaxie|DemonBaxie|FairyBaxie}
+ */
 export function makeBaxie(nftData) {
   const type = nftData.data.attributes.find((attr) => attr.trait_type === 'Class')?.value;
 

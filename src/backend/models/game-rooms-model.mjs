@@ -70,17 +70,27 @@ export class GameRoomsModel {
 
       characterIds = characterIds || [];
       if (characterIds.length !== 3) {
-        characterIds  = [1, 3, 4]
+        characterIds  = ['1B', '3F', '4B']
       }
       console.log(characterIds, 'characterIds')
 
       const nftDocs = await Promise.all(
         characterIds.map((baxieId) =>
-          NftModel.findById({ nftTokenId: 'baxies', nftId: baxieId })
+          NftModel.findById({ nftTokenId: 'baxies', nftId: Number(baxieId.match(/\d+/)[0]) })
         )
       );
 
       cpuPlayer.baxies = nftDocs.map((nftData) => makeBaxie(nftData));
+      characterIds.forEach((baxie) => {
+        const baxieId = baxie.match(/\d+/)[0];
+        const position = baxie.substring(baxieId.length);
+        cpuPlayer.baxies.forEach((playerBaxie) => {
+          if (Number(playerBaxie.tokenId) === Number(baxieId)) {
+            playerBaxie.position = position;
+          }
+        })
+      });
+
       GameRoomsModel.rooms[roomId].players.push(cpuPlayer);
       GameRoomsModel.rooms[roomId].canJoin = false;
     }

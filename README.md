@@ -27,3 +27,22 @@ https://www.epochconverter.com/
 
 # simulation
 node .\src\backend\tests\baxie-simulation-test.mjs
+
+# r2 backup
+sudo apt update
+sudo apt install -y mongodb-clients
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install -y unzip
+unzip awscliv2.zip
+sudo ./aws/install
+
+sudo crontab -e
+0 */6 * * * <backuppath> >> /var/log/mongo-r2-backup.log 2>&1
+
+
+aws configure --profile cloudflare-r2
+    AWS Access Key ID [None]: <YOUR_ACCESS_KEY_ID>
+    AWS Secret Access Key [None]: <YOUR_SECRET_ACCESS_KEY>
+    Default region name [None]: auto
+    Default output format [None]: json
+

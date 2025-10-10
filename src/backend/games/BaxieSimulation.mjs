@@ -89,11 +89,20 @@ async function handleJoinRoom(ws, data) {
 
         const nftDocs = await Promise.all(
           data.selectedBaxies.map((baxieId) =>
-            NftModel.findById({ nftTokenId: 'baxies', nftId: baxieId })
+            NftModel.findById({ nftTokenId: 'baxies', nftId: Number(baxieId.match(/\d+/)[0]) })
           )
         );
 
         GameRoomsModel.rooms[data.roomId].players[i].baxies = nftDocs.map((nftData) => makeBaxie(nftData));
+        data.selectedBaxies.forEach((baxie) => {
+          const baxieId = baxie.match(/\d+/)[0];
+          const position = baxie.substring(baxieId.length);
+          GameRoomsModel.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
+            if (Number(playerBaxie.tokenId) === Number(baxieId)) {
+              playerBaxie.position = position;
+            }
+          })
+        });
       }
     }
 

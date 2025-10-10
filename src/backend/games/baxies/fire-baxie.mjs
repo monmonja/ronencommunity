@@ -1,17 +1,17 @@
 import Baxie from './Baxie.mjs';
 import {EFFECTS} from "./effects.mjs";
+import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class FireBaxie extends Baxie {
-  skills = [
-    { func: 'blazingBurst', cost: 35, cooldown: 15, image: 'fire-blazing-burst' },
-    { func: 'infernoWave', cost: 40, cooldown: 15, image: 'fire-inferno-wave' },
-    { func: 'phoenixReign', cost: 10, cooldown: 15, image: 'fire-phoenix-reign' }, // passive/conditional
-  ];
+  constructor(props) {
+    super(props);
+    this.populateSkills(['blazingBurst', 'infernoWave', 'phoenixReign']);
+  }
 
   // Blazing Burst – 140% damage, 20% chance burn (2 turns)
   blazingBurst(enemies) {
     const enemiesResults = [];
-    const target = enemies.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
+    const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
     const effectiveDefense = target.getCurrentDefense();
     const rawDamage = (this.getCurrentAttack() * 1.4) - effectiveDefense;
     const damage = Math.max(rawDamage, 0);
