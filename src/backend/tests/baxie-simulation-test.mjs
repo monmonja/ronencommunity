@@ -8,7 +8,7 @@ const playerWs = {
   send: (e) => {
     const data = JSON.parse(e);
 
-    if (data.type === 'startGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
+    if (data.type === 'initGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
       setTimeout(() => startTesting(data, playerAddress), 200);
     } else {
       console.log('playerWS', JSON.stringify(data));
@@ -23,7 +23,7 @@ const enemyWs = {
   send: (e) => {
     const data = JSON.parse(e);
 
-    if (data.type === 'startGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
+    if (data.type === 'initGame' || data.type === 'endUseSkill' || data.type === 'yourTurn') {
       setTimeout(() => startTesting(data, enemyAddress), 200);
     } else {
       console.log(JSON.stringify(data));
@@ -53,7 +53,7 @@ function startTesting(data, address) {
     if (data.isYourTurn) {
       const currentTest = playerTestingFlow.shift();
 
-      if (data.type !== 'startGame') {
+      if (data.type !== 'initGame') {
         console.log(`    ${JSON.stringify(data)}`);
       }
       console.log(`\nplayer ${JSON.stringify(currentTest)}`);
@@ -71,7 +71,7 @@ function startTesting(data, address) {
     if (data.isYourTurn) {
       const currentTest = enemyTestingFlow.shift();
 
-      if (data.type !== 'startGame') {
+      if (data.type !== 'initGame') {
         console.log(`    ${JSON.stringify(data)}`);
       }
 

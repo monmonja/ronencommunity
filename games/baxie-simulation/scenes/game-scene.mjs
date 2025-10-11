@@ -62,7 +62,7 @@ export default class GameScene extends Phaser.Scene {
       data: baxieData,
       roomId: this.roomId,
       x: baxieData.position === 'F' ? 300 : 230,
-      y: 110 * i + 100,
+      y: 110 * i + 80,
       renderPosition: i,
       gameMode: data.gameMode,
     }));
@@ -72,7 +72,7 @@ export default class GameScene extends Phaser.Scene {
       roomId: this.roomId,
       // inverse for the enemy
       x: baxieData.position === 'F' ? 630: 700,
-      y: 110 * i + 100,
+      y: 110 * i + 80,
       renderPosition: i,
       isEnemy: true,
       gameMode: data.gameMode,
@@ -99,6 +99,7 @@ export default class GameScene extends Phaser.Scene {
         console.log(data.message)
       } else if (data.type === 'endUseSkill') {
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
+
         let x = baxieUI.x - 90;
         if (x < 300) {
           x = baxieUI.x + baxieUI.width + 100;
@@ -138,13 +139,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.add.image(0, 0, "battle-bg")
+      .setOrigin(0, 0);
     this.playerTeam.forEach((baxie) => baxie.preload());
     this.enemyTeam.forEach((baxie) => baxie.preload());
   }
 
   create() {
-    this.add.image(0, 0, "battle-bg")
-      .setOrigin(0, 0);
 
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});
     this.yourTurnBtn = createButton({
@@ -187,7 +188,7 @@ export default class GameScene extends Phaser.Scene {
       baxie.enemies = this.playerTeam ?? [];
     });
 
-    this.skillContainer = this.add.container((this.game.scale.width / 2) - 180, 400);
+    this.skillContainer = this.add.container((this.game.scale.width / 2) - 180, 420);
     this.skillContainer.setName('skillContainer');
     this.playerContainer = this.add.container(50, 50);
     this.enemyContainer = this.add.container(740, 50);
@@ -199,7 +200,15 @@ export default class GameScene extends Phaser.Scene {
       this.enemyContainer.add(baxie.renderHPSP(i * 90, true));
       baxie.renderCharacter(this.skillContainer);
     });
+    this.afterCreate();
   }
 
+  afterCreate() {
+    this.ws.send(JSON.stringify({
+      type: 'gameLoaded',
+      roomId: this.roomId,
+      gameId: this.game.customConfig.gameId,
+    }));
+  }
 
 }

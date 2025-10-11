@@ -73,10 +73,13 @@ export function initGameRoomsRoutes(app, server) {
   });
 
   app.get(
-    "/game-rooms/create/:path",
+    "/game-rooms/create/:path/:gameMode",
     param("path")
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
+    param("gameMode")
+      .matches(/^[a-zA-Z]+$/)
+      .withMessage("Invalid game mode"),
     requireWalletSession,
     cookieCheckMiddleware,
     rateLimiterMiddleware,

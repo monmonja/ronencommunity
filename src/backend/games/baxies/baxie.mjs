@@ -17,6 +17,7 @@ export default class Baxie {
    */
   effects = [];
   skills = [];
+  skillsTimer = {};
   fixedSkills = [];
 
   constructor(nftData) {
@@ -43,26 +44,24 @@ export default class Baxie {
     this.currentStamina = this.getMaxStamina();
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
-    console.log(`Baxie ${this.tokenId} created with HP: ${this.currentHP}, Stamina: ${this.currentStamina}, Attack: ${this.currentAttack}, Defense: ${this.currentDefense}, type ${this.attributes.class}`);
   }
 
   populateSkills(skills) {
     const skillCount = Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
 
-    this.skills = SkillManager.getBaxieSkill(skills.slice(0, skillCount));
+    this.skills = SkillManager.getBaxieSkill(skills.slice(0, skillCount), this.getMaxStamina());
   }
 
   isAlive() {
     return this.currentHP > 0;
   }
 
+  getMysticCount() {
+    return Number(this.attributes.mystic.split('/')[0]);
+  }
+
   getMaxStamina() {
     let stamina = this.attributes.stamina ?? 0;
-
-    // https://docs.BaxieUiethernity.com/gameplay/classes-and-skills#class-advantages
-    if (['Electric', 'Fairy'].includes(this.attributes.class)) {
-      stamina += 10;
-    }
 
     return stamina;
   }
@@ -70,33 +69,17 @@ export default class Baxie {
   getMaxAttack() {
     let attack = this.attributes.attack ?? 0;
 
-    // https://docs.BaxieUiethernity.com/gameplay/classes-and-skills#class-advantages
-    if (['Fire', 'Demon'].includes(this.attributes.class)) {
-      attack += 10;
-    }
-
-    // Mystic
-    attack += parseInt(this.attributes.mystic.split('/')[0], 10) * 3;
-
     return attack;
   }
 
   getMaxDefense() {
     let defense = this.attributes.defense;
 
-    // https://docs.BaxieUiethernity.com/gameplay/classes-and-skills#class-advantages
-    if (['Aqua', 'Plant'].includes(this.attributes.class)) {
-      defense += 10;
-    }
-
-    // mystic
-    defense += parseInt(this.attributes.mystic.split('/')[0], 10) * 3;
-
     return defense;
   }
 
   getMaxHP() {
-    return 100;//Math.ceil(this.getMaxDefense() * 1.2);
+    return this.getMaxDefense();
   }
 
   reasonCannotAttack() {
@@ -129,6 +112,30 @@ export default class Baxie {
     }
 
     return true;
+  }
+
+  canUseSkill(skillName, gameMode) {
+    const skill = this.skills.find(s => s.func === skillName);
+
+    if (!skill) {
+      return false;
+    }
+
+    if (gameMode === GameModes.skillCountdown) {
+      const now = Date.now(); // same as new Date().getTime()
+      const cooldownMs = skill.cooldown * 1000; // convert sec → ms
+      const lastUse = this.skillsTimer[skillName] || 0;
+
+      if (lastUse === 0) {
+        return true;
+      }
+
+      if (now < lastUse + cooldownMs) {
+        return false;
+      }
+
+      return true;
+    }
   }
 
   getCurrentStamina () {
@@ -221,6 +228,7 @@ export default class Baxie {
     }
 
     this.useStamina(skill.cost);
+    this.skillsTimer[skillName] = Date.now();
 
     return this[skillName](enemies, allies);
   }

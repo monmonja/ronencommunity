@@ -23,17 +23,39 @@ export default class SkillManager {
   /**
    * @param {array} currentSkills
    */
-  static getBaxieSkill(currentSkills) {
-    return this.skills.filter((skill) => currentSkills.includes(skill.func));
+  static getBaxieSkill(currentSkills, stamina) {
+    const minStamina = 40;
+
+    return this.skills
+      .filter((skill) => currentSkills.includes(skill.func))
+      .map(skill => {
+        // inverse scaling
+        let newCooldown = (skill.cooldown * minStamina) / stamina;
+
+        // optional: prevent cooldown from going below 1 second
+        if (newCooldown < 1) newCooldown = 1;
+
+        return {
+          ...skill,
+          cooldown: newCooldown
+        };
+      });
   }
 
+  /**
+   *
+   * @param baxies {Baxie[]}
+   * @param count
+   * @param excludeId
+   * @returns {*[]}
+   */
   static getBaxieFromPosition(baxies, count, excludeId) {
     const shuffle = (arr) => arr
       .map(a => ({ sort: Math.random(), value: a }))
       .sort((a, b) => a.sort - b.sort)
       .map(a => a.value);
-    let frontBaxies = shuffle(baxies.filter((baxie) => baxie.position === 'F'));
-    let backBaxies = shuffle(baxies.filter((baxie) => baxie.position === 'B'));
+    let frontBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'F'));
+    let backBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'B'));
 
     if (excludeId) {
       frontBaxies = frontBaxies.filter((baxie) => baxie.tokenId !== excludeId);

@@ -63,7 +63,7 @@ function simulateCPUSkills (ws, data) {
         } else if (currentRoom.gameMode === GameModes.skillCountdown) {
           setTimeout(() => {
             tryAttack();
-          }, 3000); //5000
+          }, 5000); //5000
         }
       } else {
         tryAttack();
@@ -75,6 +75,43 @@ function simulateCPUSkills (ws, data) {
   }
 
   tryAttack();
+}
+
+async function handleGameLoaded(ws, data) {
+  const currentRoom = GameRoomsModel.rooms[data.roomId];
+  const userAddress = ws.session.wallet.address.toLowerCase();
+
+  if (currentRoom.vsCPU) {
+    let startCPU = false;
+
+    if (currentRoom.playerTurn === currentRoom.cpuAddress && currentRoom.gameMode === GameModes.turnBasedSP) {
+      startCPU = true;
+    } else if (currentRoom.gameMode === GameModes.skillCountdown) {
+      startCPU = true;
+    }
+
+    if (startCPU) {
+      setTimeout(() => {
+        const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
+        simulateCPUSkills(mockWs, data);
+      }, 2000);
+    }
+  } else {
+    for (let i = 0; i < currentRoom.players.length; i++) {
+      if (currentRoom.players[i].address === userAddress) {
+        currentRoom.players[i].gameLoaded = true;
+      }
+    }
+
+    if (currentRoom.players.filter((i) => i.gameLoaded).length === 2) {
+      currentRoom.players.forEach((player) => {
+        player.ws.send(JSON.stringify({
+          type: 'startBattle',
+          roomId: data.roomId,
+        }));
+      });
+    }
+  }
 }
 
 async function handleJoinRoom(ws, data) {
@@ -119,7 +156,7 @@ async function handleJoinRoom(ws, data) {
           const enemy = currentRoom.players.filter((playerI) => player.address !== playerI.address)[0];
 
           player.ws.send(JSON.stringify({
-            type: 'startGame',
+            type: 'initGame',
             roomId: data.roomId,
             isYourTurn: player.address === currentRoom.playerTurn,
             turnIndex: currentRoom.turnIndex,
@@ -134,23 +171,6 @@ async function handleJoinRoom(ws, data) {
           }));
         }
       });
-
-      if (currentRoom.vsCPU ) {
-        let startCPU = false;
-
-        if (currentRoom.playerTurn === currentRoom.cpuAddress && currentRoom.gameMode === GameModes.turnBasedSP) {
-          startCPU = true;
-        } else if (currentRoom.gameMode === GameModes.skillCountdown) {
-          startCPU = true;
-        }
-
-        if (startCPU) {
-          setTimeout(() => {
-            const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
-            simulateCPUSkills(mockWs, data);
-          }, 2000);
-        }
-      }
     }
   } catch (e) {
     console.log('error in handleJoinRoom', e)
@@ -268,14 +288,9 @@ console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${da
     }));
   }
 
-  const skill = selectedBaxie.skills.filter((s) => s.func === data.selectedSkill)[0];
-  let canAttack = selectedBaxie.currentStamina >= skill.cost;
+  const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
 
-  if (currentRoom.gameMode === GameModes.skillCountdown) {
-    canAttack = true;
-  }
-
-  if (canAttack) {
+  if (canUseSkill) {
     const message = selectedBaxie.useSkill(data.selectedSkill, enemy.baxies, player.baxies, currentRoom.gameMode);
     console.log('message', message)
     // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
@@ -283,6 +298,9 @@ console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${da
     currentRoom.players.forEach((roomPlayer) => {
       // console.log(roomPlayer.address, currentRoom.playerTurn,message)
       if (roomPlayer.address !== currentRoom.playerTurn) {
+        // swap the enemies and allies for the opponent
+        // so they see their baxies as allies
+        // and the other player's baxies as enemies
         const tempEnemies = message.enemies;
 
         message.enemies = message.allies;
@@ -313,7 +331,7 @@ console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${da
 
   } else {
     return ws.send(JSON.stringify({
-      type: 'Not enough stamina'
+      type: 'Not enough stamina or in countdown'
     }));
   }
 }
@@ -358,6 +376,11 @@ export function handleBaxieSimulationGameRoom(ws, data) {
     return;
   }
 
+  /**
+   * Player 1: Create Room
+   * Player 2: Join Room
+   * both player: Init Game
+   */
   if (GameRoomsModel.rooms[data.roomId]) {
     if (data.type === 'joinRoom') {
       handleJoinRoom(ws, data);
@@ -370,6 +393,10 @@ export function handleBaxieSimulationGameRoom(ws, data) {
     } else if (data.type === 'endTurn') {
       if (checkActionValidity(ws, data)) {
         handleEndTurn(ws, data);
+      }
+    } else if (data.type === 'gameLoaded') {
+      if (checkActionValidity(ws, data)) {
+        handleGameLoaded(ws, data);
       }
     }
   }

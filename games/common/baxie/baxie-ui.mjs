@@ -126,10 +126,6 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       const y = radius;
 
       const skillContainer = this.scene.add.container(x, y);
-      const image = this.scene.add.image(0, 0, skill.image)
-        .setScale(0.1)
-        .setOrigin(0.5);
-      skillContainer.add(image);
 
       const skillText = this.scene.add.text(0, radius + 20, this.formatSkillName(skill.func), {
         fontSize: "16px",
@@ -137,23 +133,33 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
         backgroundColor: "#000000",
         padding: { x: 5, y: 5 },
       })
-        .setOrigin(0.5)
+        .setOrigin(0.5);
+      skillText.visible = false;
+
+      const image = this.scene.add.image(0, 0, skill.image)
+        .setScale(0.1)
+        .setOrigin(0.5);
+      skillContainer.add(image);
+
+      skillContainer
         .setInteractive(
-          new Phaser.Geom.Rectangle(0, -(20 + (radius * 2)), radius * 2, radius * 2),
+          new Phaser.Geom.Rectangle(-radius, -radius, radius * 2, radius * 2),
           interactiveBoundsChecker,
         )
         .on("pointerover", () => {
+          skillText.visible = true;
           this.scene.input.manager.canvas.style.cursor = "pointer";
         })
         .on("pointerout", () => {
+          skillText.visible = false;
           this.scene.input.manager.canvas.style.cursor = "default";
         })
         .on('pointerdown', () => {
-          console.log(this.gameMode)
           if (this.gameMode === GameModes.skillCountdown) {
             if (skillContainer.getByName('countdown')) {
               return;
             }
+
             skillContainer.add(this.startSkillCountdown(0, 0, radius, 1000 * skill.cooldown));
           }
 

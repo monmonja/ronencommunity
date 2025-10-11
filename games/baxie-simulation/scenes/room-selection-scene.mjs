@@ -206,7 +206,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
         this.ws.onmessage = (msg) => {
           const data = JSON.parse(msg.data);
-          if (data.type === 'startGame') {
+          if (data.type === 'initGame') {
             this.scene.start('GameScene', {
               ws: this.ws,
               roomId: response.roomId,
@@ -318,7 +318,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
           this.ws.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
-            if (data.type === 'startGame') {
+            if (data.type === 'initGame') {
               this.scene.start('GameScene', {
                 ws: this.ws,
                 roomId: response.roomId,
@@ -468,7 +468,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
           });
           this.ws.addEventListener("message", (msg) => {
             const data = JSON.parse(msg.data);
-            if (data.type === 'startGame') {
+            if (data.type === 'initGame') {
               this.scene.start('GameScene', {
                 ws: this.ws,
                 roomId: response.roomId,
