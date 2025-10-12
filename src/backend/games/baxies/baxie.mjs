@@ -138,6 +138,22 @@ export default class Baxie {
     }
   }
 
+  calculateDamage(attack, defense) {
+    const critChance = 0.01; // 1% chance
+    const critMultiplier = 0.2; // 50% more damage
+
+    let baseDamage = attack * (attack / (attack + defense));
+    const minDamage = attack * 0.1;
+
+    // Critical hit check
+    if (Math.random() < critChance) {
+      baseDamage *= critMultiplier;
+    }
+
+    return Math.floor(Math.max(baseDamage, minDamage));
+  }
+
+
   getCurrentStamina () {
     return this.currentStamina;
   }
@@ -155,7 +171,7 @@ export default class Baxie {
       }
     }
 
-    return defense * 0.3;
+    return defense;
   }
 
   getCurrentAttack () {

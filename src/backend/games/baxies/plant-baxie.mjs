@@ -13,11 +13,13 @@ export default class PlantBaxie extends Baxie {
     try {
       const restored = [];
 
-      allies.forEach(ally => {
-        const restoreAmount = Math.floor(ally.getMaxStamina() * 0.15);
-        ally.currentStamina = Math.min(ally.currentStamina + restoreAmount, ally.getMaxStamina());
-        restored.push({ target: ally, restoreAmount });
-      });
+      allies
+        .filter((ally) => ally.isAlive())
+        .forEach(ally => {
+          const restoreAmount = Math.floor(ally.getMaxStamina() * 0.15);
+          ally.currentStamina = Math.min(ally.currentStamina + restoreAmount, ally.getMaxStamina());
+          restored.push({ target: ally, restoreAmount });
+        });
 
       return { restored };
     } catch (error) {

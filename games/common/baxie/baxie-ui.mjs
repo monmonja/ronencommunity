@@ -81,20 +81,25 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     return countdown;
   }
 
-  formatSkillName (str)  {
+  formatSkillName(str) {
     // Insert space before capital letters
     const spaced = str.replace(/([a-z])([A-Z])/g, '$1 $2');
 
     // Split into words
     const words = spaced.split(' ');
 
+    // Capitalize each word
+    const capitalizedWords = words.map(
+      word => word.charAt(0).toUpperCase() + word.slice(1)
+    );
+
     // If more than one word, split into two lines
-    if (words.length > 1) {
-      return `${words[0]}\n${words.slice(1).join(' ')}`;
+    if (capitalizedWords.length > 1) {
+      return `${capitalizedWords[0]}\n${capitalizedWords.slice(1).join(' ')}`;
     }
 
-    // Otherwise just return the spaced version
-    return spaced;
+    // Otherwise just return the single capitalized word
+    return capitalizedWords[0];
   }
 
   renderSkills(container) {

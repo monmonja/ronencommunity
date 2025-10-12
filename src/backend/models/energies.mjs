@@ -155,4 +155,34 @@ export default class Energies {
 
     return !!result; // always returns true/false
   }
+
+  static async dailySummary() {
+    const mongoDbConnection = await getConnection();
+    const energiesCol = mongoDbConnection.db().collection(config.mongo.table.energies);
+
+    const summary = await energiesCol.aggregate([
+      {
+        $group: {
+          _id: {
+            date: "$date",
+            gameId: "$gameId"
+          },
+          totalEnergyUsed: { $sum: "$energyUsed" },
+        },
+      },
+      {
+        $sort: { "_id.date": -1 },
+      },
+      {
+        $limit: 100 // adjust as needed
+      }
+    ]).toArray();
+
+    // Optional: clean up the structure
+    return summary.map(item => ({
+      date: item._id.date,
+      gameId: item._id.gameId,
+      totalEnergyUsed: item.totalEnergyUsed,
+    }));
+  }
 }

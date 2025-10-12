@@ -291,7 +291,12 @@ console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${da
   const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
 
   if (canUseSkill) {
-    const message = selectedBaxie.useSkill(data.selectedSkill, enemy.baxies, player.baxies, currentRoom.gameMode);
+    const message = selectedBaxie.useSkill(
+      data.selectedSkill,
+      enemy.baxies.filter((b) => b.isAlive()),
+      player.baxies.filter((b) => b.isAlive()),
+      currentRoom.gameMode
+    );
     console.log('message', message)
     // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
 

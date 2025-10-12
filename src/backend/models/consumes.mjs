@@ -20,4 +20,13 @@ export default class Consumes {
 
     return consumes;
   }
+
+  static async dailySummary({ address } = {}) {
+    const mongoDbConnection = await getConnection();
+    const consumesCol = mongoDbConnection.db().collection(config.mongo.table.consumes);
+
+    // return array
+
+    return consumes;
+  }
 }
