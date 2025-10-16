@@ -4,6 +4,7 @@ import { body, param, validationResult } from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
+import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
 
 export function initWalletRoutes(app) {
   app.get(
@@ -22,7 +23,12 @@ export function initWalletRoutes(app) {
         nftId: req.params.tokenId,
       });
 
-      res.json(data);
+      const baxiee = makeBaxie(data);
+
+      res.json({
+        ...data,
+        ...baxiee.getGameInfo(true),
+      });
     });
 
   app.get(

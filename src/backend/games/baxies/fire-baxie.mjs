@@ -12,9 +12,8 @@ export default class FireBaxie extends Baxie {
   blazingBurst(enemies) {
     const enemiesResults = [];
     const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
-    const effectiveDefense = target.getCurrentDefense();
-    const rawDamage = (this.getCurrentAttack() * 1.4) - effectiveDefense;
-    const damage = Math.max(rawDamage, 0);
+    console.log(this.getCurrentAttack() * 1.4, target.getCurrentDefense());
+    const damage = this.calculateDamage(this.getCurrentAttack() * 1.4, target.getCurrentDefense());
 
     target.takeDamage(damage);
     enemiesResults.push({ target: target.tokenId, damage });
@@ -33,10 +32,10 @@ export default class FireBaxie extends Baxie {
   // Inferno Wave – 60% AoE, 15% chance -5% Attack for 1 turn
   infernoWave(enemies) {
     const enemiesResult = [];
-    enemies.forEach(target => {
-      const dmg = Math.floor(this.getCurrentAttack() * 0.6);
+    enemies.forEach((target) => {
+      const damage = this.calculateDamage(this.getCurrentAttack() * 0.6, target.getCurrentDefense());
       const hpBefore = target.currentHP;
-      target.takeDamage(dmg);
+      target.takeDamage(damage);
 
       let attackReduced = false;
       if (Math.random() < 0.15) {
@@ -46,7 +45,7 @@ export default class FireBaxie extends Baxie {
 
       enemiesResult.push({
         target: target.tokenId,
-        damage: dmg,
+        damage,
         attackReduced,
         defeated: hpBefore > 0 && target.currentHP <= 0
       });

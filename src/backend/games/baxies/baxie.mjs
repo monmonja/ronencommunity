@@ -40,14 +40,14 @@ export default class Baxie {
       },  {});
     }
 
-    this.currentHP = this.getMaxHP();
+    this.currentHP = this.getMaxHP() * 1.5;
     this.currentStamina = this.getMaxStamina();
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
   }
 
   populateSkills(skills) {
-    const skillCount = Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
+    const skillCount = skills.length;//Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
 
     this.skills = SkillManager.getBaxieSkill(skills.slice(0, skillCount), this.getMaxStamina());
   }
@@ -136,6 +136,8 @@ export default class Baxie {
 
       return true;
     }
+
+    return true;
   }
 
   calculateDamage(attack, defense) {
@@ -221,6 +223,7 @@ export default class Baxie {
         image: this.image,
         skills: this.skills,
         position: this.position,
+        purity: this.attributes.purity,
       }
     } else {
       return {

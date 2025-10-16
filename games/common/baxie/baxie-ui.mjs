@@ -125,10 +125,15 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     baxieSkillContainer.setName(this.tokenId);
     container.add(baxieSkillContainer);
 
+    const radius = 30; // since width/height = 100px total
+    const y = radius;
+    const skillWidth = radius * 2;
+    const spacing = 20;
+    const totalWidth = this.skills.length * skillWidth + (this.skills.length - 1) * spacing;
+    const startX = -totalWidth / 2 + radius;
+
     this.skills.forEach((skill, index) => {
-      const radius = 50; // since width/height = 100px total
-      const x = index * ((radius * 2) + 30) + radius;
-      const y = radius;
+      const x = startX + index * (skillWidth + spacing);
 
       const skillContainer = this.scene.add.container(x, y);
 
@@ -142,7 +147,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       skillText.visible = false;
 
       const image = this.scene.add.image(0, 0, skill.image)
-        .setScale(0.1)
+        .setScale(1)
         .setOrigin(0.5);
       skillContainer.add(image);
 
@@ -227,9 +232,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       add: false,
     });
     image.setScale(0.035);
-    image.setOrigin(0.5, 0)
-
-
+    image.setOrigin(0.5, 0);
 
     const startHpBarX = 55;
 
@@ -317,9 +320,9 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     this.removeAll(true);
 
     // Just a simple circle as a placeholder body
-    const graphics = this.scene.add.graphics();
-    graphics.fillStyle(0xff4444, 0.1);
-    graphics.fillRoundedRect(0, 0, this.width, this.height, 3);
+    // const graphics = this.scene.add.graphics();
+    // graphics.fillStyle(0xff4444, 0.1);
+    // graphics.fillRoundedRect(0, 0, this.width, this.height, 3);
 
     const image = this.scene.make.image({
       x: this.width / 2,
@@ -329,6 +332,17 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     });
     image.setScale(0.07);
     image.setOrigin(0.5, 0)
+
+
+    const shadow = this.scene.make.image({
+      x: this.width / 2,
+      y: 95,
+      key: 'shadow',
+      add: false,
+    });
+    shadow.setScale(0.09);
+    shadow.setOrigin(0.5, 0)
+    this.add(shadow);
     this.add(image);
 
     // Add a text label for debugging
@@ -337,10 +351,11 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       fontSize: "20px",
       color: "#ffffff",
     }).setOrigin(0);
+    this.add(nameText);
 
 
     // Add them to the container
-    this.add([graphics, nameText ]);
+    // this.add([graphics,  ]);
 
     if (hasEvents) {
       this.setSize(this.width, this.height);

@@ -5,14 +5,32 @@ import {rateLimiterMiddleware} from "../components/rate-limiter.mjs";
 import {handleValidation} from "../utils/validations.mjs";
 import Games from "../models/games.mjs";
 import config from "../config/default.json" with { type: "json" };
-import {handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
+import {createCPUPlayer, handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
 import cookie from "cookie";
-import { GameRoomsModel } from "../models/game-rooms-model.mjs";
+import GameRoomsModel from "../models/game-rooms-model.mjs";
+import GameRoomManager from "../games/game-room-manager.mjs";
 
 let rooms = {};
 
 export function initGameRoomsRoutes(app, server) {
   const wss = new WebSocketServer({ noServer: true });
+  // Add heartbeat mechanism here
+  const heartbeatInterval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+      if (!ws.isAlive) {
+        console.log('Terminating inactive connection');
+        return ws.terminate();
+      }
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 60000); // Check every 60 seconds
+
+  // Clean up interval when server closes
+  wss.on('close', () => {
+    clearInterval(heartbeatInterval);
+  });
+
   server.on("upgrade", (request, socket, head) => {
     try {
       // Parse cookies
@@ -54,19 +72,42 @@ export function initGameRoomsRoutes(app, server) {
 
         if (!data.gameId) {
           ws.send(JSON.stringify({ error: 'No gameId' }));
+
           return;
         }
 
-        if (data.roomId?.startsWith('bsim-')) {
+        if (!data.roomId) {
+          ws.send(JSON.stringify({ error: 'No roomId' }));
+
+          return;
+        }
+
+        const game = Games.getGame(data.gameId);
+
+        if (!game) {
+          ws.send(JSON.stringify({ error: 'Invalid gameId' }));
+          return;
+        }
+
+        if (game.slug === 'baxie-simulation' && GameRoomManager.hasRoom(data.roomId)) {
           handleBaxieSimulationGameRoom(ws, data, rooms);
         }
       } catch (err) {
         console.error('Invalid WS message:', err);
       }
     });
+
     ws.on('close', (code, reason) => {
-      console.log('Socket closed', code, reason);
+      // Find and cleanup rooms with this ws
+      Object.entries(GameRoomManager.rooms).forEach(([roomId, room]) => {
+        const player = room.players.find((player) => player.ws === ws);
+
+        if (player) {
+          GameRoomManager.handlePlayerDisconnect(roomId, player.address);
+        }
+      });
     });
+
     ws.on('error', (err) => {
       console.error('Socket error', err);
     });
@@ -90,15 +131,20 @@ export function initGameRoomsRoutes(app, server) {
 
       const game = Games.getGame(req.params.path);
 
-      if (!game && game.gameRoomSlug) {
+      if (!game && !game.gameRoomSlug) {
         return res.status(400).json({ success: false, errors: "No game" });
       }
 
       const address = req.session.wallet?.address.toLowerCase();
-      const roomId = await GameRoomsModel.createRoom({ address, game });
+      const room = await GameRoomManager.createRoom({
+        address,
+        game,
+        gameMode: req.params.gameMode,
+      });
+      await GameRoomsModel.saveRoom(room);
 
       return res.json({
-        roomId,
+        roomId: room.roomId,
         wsUrl: config.wsUrl,
       });
     });
@@ -110,7 +156,7 @@ export function initGameRoomsRoutes(app, server) {
       .withMessage("Invalid game"),
     body('characterIds')
       .optional()
-      .matches(/^[0-9,]+$/).withMessage('Can only contain numbers and commas'),
+      .matches(/^[0-9,FB]+$/).withMessage('Can only contain numbers and commas'),
     body('gameMode')
       .matches(/^[a-zA-Z]+$/).withMessage('Not a valid game mode'),
     requireWalletSession,
@@ -123,21 +169,24 @@ export function initGameRoomsRoutes(app, server) {
       let { characterIds, gameMode } = req.body;
       const game = Games.getGame(req.params.path);
 
-      if (!game && game.gameRoomSlug) {
+      if (!game && !game.gameRoomSlug) {
         return res.status(400).json({ success: false, errors: "No game" });
       }
 
       const address = req.session.wallet?.address.toLowerCase();
-      const roomId = await GameRoomsModel.createRoom({
+      const room = await GameRoomManager.createRoom({
         address,
         game,
         vsCPU: true,
         gameMode,
-        characterIds: characterIds ? characterIds.split(',').map(id => parseInt(id, 10)) : [],
+        characterIds,
       });
+      await createCPUPlayer(room.roomId)
+
+      await GameRoomsModel.saveRoom(room);
 
       return res.json({
-        roomId,
+        roomId: room.roomId,
         wsUrl: config.wsUrl,
       });
     });
@@ -160,14 +209,19 @@ export function initGameRoomsRoutes(app, server) {
 
       const game = Games.getGame(req.params.path);
 
-      if (!game && game.gameRoomSlug) {
+      if (!game && !game.gameRoomSlug) {
         return res.status(400).json({ success: false, errors: "No game" });
       }
 
       const roomId = req.params.roomId;
       const address = req.session.wallet?.address.toLowerCase();
+      const room = GameRoomManager.joinRoom({ roomId, address });
 
-      if (GameRoomsModel.joinRoom({ roomId, address })) {
+      if (room) {
+        if (game.slug === 'baxie-simulation') {
+          room.canJoin = false;
+        }
+
         return res.json({
           roomId,
           wsUrl: config.wsUrl,

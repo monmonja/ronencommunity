@@ -18,7 +18,32 @@ export default class RoomSelectionScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.selectedBaxies = data.selectedBaxies || new URLSearchParams(location.search).get("baxies").split(',').map(tokenId => ({ tokenId }));
+    this.selectedBaxies = data.selectedBaxies ?? [
+      {
+        "tokenId": "1250",
+        "skills": [
+          "chargeUp"
+        ],
+        "position": "center"
+      },
+      {
+        "tokenId": "1251",
+        "skills": [
+          "naturesResurgence",
+          "thornGuard"
+        ],
+        "position": "center"
+      },
+      {
+        "tokenId": "1252",
+        "skills": [
+          "voltOverload",
+          "chargeUp",
+          "stormBreaker"
+        ],
+        "position": "center"
+      }
+    ];
     console.log('this.selectedBaxies', this.selectedBaxies)
   }
 
@@ -199,7 +224,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               type: 'joinRoom',
               gameId: this.game.customConfig.gameId,
               roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
+              selectedBaxies: this.selectedBaxies,
             })
           );
         });
@@ -312,7 +337,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               type: 'joinRoom',
               gameId: this.game.customConfig.gameId,
               roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
+              selectedBaxies: this.selectedBaxies,
             }));
           };
 
@@ -456,7 +481,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               type: 'joinRoom',
               gameId: this.game.customConfig.gameId,
               roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies.map((b) => b.tokenId),
+              selectedBaxies: this.selectedBaxies,
             }));
           });
 

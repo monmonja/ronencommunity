@@ -1,4 +1,4 @@
-import { GameRoomsModel } from "../models/game-rooms-model.mjs";
+import { GameRoomManager } from "../models/game-rooms-model.mjs";
 import Games from "../models/games.mjs";
 import {handleBaxieSimulationGameRoom} from "../games/BaxieSimulation.mjs";
 
@@ -89,7 +89,7 @@ function startTesting(data, address) {
 }
 
 function init() {
-  const roomId = GameRoomsModel.createRoom({address: playerAddress, game});
+  const roomId = GameRoomManager.createRoom({address: playerAddress, game});
   handleBaxieSimulationGameRoom(playerWs, {
     type: 'joinRoom',
     roomId,
@@ -97,7 +97,7 @@ function init() {
   });
 
   setTimeout(() => {
-    if (GameRoomsModel.joinRoom({ roomId, address: enemyAddress })) {
+    if (GameRoomManager.joinRoom({ roomId, address: enemyAddress })) {
       handleBaxieSimulationGameRoom(enemyWs, {
         type: 'joinRoom',
         roomId,

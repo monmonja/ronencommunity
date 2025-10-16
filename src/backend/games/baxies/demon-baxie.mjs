@@ -8,7 +8,6 @@ export default class DemonBaxie extends Baxie {
     this.populateSkills(['shadowStrike', 'cursedChains', 'soulFeast']);
   }
 
-
   //  – Ignores 20% of enemy Defense, lifesteals 15% of damage dealt.
   /**
    * @param enemies {Baxie[]}
@@ -24,8 +23,7 @@ export default class DemonBaxie extends Baxie {
 
       const ignoreDefense = target.getCurrentDefense() * 0.2;
       const effectiveDefense = target.getCurrentDefense() - ignoreDefense;
-      const rawDamage = this.getCurrentAttack() - effectiveDefense;
-      const damage = Math.max(rawDamage, 0);
+      const damage = this.calculateDamage(this.getCurrentAttack(), effectiveDefense);
 
       // Apply damage
       target.takeDamage(damage);
@@ -58,11 +56,7 @@ export default class DemonBaxie extends Baxie {
        */
       const resultEnemies = [];
       const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
-
-      const damageMultiplier = 1.2;
-      const effectiveDefense = target.getCurrentDefense();
-      const rawDamage = (this.getCurrentAttack() * damageMultiplier) - effectiveDefense;
-      const damage = Math.max(rawDamage, 0);
+      const damage = this.calculateDamage(this.getCurrentAttack() * 1.2, target.getCurrentDefense());
 
       // Apply damage
       target.takeDamage(damage);
@@ -109,9 +103,7 @@ export default class DemonBaxie extends Baxie {
       let hasKilledAnEnemy = false;
 
       enemies.forEach((enemy) => {
-        const effectiveDefense = enemy.getCurrentDefense();
-        const rawDamage = (this.getCurrentAttack() * 0.5) - effectiveDefense;
-        const damage = Math.max(rawDamage, 0);
+        const damage = this.calculateDamage(this.getCurrentAttack() * 0.5, effectiveDefense);
 
         enemy.takeDamage(damage);
 

@@ -7,8 +7,8 @@ import {createButton} from "../../common/buttons.mjs";
 export default class SelectionScene extends Phaser.Scene {
   constructor() {
     super('SelectionScene');
+    this.selectedBaxiesId = [];
     this.selectedBaxies = [];
-
   }
 
   preload() {
@@ -49,12 +49,12 @@ export default class SelectionScene extends Phaser.Scene {
         interactiveBoundsChecker,
       );
       slotContainer.on("pointerdown", () => {
-        const baxie = this.selectedBaxies[i];
+        const baxie = this.selectedBaxiesId[i];
 
-        if (baxie && this.selectedBaxies.includes(baxie)) {
-          this.selectedBaxies.splice(this.selectedBaxies.indexOf(baxie), 1);
+        if (baxie && this.selectedBaxiesId.includes(baxie)) {
+          this.selectedBaxiesId.splice(this.selectedBaxiesId.indexOf(baxie), 1);
 
-          this.horizontalScrollContainer.getByName("innerContainer").getByName(`container-baxie-${baxie.tokenId}`).getByName("border").visible = false;
+          this.horizontalScrollContainer.getByName("innerContainer").getByName(`container-baxie-${baxie}`).getByName("border").visible = false;
           this.createSlots();
         }
       });
@@ -69,8 +69,8 @@ export default class SelectionScene extends Phaser.Scene {
         .setOrigin(0);
       slotContainer.add(slotBg);
 
-      if (this.selectedBaxies[i]) {
-        const key = `baxie-${this.selectedBaxies[i].tokenId}`;
+      if (this.selectedBaxiesId[i]) {
+        const key = `baxie-${this.selectedBaxiesId[i]}`;
         const sprite = this.add.image(slotSize / 2, slotSize / 2, key)
           .setOrigin(0.5)
           .setScale(0.075);
@@ -95,11 +95,12 @@ export default class SelectionScene extends Phaser.Scene {
       y: this.scale.height - 80,
       width: slotSize,
       height: 50,
-      text: 'Rooms',
+      text: 'Slots',
       onPointerDown: async () => {
-        if (this.selectedBaxies.length === 3) {
-          this.scene.start('RoomSelectionScene', {
-            selectedBaxies: this.selectedBaxies.map((b) => ({ tokenId: b.tokenId }))
+        if (this.selectedBaxiesId.length === 3) {
+          this.scene.start('PositionSlotsScene', {
+            selectedBaxiesId: this.selectedBaxiesId,
+            selectedBaxies: this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId)),
           });
         } else {
           const warningText = this.add.text(this.scale.width - slotSize - 100 + 20, this.scale.height - 100, `Select 3 baxies to start`, {
@@ -138,17 +139,7 @@ export default class SelectionScene extends Phaser.Scene {
         new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
         interactiveBoundsChecker,
       );
-      container.on("pointerdown", () => {
-        if (this.selectedBaxies.includes(baxie)) {
-          this.selectedBaxies.splice(this.selectedBaxies.indexOf(baxie), 1);
-          container.getByName("border").visible = false;
-          this.createSlots();
-        } else if (this.selectedBaxies.length < 3 && !this.selectedBaxies.includes(baxie)) {
-          this.selectedBaxies.push(baxie);
-          container.getByName("border").visible = true;
-          this.createSlots();
-        }
-      });
+
 
       const bg = this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
       container.add(bg);
@@ -178,6 +169,19 @@ export default class SelectionScene extends Phaser.Scene {
 
           const key = `baxie-${baxie.tokenId}`;
           this.load.image(key, response.data.image);
+
+          container.on("pointerdown", () => {
+            if (this.selectedBaxiesId.includes(baxie.tokenId)) {
+              this.selectedBaxiesId.splice(this.selectedBaxiesId.indexOf(baxie.tokenId), 1);
+              container.getByName("border").visible = false;
+              this.createSlots();
+            } else if (this.selectedBaxiesId.length < 3 && !this.selectedBaxiesId.includes(baxie)) {
+              this.selectedBaxiesId.push(baxie.tokenId);
+              this.selectedBaxies.push(response);
+              container.getByName("border").visible = true;
+              this.createSlots();
+            }
+          });
 
           // listen for this file only
           this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (loadedKey) => {

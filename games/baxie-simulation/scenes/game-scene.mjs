@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import BaxieUi from "../../common/baxie/baxie-ui.mjs";
 import {createButton} from "../../common/buttons.mjs";
 import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
+import constants from "../../common/constants.mjs";
 
 export default class GameScene extends Phaser.Scene {
   enemyTeam;
@@ -14,7 +15,13 @@ export default class GameScene extends Phaser.Scene {
     this.isPlayerTurn = true;
   }
 
-  showEnemySkillIndicator({ x, y, skillName }) {
+  showEnemySkillIndicator({ baxieUI, skillName }) {
+    let x = baxieUI.x - 90;
+    if (x < 300) {
+      x = baxieUI.x + baxieUI.width + 100;
+    }
+    let y = baxieUI.y + 20;
+
     const formatted = skillName.replace(/([a-z])([A-Z])/g, '$1 $2');
 
     // Create a container to hold the background and text
@@ -22,6 +29,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Text
     const text = this.add.text(0, 0, formatted, {
+      fontFamily: constants.fonts.troika,
       fontSize: '16px',
       color: '#ffffff',
       align: 'center',
@@ -52,6 +60,75 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  showDamage({ baxieUI, damage }) {
+    let x = baxieUI.x;
+    if (x < 300) {
+      x = baxieUI.x + baxieUI.width;
+    }
+    let y = baxieUI.y + 20;
+
+    // Create a container to hold the background and text
+    const container = this.add.container(x, y);
+
+    // Text
+    const text = this.add.text(0, 0, `-${damage}`, {
+      fontFamily: constants.fonts.troika,
+      fontSize: '24px',
+      color: '#ff0000',
+      align: 'center',
+      padding: { x: 8, y: 4 }
+    }).setOrigin(0.5);
+    text.setShadow(2, 2, "#222", 4, false, true);
+
+    // Add background first, then text on top
+    container.add(text);
+
+    // Optional: float up and fade out
+    this.tweens.add({
+      targets: container,
+      y: y - 30,
+      alpha: 0,
+      duration: 2000,
+      ease: 'EaseOut',
+      onComplete: () => container.destroy()
+    });
+  }
+
+  showHeal({ baxieUI, heal }) {
+    let x = baxieUI.x;
+    if (x < 300) {
+      x = baxieUI.x + baxieUI.width;
+    }
+    let y = baxieUI.y + 20;
+
+    // Create a container to hold the background and text
+    const container = this.add.container(x, y);
+
+    // Text
+    const text = this.add.text(0, 0, `+${heal}`, {
+      fontFamily: constants.fonts.troika,
+      fontSize: '24px',
+      color: '#00ff00',
+      align: 'center',
+      padding: { x: 8, y: 4 }
+    }).setOrigin(0.5);
+    text.setShadow(2, 2, "#222", 4, false, true);
+
+
+    // Add background first, then text on top
+    container.add(text);
+
+    // Optional: float up and fade out
+    this.tweens.add({
+      targets: container,
+      y: y - 30,
+      alpha: 0,
+      duration: 2000,
+      ease: 'EaseOut',
+      onComplete: () => container.destroy()
+    });
+  }
+
 
   init(data) {
     this.ws = data.ws;
@@ -61,7 +138,7 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: baxieData.position === 'F' ? 300 : 230,
+      x: baxieData.position === 'front' ? 370 : (baxieData.position === 'center' ? 300 : 230),
       y: 110 * i + 80,
       renderPosition: i,
       gameMode: data.gameMode,
@@ -71,7 +148,7 @@ export default class GameScene extends Phaser.Scene {
       data: baxieData,
       roomId: this.roomId,
       // inverse for the enemy
-      x: baxieData.position === 'F' ? 630: 700,
+      x: baxieData.position === 'front' ? 570: (baxieData.position === 'center' ? 630 : 700),
       y: 110 * i + 80,
       renderPosition: i,
       isEnemy: true,
@@ -100,17 +177,28 @@ export default class GameScene extends Phaser.Scene {
       } else if (data.type === 'endUseSkill') {
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
 
-        let x = baxieUI.x - 90;
-        if (x < 300) {
-          x = baxieUI.x + baxieUI.width + 100;
-        }
-        console.log(baxieUI.width)
-
         this.showEnemySkillIndicator({
-          x: x,
-          y: baxieUI.y + 20,
+          baxieUI,
           skillName: data.skill,
         })
+        data.message.enemies?.forEach((enemyResult) => {
+          const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
+          this.showDamage({
+            baxieUI: enemyUi,
+            damage: enemyResult.damage,
+          })
+        });
+        data.message.allies?.forEach((allyResult) => {
+          const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
+
+            console.log('allyUi', allyResult.target)
+          if (allyUi && allyResult.heal) {
+            this.showHeal({
+              baxieUI: allyUi,
+              heal: allyResult.heal,
+            });
+          }
+        });
         console.log(data)
       } else if (data.type === 'yourTurn') {
         if (this.gameMode === GameModes.turnBasedSP) {
@@ -140,13 +228,13 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     this.add.image(0, 0, "battle-bg")
+      .setDisplaySize(this.game.scale.width, this.game.scale.height)
       .setOrigin(0, 0);
     this.playerTeam.forEach((baxie) => baxie.preload());
     this.enemyTeam.forEach((baxie) => baxie.preload());
   }
 
   create() {
-
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});
     this.yourTurnBtn = createButton({
         scene: this,
@@ -188,7 +276,7 @@ export default class GameScene extends Phaser.Scene {
       baxie.enemies = this.playerTeam ?? [];
     });
 
-    this.skillContainer = this.add.container((this.game.scale.width / 2) - 180, 420);
+    this.skillContainer = this.add.container((this.game.scale.width / 2), 440);
     this.skillContainer.setName('skillContainer');
     this.playerContainer = this.add.container(50, 50);
     this.enemyContainer = this.add.container(740, 50);

@@ -8,6 +8,7 @@ import RoomsScene from "../common/scene/rooms-scene.mjs";
 import UIScene from "./scenes/ui-scene.mjs";
 import {createGame} from "../common/utils/game.mjs";
 import TestScene from "./scenes/test-scene.mjs";
+import PositionSlotsScene from "./scenes/position-slots-scene.mjs";
 
 createGame({
   gameScenesArray: [
@@ -16,6 +17,7 @@ createGame({
     SyncMenuScene,
     SelectionScene,
     RoomSelectionScene,
+    PositionSlotsScene,
     GameScene,
     UIScene,
     RoomsScene,

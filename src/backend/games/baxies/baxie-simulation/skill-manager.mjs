@@ -54,8 +54,9 @@ export default class SkillManager {
       .map(a => ({ sort: Math.random(), value: a }))
       .sort((a, b) => a.sort - b.sort)
       .map(a => a.value);
-    let frontBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'F'));
-    let backBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'B'));
+    let frontBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'front'));
+    let centerBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && baxie.position === 'center'));
+    let backBaxies = shuffle(baxies.filter((baxie) => baxie.isAlive() && (baxie.position === 'back' || baxie.position === '')));
 
     if (excludeId) {
       frontBaxies = frontBaxies.filter((baxie) => baxie.tokenId !== excludeId);
@@ -69,9 +70,18 @@ export default class SkillManager {
       selected.push(frontBaxies[i]);
     }
 
+    // If not enough, take from center
+    for (let i = 0; i < centerBaxies.length && selected.length < count; i++) {
+      selected.push(centerBaxies[i]);
+    }
+
     // If not enough, take from back
     for (let i = 0; i < backBaxies.length && selected.length < count; i++) {
       selected.push(backBaxies[i]);
+    }
+
+    if (selected.length === 0) {
+      console.log('--------------------')
     }
 
     return selected;

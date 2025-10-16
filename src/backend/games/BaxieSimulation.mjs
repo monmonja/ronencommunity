@@ -1,7 +1,66 @@
 import NftModel from "../models/nft-model.mjs";
-import { GameRoomsModel } from "../models/game-rooms-model.mjs";
 import {makeBaxie} from "./baxies/baxie-utilities.mjs";
 import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
+import GameRoomManager from "./game-room-manager.mjs";
+
+export async function createCPUPlayer(roomId, characterIds) {
+  GameRoomManager.rooms[roomId].vsCPU = true;
+  GameRoomManager.rooms[roomId].cpuAddress =  'cpu' + (new Date()).getTime() + Math.random().toString(36).substring(2, 6);
+  const cpuPlayer = {
+    address: GameRoomManager.rooms[roomId].cpuAddress,
+  };
+
+  characterIds = characterIds || [];
+  if (characterIds.length !== 3) {
+    characterIds  = [
+      {
+        "tokenId": "1",
+        "skills": [
+          "chargeUp"
+        ],
+        "position": "back"
+      },
+      {
+        "tokenId": "3",
+        "skills": [
+          "naturesResurgence",
+          "thornGuard"
+        ],
+        "position": "center"
+      },
+      {
+        "tokenId": "4",
+        "skills": [
+          "voltOverload",
+          "chargeUp",
+          "stormBreaker"
+        ],
+        "position": "front"
+      }
+    ]
+  }
+  console.log(characterIds, 'characterIds')
+
+  const nftDocs = await Promise.all(
+    characterIds.map((baxie) =>
+      NftModel.findById({ nftTokenId: 'baxies', nftId: Number(baxie.tokenId) })
+    )
+  );
+
+  cpuPlayer.baxies = nftDocs.map((nftData) => makeBaxie(nftData));
+  characterIds.forEach((baxie) => {
+    const baxieId = baxie.tokenId;
+    cpuPlayer.baxies.forEach((playerBaxie) => {
+      if (Number(playerBaxie.tokenId) === Number(baxieId)) {
+        playerBaxie.position = baxie.position;
+        playerBaxie.skills = baxie.skills;
+      }
+    })
+  });
+
+  GameRoomManager.rooms[roomId].players.push(cpuPlayer);
+  GameRoomManager.rooms[roomId].canJoin = false;
+}
 
 function isGameOver(currentRoom) {
   let gameOver = false;
@@ -27,58 +86,81 @@ function isGameOver(currentRoom) {
 }
 
 function simulateCPUSkills (ws, data) {
-  const currentRoom = GameRoomsModel.rooms[data.roomId];
-  const userAddress = ws.session.wallet.address.toLowerCase();
-  const player = currentRoom.players.filter((p) => p.address === userAddress)[0];
+  try {
+    const currentRoom = GameRoomManager.rooms[data.roomId];
+    const userAddress = ws.session.wallet.address.toLowerCase();
+    const player = GameRoomManager.getPlayer(data.roomId, userAddress);
 
-  const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
+    const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
 
-  function tryAttack() {
-    if (isGameOver(currentRoom)) {
-      return;
-    }
-
-    const canAttackBaxie = player.baxies.filter((b) => b.isAlive() && b.canAttack());
-    const selectedBaxie = canAttackBaxie[Math.random() * canAttackBaxie.length | 0];
-    const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
-
-    if (selectedBaxie.canAttack()) {
-      const skill = selectedBaxie.skills.filter((s) => s.func === selectedSkill)[0];
-      let canAttack = selectedBaxie.currentStamina >= skill.cost;
-
-      if (currentRoom.gameMode === GameModes.skillCountdown) {
-        canAttack = true;
+    function tryAttack(attempts = 0) {
+      if (attempts > 10) {
+        console.log('try attack exceeded max attempts');
+        return;
       }
 
-      if (canAttack) {
-        handleUseSkill(mockWs, {
-          roomId: data.roomId,
-          selectedBaxieId: selectedBaxie.tokenId,
-          selectedSkill: selectedSkill,
-        });
-        if (currentRoom.gameMode === GameModes.turnBasedSP) {
-          setTimeout(() => {
-            handleEndTurn(ws, data);
-          }, 5000);
-        } else if (currentRoom.gameMode === GameModes.skillCountdown) {
-          setTimeout(() => {
-            tryAttack();
-          }, 5000); //5000
+      if (isGameOver(currentRoom)) {
+        console.log('game over')
+        return;
+      }
+
+      const canAttackBaxie = player.baxies.filter((b) => b.isAlive() && b.canAttack());
+      if (canAttackBaxie.length === 0) {
+        console.log('canAttackBaxie', canAttackBaxie)
+        return;
+      }
+
+      const selectedBaxie = canAttackBaxie[Math.random() * canAttackBaxie.length | 0];
+      const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
+
+      if (selectedBaxie.canAttack()) {
+        const skill = selectedBaxie.skills.filter((s) => s.func === selectedSkill)[0];
+        let canAttack = selectedBaxie.currentStamina >= skill.cost;
+
+        if (currentRoom.gameMode === GameModes.skillCountdown) {
+          canAttack = true;
+        }
+
+        if (canAttack) {
+          handleUseSkill(mockWs, {
+            roomId: data.roomId,
+            selectedBaxieId: selectedBaxie.tokenId,
+            selectedSkill: selectedSkill,
+          });
+
+          if (isGameOver(currentRoom)) {
+            console.log('game over')
+            return;
+          }
+
+          if (currentRoom.gameMode === GameModes.turnBasedSP) {
+            setTimeout(() => {
+              handleEndTurn(ws, data);
+            }, 5000);
+          } else if (currentRoom.gameMode === GameModes.skillCountdown) {
+            setTimeout(() => {
+              tryAttack();
+            }, 5000); //5000
+          } else {
+            console.log('unknown game mode', currentRoom.gameMode)
+          }
+        } else {
+          tryAttack(attempts + 1);
+          console.log('CPU baxie not enough stamina', selectedBaxie.currentStamina, skill.cost);
         }
       } else {
-        tryAttack();
-        console.log('CPU baxie not enough stamina', selectedBaxie.currentStamina, skill.cost);
+        console.log('CPU baxie cannot attack', selectedBaxie.reasonCannotAttack());
       }
-    } else {
-      console.log('CPU baxie cannot attack', selectedBaxie.reasonCannotAttack());
     }
-  }
 
-  tryAttack();
+    tryAttack();
+  } catch (e) {
+    console.log('error in simulateCPUSkills', e)
+  }
 }
 
 async function handleGameLoaded(ws, data) {
-  const currentRoom = GameRoomsModel.rooms[data.roomId];
+  const currentRoom = GameRoomManager.rooms[data.roomId];
   const userAddress = ws.session.wallet.address.toLowerCase();
 
   if (currentRoom.vsCPU) {
@@ -116,33 +198,33 @@ async function handleGameLoaded(ws, data) {
 
 async function handleJoinRoom(ws, data) {
   try {
-    const currentRoom = GameRoomsModel.rooms[data.roomId];
+    const currentRoom = GameRoomManager.rooms[data.roomId];
     const userAddress = ws.session.wallet.address.toLowerCase();
 
     for (let i = 0; i < currentRoom.players.length; i++) {
       if (currentRoom.players[i].address === userAddress && !currentRoom.players[i].ws) {
-        GameRoomsModel.rooms[data.roomId].players[i].ws = ws;
-        GameRoomsModel.rooms[data.roomId].players[i].baxieIds = data.selectedBaxies;
+        GameRoomManager.rooms[data.roomId].players[i].ws = ws;
+        GameRoomManager.rooms[data.roomId].players[i].baxieIds = data.selectedBaxies;
 
         const nftDocs = await Promise.all(
-          data.selectedBaxies.map((baxieId) =>
-            NftModel.findById({ nftTokenId: 'baxies', nftId: Number(baxieId.match(/\d+/)[0]) })
+          data.selectedBaxies.map((baxie) =>
+            NftModel.findById({ nftTokenId: 'baxies', nftId: baxie.tokenId })
           )
         );
 
-        GameRoomsModel.rooms[data.roomId].players[i].baxies = nftDocs.map((nftData) => makeBaxie(nftData));
+        GameRoomManager.rooms[data.roomId].players[i].baxies = nftDocs.map((nftData) => makeBaxie(nftData));
         data.selectedBaxies.forEach((baxie) => {
-          const baxieId = baxie.match(/\d+/)[0];
-          const position = baxie.substring(baxieId.length);
-          GameRoomsModel.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
+          const baxieId = baxie.tokenId;
+          GameRoomManager.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
             if (Number(playerBaxie.tokenId) === Number(baxieId)) {
-              playerBaxie.position = position;
+              playerBaxie.position = baxie.position;
+              playerBaxie.populateSkills(baxie.skills);
             }
           })
         });
       }
     }
-
+console.log('currentRoom.players', currentRoom.players)
     // start game when 2 players have joined
     if (currentRoom.players.length === 2) {
       currentRoom.turnIndex = 0;
@@ -153,7 +235,7 @@ async function handleJoinRoom(ws, data) {
 
       currentRoom.players.forEach((player, i) =>{
         if (player.ws) {
-          const enemy = currentRoom.players.filter((playerI) => player.address !== playerI.address)[0];
+          const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
 
           player.ws.send(JSON.stringify({
             type: 'initGame',
@@ -182,10 +264,10 @@ function handleEndTurn(ws, data) {
     /**
      * @type GameRoom
      */
-    const currentRoom = GameRoomsModel.rooms[data.roomId];
+    const currentRoom = GameRoomManager.rooms[data.roomId];
     const userAddress = ws.session.wallet.address.toLowerCase();
-    const player = currentRoom.players.filter((p) => p.address === userAddress)[0];
-    const enemy = currentRoom.players.filter((p) => p.address !== userAddress)[0];
+    const player = GameRoomManager.getPlayer(data.roomId, userAddress);
+    const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
 
     player.baxies.map((baxie) => {
       for (let effectKey in baxie.effects) {
@@ -237,7 +319,7 @@ function handleEndTurn(ws, data) {
       }
 
       currentRoom.players.forEach((player, i) => {
-        const enemy = currentRoom.players.filter((playerI) => player.address !== playerI.address)[0];
+        const enemy = GameRoomManager.getOpponent(data.roomId, userAddress)
 
         if (player.ws) {
           player.ws.send(JSON.stringify({
@@ -254,90 +336,83 @@ function handleEndTurn(ws, data) {
 }
 
 function handleUseSkill(ws, data) {
-  /**
-   * @type GameRoom
-   */
-  const currentRoom = GameRoomsModel.rooms[data.roomId];
-  const userAddress = ws.session.wallet.address.toLowerCase();
-console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${data.selectedBaxieId} in room ${data.roomId}`);
-  // currentRoom.usedBaxies = currentRoom.usedBaxies || [];
+  try {
+    /**
+     * @type GameRoom
+     */
+    const currentRoom = GameRoomManager.rooms[data.roomId];
+    const userAddress = ws.session.wallet.address.toLowerCase();
+    console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${data.selectedBaxieId} in room ${data.roomId}`);
+    // currentRoom.usedBaxies = currentRoom.usedBaxies || [];
 
-  const player = currentRoom.players.filter((p) => p.address === userAddress)[0];
-  const enemy = currentRoom.players.filter((p) => p.address !== userAddress)[0];
+    const player = GameRoomManager.getPlayer(data.roomId, userAddress);
+    const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
 
-  const selectedBaxie = player.baxies.filter((baxie) => baxie.tokenId === data.selectedBaxieId)[0];
+    const selectedBaxie = player.baxies.filter((baxie) => baxie.tokenId === data.selectedBaxieId)[0];
 
-  // if (currentRoom.usedBaxies.includes(selectedBaxie.tokenId)) {
-  //   return ws.send(JSON.stringify({
-  //     type: 'Error',
-  //     message: 'Baxie has already acted this turn',
-  //   }));
-  // }
+    // if (currentRoom.usedBaxies.includes(selectedBaxie.tokenId)) {
+    //   return ws.send(JSON.stringify({
+    //     type: 'Error',
+    //     message: 'Baxie has already acted this turn',
+    //   }));
+    // }
 
-  if (selectedBaxie.skills.filter((s) => s.func === data.selectedSkill).length === 0) {
-    console.log(`${selectedBaxie.tokenId} no skill found ${data.selectedSkill}`);
-    // @todo trigger possible hacking
+    if (selectedBaxie.skills.filter((s) => s.func === data.selectedSkill).length === 0) {
+      console.log(`${selectedBaxie.tokenId} no skill found ${data.selectedSkill}`);
+      // @todo trigger possible hacking
 
-    return;
-  }
+      return;
+    }
 
-  if (!selectedBaxie.canAttack()) {
-    return ws.send(JSON.stringify({
-      type: 'Cannot Attack',
-      message: selectedBaxie.reasonCannotAttack(),
-    }));
-  }
+    if (!selectedBaxie.canAttack()) {
+      console.log('Cannot attack', selectedBaxie.reasonCannotAttack())
+      return;
+    }
 
-  const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
+    const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
 
-  if (canUseSkill) {
-    const message = selectedBaxie.useSkill(
-      data.selectedSkill,
-      enemy.baxies.filter((b) => b.isAlive()),
-      player.baxies.filter((b) => b.isAlive()),
-      currentRoom.gameMode
-    );
-    console.log('message', message)
-    // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
+    if (canUseSkill) {
+      console.log([data.selectedSkill,
+        enemy.baxies.filter((b) => b.isAlive().length),
+        player.baxies.filter((b) => b.isAlive().length),
+        currentRoom.gameMode])
+      const message = selectedBaxie.useSkill(
+        data.selectedSkill,
+        enemy.baxies.filter((b) => b.isAlive()),
+        player.baxies.filter((b) => b.isAlive()),
+        currentRoom.gameMode
+      );
+      console.log('message', message)
+      // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
 
-    currentRoom.players.forEach((roomPlayer) => {
-      // console.log(roomPlayer.address, currentRoom.playerTurn,message)
-      if (roomPlayer.address !== currentRoom.playerTurn) {
-        // swap the enemies and allies for the opponent
-        // so they see their baxies as allies
-        // and the other player's baxies as enemies
-        const tempEnemies = message.enemies;
-
-        message.enemies = message.allies;
-        message.allies = tempEnemies;
-      }
-
-      if (roomPlayer.ws) {
-        roomPlayer.ws.send(JSON.stringify({
-          type: 'endUseSkill',
-          skill: data.selectedSkill,
-          baxieId: selectedBaxie.tokenId,
-          message: message,
-          isYourTurn: currentRoom.playerTurn === currentRoom.playerTurn,
-          roomId: data.roomId,
-        }));
-
-        if (currentRoom.gameMode === GameModes.skillCountdown) {
+      currentRoom.players.forEach((roomPlayer) => {
+        if (roomPlayer.ws) {
           roomPlayer.ws.send(JSON.stringify({
-            type: 'updateStats',
-            player: roomPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
-            enemy: (currentRoom.players.filter((p) => p.address !== roomPlayer.address)[0])?.baxies?.map((baxie) => baxie.getGameInfo()),
+            type: 'endUseSkill',
+            skill: data.selectedSkill,
+            baxieId: selectedBaxie.tokenId,
+            message: message,
+            isYourTurn: currentRoom.playerTurn === currentRoom.playerTurn,
+            roomId: data.roomId,
           }));
 
-          isGameOver(currentRoom);
-        }
-      }
-    });
+          if (currentRoom.gameMode === GameModes.skillCountdown) {
+            roomPlayer.ws.send(JSON.stringify({
+              type: 'updateStats',
+              player: roomPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
+              enemy: (currentRoom.players.filter((p) => p.address !== roomPlayer.address)[0])?.baxies?.map((baxie) => baxie.getGameInfo()),
+            }));
 
-  } else {
-    return ws.send(JSON.stringify({
-      type: 'Not enough stamina or in countdown'
-    }));
+            isGameOver(currentRoom);
+          }
+        }
+      });
+
+    } else {
+      console.log('Not enough stamina or in countdown');
+    }
+  } catch (e) {
+    console.log('error in handleUseSkill', e)
   }
 }
 
@@ -345,20 +420,21 @@ function checkActionValidity(ws, data) {
   /**
    * @type GameRoom
    */
-  const currentRoom = GameRoomsModel.rooms[data.roomId];
+  const currentRoom = GameRoomManager.rooms[data.roomId];
   const userAddress = ws.session.wallet.address.toLowerCase();
 
   if (currentRoom.gameMode === GameModes.turnBasedSP && currentRoom.playerTurn !== userAddress) {
     ws.send(JSON.stringify({
       type: 'Error',
       message: 'Not your turn',
+      data,
     }));
 
     return false;
   }
 
-  const player = currentRoom.players.filter((p) => p.address === userAddress)[0];
-  const enemy = currentRoom.players.filter((p) => p.address !== userAddress)[0];
+  const player = GameRoomManager.getPlayer(data.roomId, userAddress);
+  const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
 
   if (!player || !enemy) {
     ws.send(JSON.stringify({
@@ -386,13 +462,11 @@ export function handleBaxieSimulationGameRoom(ws, data) {
    * Player 2: Join Room
    * both player: Init Game
    */
-  if (GameRoomsModel.rooms[data.roomId]) {
+  if (GameRoomManager.rooms[data.roomId]) {
     if (data.type === 'joinRoom') {
       handleJoinRoom(ws, data);
     } else if (data.type === 'useSkill') {
-      console.log(321)
       if (checkActionValidity(ws, data)) {
-        console.log(323)
         handleUseSkill(ws, data);
       }
     } else if (data.type === 'endTurn') {
@@ -400,9 +474,7 @@ export function handleBaxieSimulationGameRoom(ws, data) {
         handleEndTurn(ws, data);
       }
     } else if (data.type === 'gameLoaded') {
-      if (checkActionValidity(ws, data)) {
-        handleGameLoaded(ws, data);
-      }
+      handleGameLoaded(ws, data);
     }
   }
 }

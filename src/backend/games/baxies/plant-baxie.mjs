@@ -18,7 +18,7 @@ export default class PlantBaxie extends Baxie {
         .forEach(ally => {
           const restoreAmount = Math.floor(ally.getMaxStamina() * 0.15);
           ally.currentStamina = Math.min(ally.currentStamina + restoreAmount, ally.getMaxStamina());
-          restored.push({ target: ally, restoreAmount });
+          restored.push({ target: ally.tokenId, restoreAmount });
         });
 
       return { restored };
@@ -53,15 +53,15 @@ export default class PlantBaxie extends Baxie {
    */
   bloomOvergrowth(enemies, allies) {
     try {
-      const healed = [];
+      const alliesResult = [];
 
       allies.forEach(ally => {
         const healAmount = Math.floor(ally.getMaxHP() * 0.1);
         ally.currentHP = Math.min(ally.currentHP + healAmount, ally.getMaxHP());
-        healed.push({ target: ally, healAmount });
+        alliesResult.push({ target: ally.tokenId, heal: healAmount });
       });
 
-      return { healed };
+      return { allies: alliesResult };
     } catch (error) {
       console.error("Error in bloomOvergrowth:", error);
     }
