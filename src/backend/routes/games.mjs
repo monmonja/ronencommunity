@@ -1,5 +1,5 @@
 import { param, validationResult } from "express-validator";
-import {cookieCheckMiddleware} from "../components/middlewares.mjs";
+import {cookieCheckMiddleware, requireWalletSession} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
   getUtcNow,
@@ -52,9 +52,9 @@ export function initGamesRoutes(app) {
     param("path")
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
-    // rateLimiterMiddleware,
-    // cookieCheckMiddleware,
-    // requireWalletSession,
+    rateLimiterMiddleware,
+    cookieCheckMiddleware,
+    requireWalletSession,
     async (req, res) => {
       // Handle validation errors
       const errors = validationResult(req);

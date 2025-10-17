@@ -10,8 +10,6 @@ import cookie from "cookie";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
 import GameRoomManager from "../games/game-room-manager.mjs";
 
-let rooms = {};
-
 export function initGameRoomsRoutes(app, server) {
   const wss = new WebSocketServer({ noServer: true });
   // Add heartbeat mechanism here
@@ -60,7 +58,7 @@ export function initGameRoomsRoutes(app, server) {
     }
   });
 
-  wss.on("connection", (ws) => {
+  wss.on("connection", (ws, request) => {
     ws.isAlive = true;
     ws.on('pong', () => ws.isAlive = true);
 
@@ -90,7 +88,7 @@ export function initGameRoomsRoutes(app, server) {
         }
 
         if (game.slug === 'baxie-simulation' && GameRoomManager.hasRoom(data.roomId)) {
-          handleBaxieSimulationGameRoom(ws, data, rooms);
+          handleBaxieSimulationGameRoom(ws, data, request);
         }
       } catch (err) {
         console.error('Invalid WS message:', err);

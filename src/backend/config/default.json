@@ -18,7 +18,8 @@
       "consumes": "consumes",
       "gameProfiles": "game-profiles",
       "nfts": "nfts",
-      "adminSettings": "adminSettings"
+      "adminSettings": "adminSettings",
+      "security": "security"
     }
   },
   "web3":  {

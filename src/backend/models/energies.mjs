@@ -124,7 +124,7 @@ export default class Energies {
     const summary = {
       games: []
     };
-    const games = Games.getGames();
+    const games = Games.getGames().filter((game) => game.visible);
 
     // Initialize with all games
     Object.keys(games).forEach(gameKey => {

@@ -2,6 +2,8 @@ import NftModel from "../models/nft-model.mjs";
 import {makeBaxie} from "./baxies/baxie-utilities.mjs";
 import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 import GameRoomManager from "./game-room-manager.mjs";
+import Security from "../models/security.mjs";
+import {logError} from "../components/logger.mjs";
 
 export async function createCPUPlayer(roomId, characterIds) {
   GameRoomManager.rooms[roomId].vsCPU = true;
@@ -39,7 +41,6 @@ export async function createCPUPlayer(roomId, characterIds) {
       }
     ]
   }
-  console.log(characterIds, 'characterIds')
 
   const nftDocs = await Promise.all(
     characterIds.map((baxie) =>
@@ -94,19 +95,17 @@ function simulateCPUSkills (ws, data) {
     const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
 
     function tryAttack(attempts = 0) {
-      if (attempts > 10) {
+      if (attempts > 20) {
         console.log('try attack exceeded max attempts');
         return;
       }
 
       if (isGameOver(currentRoom)) {
-        console.log('game over')
         return;
       }
 
       const canAttackBaxie = player.baxies.filter((b) => b.isAlive() && b.canAttack());
       if (canAttackBaxie.length === 0) {
-        console.log('canAttackBaxie', canAttackBaxie)
         return;
       }
 
@@ -129,7 +128,6 @@ function simulateCPUSkills (ws, data) {
           });
 
           if (isGameOver(currentRoom)) {
-            console.log('game over')
             return;
           }
 
@@ -155,7 +153,13 @@ function simulateCPUSkills (ws, data) {
 
     tryAttack();
   } catch (e) {
-    console.log('error in simulateCPUSkills', e)
+    logError({
+      message: 'error in simulateCPUSkills',
+      auditData: {
+        e,
+        address: ws.session.wallet.address.toLowerCase(),
+      }
+    });
   }
 }
 
@@ -224,7 +228,7 @@ async function handleJoinRoom(ws, data) {
         });
       }
     }
-console.log('currentRoom.players', currentRoom.players)
+
     // start game when 2 players have joined
     if (currentRoom.players.length === 2) {
       currentRoom.turnIndex = 0;
@@ -255,7 +259,13 @@ console.log('currentRoom.players', currentRoom.players)
       });
     }
   } catch (e) {
-    console.log('error in handleJoinRoom', e)
+    logError({
+      message: 'error in handleJoinRoom',
+      auditData: {
+        e,
+        address: ws.session.wallet.address.toLowerCase(),
+      }
+    });
   }
 }
 
@@ -295,7 +305,6 @@ function handleEndTurn(ws, data) {
     currentRoom.players.forEach((player, i) => {
       player.baxies.filter((b) => b.isAlive()).forEach((baxie) => {
         const elapsedMs = currentTime - currentRoom.lastUpdateSP.getTime(); // milliseconds elapsed
-        console.log(currentTime, currentRoom.lastUpdateSP.getTime())
         const elapsedSec = Math.floor(elapsedMs / 1000);
 
         baxie.currentStamina = Math.max(baxie.getMaxStamina(), baxie.currentStamina + (elapsedSec / 2));
@@ -304,7 +313,6 @@ function handleEndTurn(ws, data) {
     currentRoom.lastUpdateSP = new Date();
 
     if (!isGameOver(currentRoom)) {
-      console.log(83, currentRoom.vsCPU, enemy.address, currentRoom.cpuAddress)
       if (currentRoom.vsCPU && currentRoom.playerTurn === currentRoom.cpuAddress) {
         const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
         simulateCPUSkills(mockWs, data);
@@ -331,18 +339,23 @@ function handleEndTurn(ws, data) {
       });
     }
   } catch (e) {
-    console.log('error in handleEndTurn', e)
+    logError({
+      message: 'error in handleEndTurn',
+      auditData: {
+        e,
+        address: ws.session.wallet.address.toLowerCase(),
+      }
+    });
   }
 }
 
-function handleUseSkill(ws, data) {
+function handleUseSkill(ws, data, request) {
   try {
     /**
      * @type GameRoom
      */
     const currentRoom = GameRoomManager.rooms[data.roomId];
     const userAddress = ws.session.wallet.address.toLowerCase();
-    console.log(`${userAddress} is using skill ${data.selectedSkill} with baxie ${data.selectedBaxieId} in room ${data.roomId}`);
     // currentRoom.usedBaxies = currentRoom.usedBaxies || [];
 
     const player = GameRoomManager.getPlayer(data.roomId, userAddress);
@@ -358,8 +371,23 @@ function handleUseSkill(ws, data) {
     // }
 
     if (selectedBaxie.skills.filter((s) => s.func === data.selectedSkill).length === 0) {
-      console.log(`${selectedBaxie.tokenId} no skill found ${data.selectedSkill}`);
-      // @todo trigger possible hacking
+      logError({
+        message: `${selectedBaxie.tokenId} no skill found ${data.selectedSkill}`,
+        auditData: {
+          selectedBaxie,
+          data,
+          address: ws.session.wallet.address.toLowerCase(),
+        }
+      });
+
+      Security.addRecord(request, {
+        key: 'BaxieSimulation no skill found',
+        value: JSON.stringify({
+          ...data,
+          ...selectedBaxie,
+        }),
+        address: ws.session.wallet.address.toLowerCase(),
+      });
 
       return;
     }
@@ -372,10 +400,6 @@ function handleUseSkill(ws, data) {
     const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
 
     if (canUseSkill) {
-      console.log([data.selectedSkill,
-        enemy.baxies.filter((b) => b.isAlive().length),
-        player.baxies.filter((b) => b.isAlive().length),
-        currentRoom.gameMode])
       const message = selectedBaxie.useSkill(
         data.selectedSkill,
         enemy.baxies.filter((b) => b.isAlive()),
@@ -412,7 +436,13 @@ function handleUseSkill(ws, data) {
       console.log('Not enough stamina or in countdown');
     }
   } catch (e) {
-    console.log('error in handleUseSkill', e)
+    logError({
+      message: 'error in handleUseSkill',
+      auditData: {
+        e,
+        address: ws.session.wallet.address.toLowerCase(),
+      }
+    });
   }
 }
 
@@ -448,11 +478,20 @@ function checkActionValidity(ws, data) {
   return true;
 }
 
-export function handleBaxieSimulationGameRoom(ws, data) {
-  console.log(310)
+export function handleBaxieSimulationGameRoom(ws, data, request) {
   if (typeof data.roomId === "undefined") {
-    // @todo trigger possible hacking
-    console.log('no roomId', data.type);
+    Security.addRecord(request, {
+      key: 'BaxieSimulation no room id',
+      value: JSON.stringify(data),
+      address: ws.session.wallet.address.toLowerCase(),
+    });
+    logError({
+      message: 'BaxieSimulation no room id',
+      auditData: {
+        data,
+        address: ws.session.wallet.address.toLowerCase(),
+      }
+    });
 
     return;
   }
@@ -467,14 +506,29 @@ export function handleBaxieSimulationGameRoom(ws, data) {
       handleJoinRoom(ws, data);
     } else if (data.type === 'useSkill') {
       if (checkActionValidity(ws, data)) {
-        handleUseSkill(ws, data);
+        handleUseSkill(ws, data, request);
       }
     } else if (data.type === 'endTurn') {
       if (checkActionValidity(ws, data)) {
-        handleEndTurn(ws, data);
+        handleEndTurn(ws, data, request);
       }
     } else if (data.type === 'gameLoaded') {
-      handleGameLoaded(ws, data);
+      handleGameLoaded(ws, data, request);
+    } else {
+      logError({
+        message: 'BaxieSimulation invalid type',
+        auditData: {
+          data,
+          address: ws.session.wallet.address.toLowerCase(),
+        }
+      });
+
+
+      Security.addRecord(request, {
+        key: 'BaxieSimulation invalid type',
+        value: JSON.stringify(data),
+        address: ws.session.wallet.address.toLowerCase(),
+      });
     }
   }
 }
