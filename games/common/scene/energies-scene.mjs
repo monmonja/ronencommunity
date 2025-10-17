@@ -4,9 +4,9 @@ import {fetchEnergy} from "../energies.mjs";
 import {interactiveBoundsChecker} from "../rotate-utils.mjs";
 
 export default class EnergiesScene extends Phaser.Scene {
-  windowWidth = 410;
+  windowWidth = 610;
   buttonWidth = 184;
-  buttonHeight = 98;
+  buttonHeight = 148;
   constructor() {
     super("EnergiesScene");
   }
@@ -48,36 +48,44 @@ export default class EnergiesScene extends Phaser.Scene {
 
     // Top strip with rounded top corners, flat bottom
     const strip = this.add.graphics();
-    const stripSize = 74;
+    const stripSize = 65;
     strip.fillStyle(0xCCCCCC, 1);
-    strip.fillRoundedRect(this.buttonWidth - stripSize, 0, stripSize, this.buttonHeight, {
-      tl: 0, tr: radius, br: radius, bl: 0
+    strip.fillRoundedRect(0, this.buttonHeight - stripSize, this.buttonWidth, stripSize, {
+      tl: 0, tr: 0, br: radius, bl: radius
     });
     itemContainer.add(strip);
 
-    const labelTxt = this.add.text(this.buttonWidth - 36,  this.buttonHeight / 2, `${ronen}\nRONEN\nor\n${ron}\nRON`, {
-      fontSize: "15px",
+    const ronTxt = this.add.text(40,  this.buttonHeight - stripSize + 32, `${ron}\nRON`, {
+      fontSize: "22px",
       align: "center",
-      fontFamily: constants.fonts.pressStart2P,
+      fontFamily: constants.fonts.Newsreader,
+      color: "#1f4213",
+      fontStyle: "bold"
+    }).setOrigin(0.5, 0.5);
+    const ronenTxt = this.add.text(130,  this.buttonHeight - stripSize + 32, `${ronen}\nRONEN`, {
+      fontSize: "22px",
+      align: "center",
+      fontFamily: constants.fonts.Newsreader,
       color: "#1f4213",
       fontStyle: "bold"
     }).setOrigin(0.5, 0.5);
 
-    itemContainer.add(labelTxt);
+    itemContainer.add(ronTxt);
+    itemContainer.add(ronenTxt);
 
-    const energyContainer = this.add.container(59 - adjustX, (this.buttonHeight / 2));
-    const energyTxt = this.add.text(0, 0, energy, {
+    const energyContainer = this.add.container((this.buttonWidth / 2), 40);
+    const energyTxt = this.add.text(-15, 0, energy, {
       fontFamily: constants.fonts.troika,
       fontSize: "40px",
       color: "#FFF"
-    }).setOrigin(1, 0.5);
+    }).setOrigin(0.5, 0.5);
 
     energyTxt.setShadow(2, 2, "#222", 4, false, true);
     energyTxt.setDepth(30);
     energyContainer.add(energyTxt);
 
-    const image = this.add.image(35, -1, "energy-icon")
-      .setOrigin(1, 0.5);
+    const image = this.add.image(42 + ((energy.toString().length - 2) * 10) - 15, -1, "energy-icon")
+      .setOrigin(0.5, 0.5);
 
     energyContainer.add(image);
     itemContainer.add(energyContainer);
@@ -168,7 +176,7 @@ export default class EnergiesScene extends Phaser.Scene {
             window.verifyEnergyTx(result?.txHash)
               .then((verifyResult) => {
                 this.verifyTxt.setText("Purchase complete. Thank you for supporting us.");
-                fetchEnergy(this, this.game.customConfig.gameId)
+                fetchEnergy(this, false)
                   .then(() => {
                     setTimeout(() => {
                       this.tweens.add({
@@ -213,7 +221,7 @@ export default class EnergiesScene extends Phaser.Scene {
       "Verifying purchase. Please wait...",
       {
         fontSize: "16px",
-        fontFamily: constants.fonts.pressStart2P,
+        fontFamily: constants.fonts.Newsreader,
         color: "#ffffff",
         fontWeight: "bold",
         wordWrap: { width: 400, useAdvancedWrap: true }
@@ -240,34 +248,37 @@ export default class EnergiesScene extends Phaser.Scene {
     this.createTopBg();
     this.createHeader();
     const startX = 16;
-    const startY = 75;
+    let startY = 65;
 
     this.panel.add(this.add.text(startX, startY,
       "Purchased energy can be used in any games.",
       {
-        fontSize: "16px",
-        fontFamily: constants.fonts.pressStart2P,
+        fontSize: "20px",
+        fontFamily: constants.fonts.Newsreader,
         color: "#ffffff",
         fontWeight: "bold",
         wordWrap: { width: 400, useAdvancedWrap: true }
       }
     ));
 
+    startY += 45;
+
     const energy = this.registry.get(constants.registry.energy);
+    const half = energy.config.length / 2;
     for (let i = 0; i < energy.config.length; i++) {
       const item = energy.config[i];
 
       this.panel.add(this.createItem({
-        x: startX + ((i % 2) * (this.buttonWidth + 10)),
-        y: startY + 35 + (Math.floor(i / 2) * (this.buttonHeight + 10)),
+        x: startX + ((i % half) * (this.buttonWidth + 10)),
+        y: startY + (Math.floor(i / half) * (this.buttonHeight + 10)),
         item,
         ...item,
-        adjustX: item.energy.toString().length >= 3 ? -8: 0,
+        adjustX: item.energy.toString().length >= 3 ? -12: 0,
         selected: i === 0,
       }));
     }
 
-    const buyWith = this.add.text(startX, startY + 285, 'Buy with:', {
+    const buyWith = this.add.text(startX, startY + (this.buttonHeight * 2) + 65, 'Buy with:', {
       fontFamily: constants.fonts.troika,
       fontSize: "20px",
       color: "#FFF"
@@ -279,7 +290,7 @@ export default class EnergiesScene extends Phaser.Scene {
 
     this.panel.add(this.createTokenButton({
       x: startX + 100,
-      y: startY + 260,
+      y: startY + (this.buttonHeight * 2) + 50,
       label: "RONEN",
       token: "RONEN",
       width: 110,
@@ -287,7 +298,7 @@ export default class EnergiesScene extends Phaser.Scene {
     }))
     this.panel.add(this.createTokenButton({
       x: startX + 220,
-      y: startY + 260,
+      y: startY + (this.buttonHeight * 2) + 50,
       label: "RON",
       token: "RON",
       width: 110,

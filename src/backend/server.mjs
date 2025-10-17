@@ -28,13 +28,14 @@ import { initRafflesRoutes } from "./routes/raffles.mjs";
 import { initGamesRoutes } from "./routes/games.mjs";
 import { initAuthRoutes } from "./routes/auth.mjs";
 import { initWikisRoutes } from "./routes/wikis.mjs";
-import { initEnergyRoutes } from "./routes/energies.mjs";
+import { initEnergyRoutes } from "./routes/energies-route.mjs";
 import { initProfileRoutes } from "./routes/profile.mjs";
 import { initStatsRoutes } from "./routes/stats-route.mjs";
 import Games from "./models/games.mjs";
 import {initGameProfilesRoutes} from "./routes/game-profiles.mjs";
 import {initWalletRoutes} from "./routes/wallet-route.mjs";
 import {initGameRoomsRoutes} from "./routes/game-rooms-route.mjs";
+import { initAdminRoutes } from "./routes/admin-route.mjs";
 
 const port = config.port;
 // Fix __dirname in ES Modules
@@ -76,6 +77,7 @@ initStatsRoutes(app);
 initGameProfilesRoutes(app);
 initWalletRoutes(app);
 initGameRoomsRoutes(app, server);
+initAdminRoutes(app, server);
 
 app.get(
   "/",

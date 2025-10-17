@@ -34,7 +34,7 @@ export default class PreloaderScene extends Phaser.Scene {
     });
 
     this.load.image('level-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/level-bg.webp`)
-    this.load.image('battle-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/bg/stadium-bg.webp`)
+    this.load.image('battle-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/bg/stadium.webp`)
     this.load.image('shadow', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/shadow.webp`)
     this.load.image('restart', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/restart.png`)
     this.load.image('undo', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/undo.png`)

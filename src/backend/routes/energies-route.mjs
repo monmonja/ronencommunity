@@ -5,11 +5,11 @@ import Games from "../models/games.mjs";
 import Energies from "../models/energies.mjs";
 import {logError} from "../components/logger.mjs";
 import config from "../config/default.json" with { type: "json" };
-import energyConfig from "../config/energies.json" with { type: "json" };
 import crypto from "crypto";
 import {Contract, formatEther, Interface, JsonRpcProvider, parseUnits} from "ethers";
 import {handleValidation} from "../utils/validations.mjs";
 import PurchasedEnergies from "../models/purchased-energies.mjs";
+import Admin from "../models/admin.mjs";
 
 export function initEnergyRoutes(app) {
   app.get(
@@ -35,7 +35,10 @@ export function initEnergyRoutes(app) {
         address: req.session.wallet.address.toLowerCase(),
         gameId: game.slug,
       });
-      game.config = energyConfig;
+
+      const adminSettings = await Admin.getAllRecordsAsObject();
+
+      game.config = JSON.parse(adminSettings.energies);
 
       delete game.changeLog;
 
@@ -79,7 +82,9 @@ export function initEnergyRoutes(app) {
       }
 
       game.available = available;
-      game.config = energyConfig;
+      const adminSettings = await Admin.getAllRecordsAsObject();
+
+      game.config = JSON.parse(adminSettings.energies);
       delete game.changeLog;
 
       return res.json(game);
@@ -184,6 +189,9 @@ export function initEnergyRoutes(app) {
           let actualRecipient;
           let purchasedEnergy;
           let token = 'RON';
+
+          const adminSettings = await Admin.getAllRecordsAsObject();
+          const energyConfig = JSON.parse(adminSettings.energies);
 
           if (tx.data === "0x" && tx.value > 0) {
             actualRecipient = receipt.to.toLowerCase();

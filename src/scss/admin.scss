@@ -1,0 +1,31 @@
+@use 'partials/global' as *;
+@use 'partials/mixins' as *;
+@use 'partials/variables' as *;
+@use 'partials/top-menu' as *;
+@use 'partials/card' as *;
+@use 'partials/overlay' as *;
+@use 'partials/footer' as *;
+
+form {
+  background: white;
+  padding: 32px;
+
+  textarea {
+    width: 100%;
+    min-height: 300px;
+  }
+
+  .button {
+    margin: auto;
+    background: #2b2b2b;
+  }
+}
+
+h2 {
+  color: white;
+  margin-bottom: 10px;
+}
+
+section {
+  margin-bottom: 32px;
+}

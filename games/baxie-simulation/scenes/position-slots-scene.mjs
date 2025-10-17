@@ -392,8 +392,6 @@ export default class PositionSlotsScene extends Phaser.Scene {
         "position": "B"
       }
     ];
-    console.log('data', this.selectedBaxiesId)
-    console.log('data', data.selectedBaxies)
   }
 
   preload() {
@@ -401,6 +399,9 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const baxie = this.selectedBaxies[i];
       const key = `baxie-${baxie.tokenId}`;
       this.load.image(key, baxie.image);
+
+      const maxSkill = Math.ceil(Number(baxie.purity.split('/')[0]) / 2);
+      baxie.selectedSkills = baxie.skills.slice(0, maxSkill).map((skill) => skill.func);
     }
   }
 
@@ -427,8 +428,8 @@ export default class PositionSlotsScene extends Phaser.Scene {
 
 
   createSkills(baxie, itemWidth) {
-    const baxieSkillContainer = this.add.container(0, 300);
-    const radius = 30; // since width/height = 100px total
+    const baxieSkillContainer = this.add.container(0, 295);
+    const radius = 30;
     const y = radius + 10;
     const skillWidth = radius * 2;
     const spacing = 20;
@@ -436,7 +437,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
     const startX = -totalWidth / 2 + radius + (itemWidth / 2);
     const maxSkill = Math.ceil(Number(baxie.purity.split('/')[0]) / 2);
 
-    const skillText = this.add.text(itemWidth - 30, -10, `${0}/${maxSkill}`, {
+    const skillText = this.add.text(itemWidth - 30, -10, `${baxie.selectedSkills.length}/${maxSkill}`, {
       fontSize: "16px",
       color: "#ffff00",
       backgroundColor: "#000000",
@@ -452,7 +453,10 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const border = this.add.graphics()
       border.fillStyle(0xAC022F, 1);
       border.fillCircle(0, 0, radius + 2);
-      border.visible = false;
+      console.log('baxie.selectedSkills', baxie.selectedSkills, skill.func)
+      if (!baxie.selectedSkills.includes(skill.func)) {
+        border.visible = false;
+      }
       skillContainer.add(border);
 
       const name = this.add.text(0, radius + 20, this.formatSkillName(skill.func), {
@@ -516,13 +520,6 @@ export default class PositionSlotsScene extends Phaser.Scene {
         pos === activePosition ? 0x00aaff : 0x666666
       ).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-      const label = this.add.text(
-        index * (buttonWidth + spacing),
-        0,
-        pos.charAt(0).toUpperCase() + pos.slice(1),
-        { color: '#ffffff', fontSize: '16px' }
-      ).setOrigin(0.5);
-
       btn.on('pointerdown', () => {
         activePosition = pos;
         baxie.position = activePosition;
@@ -559,11 +556,19 @@ export default class PositionSlotsScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setInteractive();
 
+    const label = this.add.text(20, 20, `Position and skill slots`, {
+      fontSize: "30px",
+      fontFamily: constants.fonts.troika,
+      color: "#FFF",
+      fontStyle: "bold"
+    }).setOrigin(0, 0);
+    label.setShadow(2, 2, '#000', 4, true, true);
+
     const slotSpacing = 20;
     const startX = 50;
-    const startY = 20;
-    const width = (this.game.scale.width - 180) / 3;
-    const height = 440;
+    const startY = 60;
+    const width = (this.game.scale.width - 170) / 3;
+    const height = 430;
 
     for (let i = 0; i < this.selectedBaxies.length; i++) {
       const x = startX + (i * (width + slotSpacing));
@@ -575,23 +580,20 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const bg = this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
       container.add(bg);
 
-      baxie.selectedSkills = [];
-
-      const sprite = this.add.image(width / 2, 0, `baxie-${baxie.tokenId}`)
+      const sprite = this.add.image(width / 2, -5, `baxie-${baxie.tokenId}`)
         .setOrigin(0.5, 0)
-        .setScale(0.12);
+        .setScale(0.115);
       container.add(sprite);
 
       baxie.position = 'center';
-      container.add(this.createTogglePositionButtons(baxie, 50, 250));
+      container.add(this.createTogglePositionButtons(baxie, 53, 240));
       container.add(this.createSkills(baxie, width));
-
     }
 
     createButton({
       scene: this,
       x: (this.game.scale.width / 2) - 50,
-      y: this.game.scale.height - 80,
+      y: this.game.scale.height - 70,
       width: 100,
       height: 50,
       text: 'Rooms',

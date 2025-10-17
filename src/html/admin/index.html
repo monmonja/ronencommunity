@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page - Ronen Community</title>
+  <link rel="stylesheet" href="/css/admin-<%= config.distVersion %>.css">
+  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+</head>
+<body>
+
+  <div class="page-content">
+    <form action="/admin" method="post">
+      <div>
+        <label>Energies in JSON</label><br />
+        <textarea name="energies"><%= settings.energies ?? '' %></textarea>
+      </div>
+      <div>
+        <button class="button">Submit</button>
+      </div>
+    </form>
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/app-<%= config.distVersion %>.js"></script>
+</body>
+</html>

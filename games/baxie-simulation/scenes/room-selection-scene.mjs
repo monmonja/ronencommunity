@@ -4,6 +4,7 @@ import {createCpuGameRoom, createGameRoom, joinGameRoom} from "../../common/scen
 import constants from "../../common/constants.mjs";
 import Dropdown from "../../common/ui/dropdown.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
+import {createEnergyUI, fetchEnergy} from "../../common/energies.mjs";
 
 const panelHeight = 400;
 
@@ -45,6 +46,11 @@ export default class RoomSelectionScene extends Phaser.Scene {
       }
     ];
     console.log('this.selectedBaxies', this.selectedBaxies)
+  }
+
+  preload() {
+    this.load.image("energy-icon", "{{config.cdnLink}}/game-assets/common/images/energy.png");
+    fetchEnergy(this);
   }
 
   createPanelBg(panelWidth, panelHeight) {
@@ -514,16 +520,20 @@ export default class RoomSelectionScene extends Phaser.Scene {
     return container;
   }
 
-
-
   create() {
+    this.backgroundDay = this.add
+      .image(0, 0, 'bg')
+      .setOrigin(0, 0)
+      .setInteractive();
     this.world = this.add.container(0, 0);
 
-    // this.backgroundDay = this.add
-    //   .image(0, 0, 'level-bg')
-    //   .setOrigin(0, 0)
-    //   .setInteractive();
-    // this.world.add(this.backgroundDay);
+    const label = this.add.text(20, 20, `Room selection`, {
+      fontSize: "30px",
+      fontFamily: constants.fonts.troika,
+      color: "#FFF",
+      fontStyle: "bold"
+    }).setOrigin(0, 0);
+    label.setShadow(2, 2, '#000', 4, true, true);
 
     document.fonts.load('16px troika').then(() => {
       let center = this.cameras.main.width / 2;
@@ -534,6 +544,20 @@ export default class RoomSelectionScene extends Phaser.Scene {
       this.createARoomContainer(center - halfPanelWidth - panelWidth - padding, 100);
       this.createJoinRoomContainer(center - halfPanelWidth, 100);
       this.createPracticeModeContainer(center + halfPanelWidth + padding, 100);
+      createEnergyUI({
+        scene: this,
+        x: this.game.scale.width - 100,
+        y: 22,
+        width: 80,
+        height: 40,
+        fontSize: "24px",
+        textColor: "#000000",
+        imageScale: 1.3,
+        imageX: 0,
+        imageY: 0,
+        textX: 44,
+        textY: 22
+      })
     });
   }
 }

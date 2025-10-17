@@ -17,13 +17,14 @@
       "purchases": "purchases",
       "consumes": "consumes",
       "gameProfiles": "game-profiles",
-      "nfts": "nfts"
+      "nfts": "nfts",
+      "adminSettings": "adminSettings"
     }
   },
   "web3":  {
-    "rpcUrl": "https://api.roninchain.com/rpc",
-    "chainName": "ronin",
-    "chainId": 2020,
+    "rpcUrl": "https://saigon-testnet.roninchain.com/rpc",
+    "chainName": "ronin-saigon",
+    "chainId": 2021,
     "raffleAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
     "purchaseAddress": "0x42e119e6911b0C293cef4Ce237F7dDe6364A73fD",
     "defaultAmount": 1,

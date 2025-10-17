@@ -3,11 +3,20 @@ import constants from "./constants.mjs";
 import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 import FetchUrl from "./utils/fetch-url.mjs";
 
-export function fetchEnergy(scene) {
-  scene.load.addFile(new FetchUrl(scene.load, 'energies', `/energy/get/${scene.game.customConfig.gameId}`, (energies) => {
-    scene.registry.set(constants.registry.energy, energies);
-    scene.game.events.emit(constants.events.energyChanged, energies);
-  }));
+export function fetchEnergy(scene, addToPreloading = true) {
+  return new Promise((resolve, reject) => {
+    const fetch = new FetchUrl(scene.load, 'energies', `/energy/get/${scene.game.customConfig.gameId}`, (energies) => {
+      scene.registry.set(constants.registry.energy, energies);
+      scene.game.events.emit(constants.events.energyChanged, energies);
+      resolve();
+    });
+
+    if (addToPreloading) {
+      scene.load.addFile(fetch);
+    } else {
+      fetch.load();
+    }
+  });
 }
 
 export function useEnergy({ scene, gameId } = {}) {
@@ -29,8 +38,12 @@ export function useEnergy({ scene, gameId } = {}) {
   });
 }
 
-export function createEnergyUI({ scene, x, y, width } = {}) {
-  const height = 33;
+export function createEnergyUI({
+  scene, x, y, width, height = 33,
+  fontSize = "16px", textColor = "#ffffff",
+  imageScale = 1, imageX = 18, imageY = 0,
+  textX = 49, textY = 18
+} = {}) {
   let drawn = false;
   const container = scene.add.container(x, y)
     .setSize(width, height)
@@ -52,22 +65,23 @@ export function createEnergyUI({ scene, x, y, width } = {}) {
 
   const bg = scene.add.graphics();
 
-  bg.fillStyle(0x9dfd90, 0.3);
-  bg.fillRoundedRect(10, 1, width - 10, 31, 6);
+  bg.fillStyle(0x9dfd90, 1);
+  bg.fillRoundedRect(10, 1, width - 10, height, 6);
   container.add(bg);
 
   const energy = scene.registry.get(constants.registry.energy);
 
-  const energyTxt = scene.add.text(49, 18, energy.available, {
-    fontSize: "16px",
-    fontFamily: constants.fonts.pressStart2P,
-    color: "#ffffff",
+  const energyTxt = scene.add.text(textX, textY, energy.available, {
+    fontSize: fontSize,
+    fontFamily: constants.fonts.troika,
+    color: textColor,
     fontWeight: "bold"
   }).setOrigin(0.5, 0.5);
 
   container.add(energyTxt);
 
-  const image = scene.add.image(18, 0, "energy-icon")
+  const image = scene.add.image(imageX, imageY, "energy-icon")
+    .setScale(imageScale)
     .setOrigin(0.5, 0);
 
   container.add(image);
