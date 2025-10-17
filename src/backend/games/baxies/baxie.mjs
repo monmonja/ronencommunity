@@ -40,7 +40,7 @@ export default class Baxie {
       },  {});
     }
 
-    this.currentHP = this.getMaxHP() * 1.5;
+    this.currentHP = this.getMaxHP();
     this.currentStamina = this.getMaxStamina();
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
@@ -79,7 +79,7 @@ export default class Baxie {
   }
 
   getMaxHP() {
-    return this.getMaxDefense();
+    return this.getMaxDefense() * 1.5;
   }
 
   reasonCannotAttack() {
