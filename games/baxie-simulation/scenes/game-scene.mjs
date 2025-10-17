@@ -177,28 +177,37 @@ export default class GameScene extends Phaser.Scene {
       } else if (data.type === 'endUseSkill') {
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
 
-        this.showEnemySkillIndicator({
-          baxieUI,
-          skillName: data.skill,
-        })
-        data.message.enemies?.forEach((enemyResult) => {
-          const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
-          this.showDamage({
-            baxieUI: enemyUi,
-            damage: enemyResult.damage,
+        if (baxieUI) {
+          this.showEnemySkillIndicator({
+            baxieUI,
+            skillName: data.skill,
           })
-        });
-        data.message.allies?.forEach((allyResult) => {
-          const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
+          data.message.enemies?.forEach((enemyResult) => {
+            const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
+
+            if (enemyUi) {
+              this.showDamage({
+                baxieUI: enemyUi,
+                damage: enemyResult.damage,
+              });
+            } else {
+              console.log(`baxie-${enemyResult.target} not found in show damage`)
+            }
+          });
+          data.message.allies?.forEach((allyResult) => {
+            const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
 
             console.log('allyUi', allyResult.target)
-          if (allyUi && allyResult.heal) {
-            this.showHeal({
-              baxieUI: allyUi,
-              heal: allyResult.heal,
-            });
-          }
-        });
+            if (allyUi && allyResult.heal) {
+              this.showHeal({
+                baxieUI: allyUi,
+                heal: allyResult.heal,
+              });
+            }
+          });
+        } else {
+          console.log(`baxie-${enemyResult.target} not found in show damage indicator`)
+        }
         console.log(data)
       } else if (data.type === 'yourTurn') {
         if (this.gameMode === GameModes.turnBasedSP) {
