@@ -239,7 +239,7 @@ async function handleJoinRoom(ws, data) {
 
       currentRoom.players.forEach((player, i) =>{
         if (player.ws) {
-          const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
+          const enemy = GameRoomManager.getOpponent(data.roomId, player.address);
 
           player.ws.send(JSON.stringify({
             type: 'initGame',
