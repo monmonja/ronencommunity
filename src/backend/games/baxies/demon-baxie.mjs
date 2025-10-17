@@ -1,4 +1,4 @@
-import Baxie from './Baxie.mjs';
+import Baxie from './baxie.mjs';
 import {EFFECTS} from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 

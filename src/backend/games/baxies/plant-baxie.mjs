@@ -1,4 +1,4 @@
-import Baxie from './Baxie.mjs';
+import Baxie from './baxie.mjs';
 
 export default class PlantBaxie extends Baxie {
   constructor(props) {
