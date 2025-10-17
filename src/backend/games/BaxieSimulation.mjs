@@ -17,26 +17,14 @@ export async function createCPUPlayer(roomId, characterIds) {
     characterIds  = [
       {
         "tokenId": "1",
-        "skills": [
-          "chargeUp"
-        ],
         "position": "back"
       },
       {
         "tokenId": "3",
-        "skills": [
-          "naturesResurgence",
-          "thornGuard"
-        ],
         "position": "center"
       },
       {
         "tokenId": "4",
-        "skills": [
-          "voltOverload",
-          "chargeUp",
-          "stormBreaker"
-        ],
         "position": "front"
       }
     ]
@@ -54,7 +42,6 @@ export async function createCPUPlayer(roomId, characterIds) {
     cpuPlayer.baxies.forEach((playerBaxie) => {
       if (Number(playerBaxie.tokenId) === Number(baxieId)) {
         playerBaxie.position = baxie.position;
-        playerBaxie.skills = baxie.skills;
       }
     })
   });
