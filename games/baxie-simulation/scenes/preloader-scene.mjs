@@ -17,7 +17,8 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      launchScreen: 'SyncMenuScene',
+      //launchScreen: 'SyncMenuScene',
+      launchScreen: 'GameModesScene',
       // launchScreen: 'PositionSlotsScene',
       // launchScreen: 'RoomSelectionScene',
     });

@@ -13,12 +13,11 @@ export default class Baxie {
   currentDefense = 0;
   position = 'B';
   /**
-   * @type BaxieEffect
+   * @type BaxieEffect[]
    */
   effects = [];
   skills = [];
   skillsTimer = {};
-  fixedSkills = [];
 
   constructor(nftData) {
     this.tokenId = nftData.nftId;
@@ -61,21 +60,15 @@ export default class Baxie {
   }
 
   getMaxStamina() {
-    let stamina = this.attributes.stamina ?? 0;
-
-    return stamina;
+    return this.attributes.stamina ?? 0;
   }
 
   getMaxAttack() {
-    let attack = this.attributes.attack ?? 0;
-
-    return attack;
+    return this.attributes.attack ?? 0;
   }
 
   getMaxDefense() {
-    let defense = this.attributes.defense;
-
-    return defense;
+    return this.attributes.defense;
   }
 
   getMaxHP() {
@@ -130,11 +123,7 @@ export default class Baxie {
         return true;
       }
 
-      if (now < lastUse + cooldownMs) {
-        return false;
-      }
-
-      return true;
+      return now >= lastUse + cooldownMs;
     }
 
     return true;
@@ -185,7 +174,7 @@ export default class Baxie {
       }
 
       if (effect.type === EFFECTS.skillDamageBoost && effect.turnsLeft > 0) {
-        attack += attack * effect.skillDamageBoost;
+        attack += attack * effect.value;
       }
     }
 

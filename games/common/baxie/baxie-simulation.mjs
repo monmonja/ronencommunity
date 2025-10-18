@@ -1,5 +1,6 @@
 // @ts-ignore
 export class GameModes {
   static turnBasedSP = 'turnBasedSP';
-  static skillCountdown =  'skillCountdown';
+  static skillCountdown = 'skillCountdown';
+  static autoBattler = 'autoBattler';
 }

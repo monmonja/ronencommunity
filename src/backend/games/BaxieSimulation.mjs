@@ -52,7 +52,7 @@ export async function createCPUPlayer(roomId, characterIds) {
 
 function isGameOver(currentRoom) {
   let gameOver = false;
-  currentRoom.players.forEach((player, i) => {
+  currentRoom.players.forEach((player) => {
     if (player.baxies.filter((b) => b.isAlive()).length === 0) {
       gameOver = true;
       currentRoom.loserAddress = player.address;
@@ -60,7 +60,7 @@ function isGameOver(currentRoom) {
   });
 
   if (gameOver) {
-    currentRoom.players.forEach((player, i) => {
+    currentRoom.players.forEach((player) => {
       if (player.ws) {
         player.ws.send(JSON.stringify({
           type: 'gameOver',
@@ -150,10 +150,81 @@ function simulateCPUSkills (ws, data) {
   }
 }
 
+function afterTurnEffectsHandler(player) {
+  player.baxies.map((baxie) => {
+    for (let i = baxie.effects.length - 1; i >= 0; i--) {
+      const effect = baxie.effects[i];
+      baxie.afterTurnEffects(effect.type, effect);
+
+      effect.turnsLeft -= 1;
+      console.log(`Baxie ${baxie.tokenId} effect ${effect.type} turn left: ${effect.turnsLeft}`);
+
+      if (effect.turnsLeft <= 0) {
+        console.log('Removing effect:', effect.type);
+        baxie.effects.splice(i, 1); // remove effect at index i
+      }
+    }
+  });
+}
+
+function baxieAutoBattlerTurn(data, selectedBaxie) {
+  const currentRoom = GameRoomManager.rooms[data.roomId];
+  const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
+  const playerWithSelectedBaxie = currentRoom.players.filter((p) => p.baxieIds.map((b => b.tokenId)).includes(selectedBaxie.tokenId))[0];
+  const userAddress = playerWithSelectedBaxie.address;
+
+  if (selectedBaxie.canAttack()) {
+    const skill = selectedBaxie.skills.filter((s) => s.func === selectedSkill)[0];
+    let canAttack = selectedBaxie.currentStamina >= skill.cost;
+
+    if (currentRoom.gameMode === GameModes.skillCountdown) {
+      canAttack = true;
+    }
+
+    if (canAttack) {
+      handleUseSkill(playerWithSelectedBaxie.ws, {
+        roomId: data.roomId,
+        selectedBaxieId: selectedBaxie.tokenId,
+        selectedSkill: selectedSkill,
+      });
+
+      if (isGameOver(currentRoom)) {
+        return;
+      }
+
+      setTimeout(() => {
+        currentRoom.baxieTurnIndex += 1;
+
+        if (currentRoom.baxieTurnIndex >= 6) {
+          currentRoom.baxieTurnIndex = 0;
+          currentRoom.turnIndex += 1;
+          console.log('--- Auto Battler Round End ---', currentRoom.turnIndex);
+
+          const player = GameRoomManager.getPlayer(data.roomId, userAddress);
+          const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
+
+          afterTurnEffectsHandler(player);
+          afterTurnEffectsHandler(enemy);
+          baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+        } else {
+          baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+        }
+      }, 2000);
+    } else {
+      // tryAttack(attempts + 1);
+      console.log('CPU baxie not enough stamina', selectedBaxie.currentStamina, skill.cost);
+    }
+  } else {
+    console.log('Baxie cannot attack', selectedBaxie.reasonCannotAttack());
+    currentRoom.baxieTurnIndex += 1;
+    baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+  }
+}
+
 async function handleGameLoaded(ws, data) {
   const currentRoom = GameRoomManager.rooms[data.roomId];
   const userAddress = ws.session.wallet.address.toLowerCase();
-
+console.log('handleGameLoaded', userAddress, data.roomId, currentRoom.vsCPU);
   if (currentRoom.vsCPU) {
     let startCPU = false;
 
@@ -183,6 +254,10 @@ async function handleGameLoaded(ws, data) {
           roomId: data.roomId,
         }));
       });
+
+      if (currentRoom.gameMode === GameModes.autoBattler) {
+        baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+      }
     }
   }
 }
@@ -224,7 +299,17 @@ async function handleJoinRoom(ws, data) {
       currentRoom.playerTurn = playerTurn.address;
       currentRoom.lastUpdateSP = new Date();
 
-      currentRoom.players.forEach((player, i) =>{
+      if (currentRoom.gameMode === GameModes.autoBattler) {
+        // randomise baxie turn order
+        const allBaxies = currentRoom.players.map((p) => p.baxies).flat();
+        /**
+         * @type Baxie[]
+         */
+        currentRoom.baxieTurnOrder = allBaxies.sort(() => Math.random() - 0.5);
+        currentRoom.baxieTurnIndex = 0;
+      }
+
+      currentRoom.players.forEach((player) =>{
         if (player.ws) {
           const enemy = GameRoomManager.getOpponent(data.roomId, player.address);
 
@@ -237,6 +322,7 @@ async function handleJoinRoom(ws, data) {
             player: player.baxies?.map((baxie) => baxie.getGameInfo(true)),
             enemy: enemy.baxies?.map((baxie) => baxie.getGameInfo(true)),
             gameMode: currentRoom.gameMode,
+            baxieTurnOrder: currentRoom.baxieTurnOrder.map((baxie) => baxie.tokenId),
           }));
           player.ws.send(JSON.stringify({
             type: 'DeductEnergy',
@@ -266,19 +352,7 @@ function handleEndTurn(ws, data) {
     const player = GameRoomManager.getPlayer(data.roomId, userAddress);
     const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
 
-    player.baxies.map((baxie) => {
-      for (let effectKey in baxie.effects) {
-        if (baxie.effects.hasOwnProperty(effectKey)) {
-          baxie.afterTurnEffects(effectKey, baxie.effects[effectKey]);
-
-          baxie.effects[effectKey].turnLeft -= 1;
-
-          if (baxie.effects[effectKey].turnLeft <= 0) {
-            delete baxie.effects[effectKey];
-          }
-        }
-      }
-    })
+    afterTurnEffectsHandler(player);
 
     currentRoom.playerTurn = enemy.address;
     currentRoom.turnIndex += 1
@@ -289,7 +363,7 @@ function handleEndTurn(ws, data) {
 
     // update stamina based on time elapsed
     const currentTime = new Date().getTime();
-    currentRoom.players.forEach((player, i) => {
+    currentRoom.players.forEach((player) => {
       player.baxies.filter((b) => b.isAlive()).forEach((baxie) => {
         const elapsedMs = currentTime - currentRoom.lastUpdateSP.getTime(); // milliseconds elapsed
         const elapsedSec = Math.floor(elapsedMs / 1000);
@@ -313,7 +387,7 @@ function handleEndTurn(ws, data) {
         }));
       }
 
-      currentRoom.players.forEach((player, i) => {
+      currentRoom.players.forEach((player) => {
         const enemy = GameRoomManager.getOpponent(data.roomId, userAddress)
 
         if (player.ws) {

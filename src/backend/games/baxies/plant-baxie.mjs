@@ -30,7 +30,7 @@ export default class PlantBaxie extends Baxie {
   /**
    * Thorn Guard – Reflects 20% of incoming physical damage for 2 turns.
    */
-  thornGuard(enemies, allies) {
+  thornGuard() {
     try {
       const alliesResults = [];
       const reflectEffect = {

@@ -28,6 +28,9 @@ let flushInterval = null;
  * @property {string} gameMode - Game mode
  * @property {Date} lastUpdateSP - Last time sp were updated
  * @property {Date} start - Start time of the game
+ * @property {number} turnIndex - Current turn index
+ * @property {number} baxieTurnIndex - Current turn index
+ * @property {Baxie[]} baxieTurnOrder - Order of baxies for the turn
  */
 
 export default class GameRoomManager {

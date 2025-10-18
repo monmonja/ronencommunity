@@ -10,7 +10,7 @@
  * @property {string} forehead - Baxie forehead
  * @property {number} attack - Baxie attack
  * @property {number} defense - Baxie defense
- * @property {number} statima - Baxie stamina
+ * @property {number} stamina - Baxie stamina
  * @property {number} skill - Baxie skill
  * @property {number} mystic - Baxie mystic
  * @property {number} purity - Baxie purity

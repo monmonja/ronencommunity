@@ -8,7 +8,7 @@ export default class DemonBaxie extends Baxie {
     this.populateSkills(['shadowStrike', 'cursedChains', 'soulFeast']);
   }
 
-  //  – Ignores 20% of enemy Defense, lifesteals 15% of damage dealt.
+  //  – Ignores 20% of enemy Defense, life steals 15% of damage dealt.
   /**
    * @param enemies {Baxie[]}
    * @returns BaxieSkillReturn
@@ -103,7 +103,7 @@ export default class DemonBaxie extends Baxie {
       let hasKilledAnEnemy = false;
 
       enemies.forEach((enemy) => {
-        const damage = this.calculateDamage(this.getCurrentAttack() * 0.5, effectiveDefense);
+        const damage = this.calculateDamage(this.getCurrentAttack() * 0.5, enemy.getCurrentDefense());
 
         enemy.takeDamage(damage);
 

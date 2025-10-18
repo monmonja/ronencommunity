@@ -68,16 +68,4 @@ export default class FireBaxie extends Baxie {
       effects: this.effects
     };
   }
-
-  // Helper: call after any attack to check if Phoenix Reign should trigger
-  checkPhoenixReign(results) {
-    const defeated = Array.isArray(results)
-      ? results.some(r => r.defeated)
-      : results.defeated;
-
-    if (defeated) {
-      return this.phoenixReign();
-    }
-    return null;
-  }
 }
