@@ -27,11 +27,21 @@ export default class NftModel {
     );
   }
 
-  static async findById({ nftTokenId, nftId } = {}) {
+  static async findById({ nftTokenId, nftId, address } = {}) {
     const mongoDbConnection = await getConnection();
 
+    const findQuery = {
+      nftTokenId,
+      network: "ronin",
+      nftId
+    };
+
+    if (address) {
+      findQuery.address = address;
+    }
+
     const data = await mongoDbConnection.db().collection(config.mongo.table.nfts)
-      .findOne({ nftTokenId, network: "ronin", nftId });
+      .findOne(findQuery);
 
     if (data) {
       return data;

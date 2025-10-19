@@ -20,7 +20,8 @@ export function initWalletRoutes(app) {
       const nftTokenId = 'baxies';
       let nftItem = await NftModel.findById({
         nftTokenId,
-        nftId: req.params.tokenId
+        nftId: req.params.tokenId,
+        address: req.session.wallet.address.toLowerCase(),
       });
 
       if (!nftItem) {
