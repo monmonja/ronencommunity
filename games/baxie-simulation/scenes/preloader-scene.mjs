@@ -17,10 +17,11 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      //launchScreen: 'SyncMenuScene',
-      launchScreen: 'GameModesScene',
+      launchScreen: 'SyncMenuScene',
+      // launchScreen: 'GameModesScene',
       // launchScreen: 'PositionSlotsScene',
-      // launchScreen: 'RoomSelectionScene',
+      //launchScreen: 'RoomSelectionScene',
+      // launchScreen: 'EndGameScene',
     });
 
     document.fonts.load('16px troika').then(() => {

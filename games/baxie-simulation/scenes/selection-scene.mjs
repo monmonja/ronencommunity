@@ -98,6 +98,7 @@ export default class SelectionScene extends Phaser.Scene {
       text: 'Slots',
       onPointerDown: async () => {
         if (this.selectedBaxiesId.length === 3) {
+          console.log(this.selectedBaxies, this.selectedBaxiesId)
           this.scene.start('PositionSlotsScene', {
             selectedBaxiesId: this.selectedBaxiesId,
             selectedBaxies: this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId)),
@@ -125,81 +126,103 @@ export default class SelectionScene extends Phaser.Scene {
   async loadBaxiesSequentially(baxies, width, height, gridSpacing, horizontalScrollContainer) {
     let index = 0;
 
+    const loadBaxieData = (baxie, nftData, container) => {
+      const key = `baxie-${baxie.tokenId}`;
+      this.load.image(key, nftData.data.image);
+
+      container.on("pointerdown", () => {
+        if (this.selectedBaxiesId.includes(baxie.tokenId)) {
+          this.selectedBaxiesId.splice(this.selectedBaxiesId.indexOf(baxie.tokenId), 1);
+          container.getByName("border").visible = false;
+          this.createSlots();
+        } else if (this.selectedBaxiesId.length < 3 && !this.selectedBaxiesId.includes(baxie)) {
+          this.selectedBaxiesId.push(baxie.tokenId);
+          this.selectedBaxies.push(nftData);
+          container.getByName("border").visible = true;
+          this.createSlots();
+        }
+      });
+
+      // listen for this file only
+      if (this.textures.exists(key)) {
+        // Just reuse the existing texture
+        const sprite = this.add.image(width / 2, height / 2 + 10, key)
+          .setOrigin(0.5)
+          .setScale(0.12);
+        container.add(sprite);
+
+        index++;
+        loadNext();
+      } else {
+        this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (loadedKey) => {
+          if (loadedKey === key) {
+            const sprite = this.add.image(width / 2, height / 2 + 10, key)
+              .setOrigin(0.5)
+              .setScale(0.12);
+            container.add(sprite);
+
+            index++;       // move to next
+            loadNext();    // trigger the next load
+          }
+        });
+        this.load.start();
+      }
+    }
+
     const loadNext = () => {
+      console.log(index, baxies.length)
       if (index >= baxies.length) return; // done
 
-      const baxie = baxies[index];
-      const xPos = (width + gridSpacing) * Math.floor(index / 2);
-      const yPos = height * Math.floor(index % 2) + (index % 2 === 1 ? gridSpacing : 0);
+      try {
+        const baxie = baxies[index];
+        const xPos = (width + gridSpacing) * Math.floor(index / 2);
+        const yPos = height * Math.floor(index % 2) + (index % 2 === 1 ? gridSpacing : 0);
 
-      const container = this.add.container(xPos, yPos);
-      container.setName(`container-baxie-${baxie.tokenId}`);
-      container.setSize(width, height);
-      container.setInteractive(
-        new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
-        interactiveBoundsChecker,
-      );
+        const container = this.add.container(xPos, yPos);
+        container.setName(`container-baxie-${baxie.tokenId}`);
+        container.setSize(width, height);
+        container.setInteractive(
+          new Phaser.Geom.Rectangle(width / 2, height / 2, width, height),
+          interactiveBoundsChecker,
+        );
 
+        const bg = this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
+        container.add(bg);
 
-      const bg = this.add.rectangle(0, 0, width, height, 0x000000, 0.5).setOrigin(0);
-      container.add(bg);
+        const border = this.add.rectangle(0, 0, width, height)
+          .setOrigin(0)
+          .setStrokeStyle(3, 0xAC022F);
+        border.setName("border");
+        border.visible = false;
+        container.add(border);
 
-      const border = this.add.rectangle(0, 0, width, height)
-        .setOrigin(0)
-        .setStrokeStyle(3, 0xAC022F);
-      border.setName("border");
-      border.visible = false;
-      container.add(border);
+        const label = this.add.text(width / 2, 20, `#${baxie.tokenId}`, {
+          fontSize: "20px",
+          fontFamily: constants.fonts.troika,
+          color: "#FFF",
+          fontStyle: "bold",
+        }).setOrigin(0.5, 0);
+        label.setShadow(2, 2, "#000", 4, true, true);
+        container.add(label);
 
-      const label = this.add.text(width / 2, 20, `#${baxie.tokenId}`, {
-        fontSize: "20px",
-        fontFamily: constants.fonts.troika,
-        color: "#FFF",
-        fontStyle: "bold",
-      }).setOrigin(0.5, 0);
-      label.setShadow(2, 2, "#000", 4, true, true);
-      container.add(label);
+        horizontalScrollContainer.addItem(container, gridSpacing, xPos, yPos);
 
-      horizontalScrollContainer.addItem(container, gridSpacing, xPos, yPos);
+        // queue this baxie's image
+        if (baxie.nft) {
+          loadBaxieData(baxie, baxie.nft, container);
+        } else {
+          fetch(`/list/baxie-info/${baxie.tokenId}`)
+            .then((res) => res.json())
+            .then((response) => {
+              loadBaxieData(baxie, response, container);
 
-      // queue this baxie's image
-      fetch(`/list/baxie-info/${baxie.tokenId}`)
-        .then((res) => res.json())
-        .then((response) => {
-
-          const key = `baxie-${baxie.tokenId}`;
-          this.load.image(key, response.data.image);
-
-          container.on("pointerdown", () => {
-            if (this.selectedBaxiesId.includes(baxie.tokenId)) {
-              this.selectedBaxiesId.splice(this.selectedBaxiesId.indexOf(baxie.tokenId), 1);
-              container.getByName("border").visible = false;
-              this.createSlots();
-            } else if (this.selectedBaxiesId.length < 3 && !this.selectedBaxiesId.includes(baxie)) {
-              this.selectedBaxiesId.push(baxie.tokenId);
-              this.selectedBaxies.push(response);
-              container.getByName("border").visible = true;
-              this.createSlots();
-            }
-          });
-
-          // listen for this file only
-          this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (loadedKey) => {
-            if (loadedKey === key) {
-              const sprite = this.add.image(width / 2, height / 2 + 10, key)
-                .setOrigin(0.5)
-                .setScale(0.12);
-              container.add(sprite);
-
-              index++;       // move to next
-              loadNext();    // trigger the next load
-            }
-          });
-
-          this.load.start();
-        }).catch((e) => {
-          console.log(e)
-        });
+            }).catch((e) => {
+              console.log(e)
+            });
+          }
+      } catch (e) {
+        console.log('Error',e)
+      }
     };
 
     loadNext(); // kick it off

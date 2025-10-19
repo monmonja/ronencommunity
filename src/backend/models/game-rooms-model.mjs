@@ -9,13 +9,42 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default class GameRoomsModel {
+  static async getGameRooms({  } = {}) {
+    const mongoDbConnection = await getConnection();
+
+    const gameRooms = await mongoDbConnection
+      .db()
+      .collection(config.mongo.table.gameRooms)
+      .find({ })
+      .sort({ createdAt: -1 }) // -1 = descending, latest first
+      .limit(50)
+      .toArray();
+
+    return gameRooms;
+  }
+
+
+  static async updateRoom(roomId, data) {
+    const mongoDbConnection = await getConnection();
+
+    await mongoDbConnection.db().collection(config.mongo.table.gameRooms)
+      .updateOne({
+          roomId: roomId,
+        },
+        { $set: data },
+        { upsert: true }
+      );
+
+    return roomId;
+  }
+
   static async saveRoom(room) {
     const mongoDbConnection = await getConnection();
 
-    room.time = getUtcNow();
-    room.lastUpdated = getTodayDateString(room.time);
+    room.date = getUtcNow();
+    room.lastUpdated = getTodayDateString(room.date);
 
-    await mongoDbConnection.db().collection(config.mongo.table.energies)
+    await mongoDbConnection.db().collection(config.mongo.table.gameRooms)
       .updateOne({
           roomId: room.roomId,
         },

@@ -1,4 +1,6 @@
 import GameMovesModel from "../models/game-moves-model.mjs";
+import GameRoomsModel from "../models/game-rooms-model.mjs";
+import {getUtcNow} from "../utils/date-utils.mjs";
 
 
 const RECONNECT_TIMEOUT = 60000; // 60 seconds
@@ -323,29 +325,10 @@ export default class GameRoomManager {
   }
 
   static async abandonMatch(roomId) {
-    try {
-      const db = getDb();
-
-      // Flush any pending moves
-      await this.flushMovesForRoom(roomId);
-
-      await db.collection('game_matches').updateOne(
-        { roomId },
-        {
-          $set: {
-            status: 'abandoned',
-            completedAt: new Date()
-          }
-        }
-      );
-
-      // Clean up buffer
-      movesBuffer.delete(roomId);
-
-      console.log(`Match abandoned: ${roomId}`);
-    } catch (err) {
-      console.error('Error abandoning match:', err);
-    }
+    await GameRoomsModel.updateRoom(roomId, {
+      status: 'abandoned',
+      completedAt: getUtcNow(),
+    });
   }
 
   // ========== CONNECTION MANAGEMENT ==========

@@ -19,7 +19,8 @@
       "gameProfiles": "game-profiles",
       "nfts": "nfts",
       "adminSettings": "adminSettings",
-      "security": "security"
+      "security": "security",
+      "gameRooms": "gameRooms"
     }
   },
   "web3":  {

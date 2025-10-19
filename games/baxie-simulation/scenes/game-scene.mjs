@@ -3,12 +3,15 @@ import BaxieUi from "../../common/baxie/baxie-ui.mjs";
 import {createButton} from "../../common/buttons.mjs";
 import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
 import constants from "../../common/constants.mjs";
+import BackgroundRect from "../../common/ui/background-rect.mjs";
+import EndGameScene from "./end-game-scene.mjs";
 
 export default class GameScene extends Phaser.Scene {
   enemyTeam;
   playerTeam;
   isPlayerTurn;
   skillContainer;
+  status = 'loading';
 
   constructor() {
     super('GameScene');
@@ -129,11 +132,42 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  drawTurn(index) {
+    // Create a container to hold the background and text
+    const container = this.add.container(this.game.scale.width / 2, 40);
+    const hpBackgroundRect = new BackgroundRect(this, {
+      x: -(80 / 2),
+      y: 0,
+      width: 80,
+      height: 55,
+      // height: 90,
+      radius: 0,
+      innerBaseColor: 0x8b4e24,
+      topBgColor: 0xae8463,
+      bottomBgColor: 0x67341b
+    });
+    container.add(hpBackgroundRect);
+
+    // Text
+    this.turnText = this.add.text(0, 8, `TURN\n${index}`, {
+      fontFamily: constants.fonts.troika,
+      fontSize: '20px',
+      color: '#00ff00',
+      align: 'center',
+    }).setOrigin(0.5, 0);
+    this.turnText.setShadow(2, 2, "#222", 4, false, true);
+
+
+    // Add background first, then text on top
+    container.add(this.turnText);
+  }
+
 
   init(data) {
     this.ws = data.ws;
     this.roomId = data.roomId;
-    console.log('data.player', data.player)
+    this.selectedBaxies = data.selectedBaxies;
+
     this.playerTeam = data.player.map((baxieData, i) => new BaxieUi({
       scene: this,
       data: baxieData,
@@ -174,6 +208,17 @@ export default class GameScene extends Phaser.Scene {
 
       if (data.type === 'gameOver') {
         console.log(data.message)
+        setTimeout(() => {
+          this.scene.start('EndGameScene', {
+            youWin: data.youWin,
+            selectedBaxies: this.selectedBaxies,
+          });
+        }, 1000);
+      } else if (data.type === 'startBattle') {
+        this.status = 'playing';
+        this.drawTurn(data.turnIndex + 1);
+      } else if (data.type === 'newTurn') {
+        this.turnText.text = `TURN\n${data.turnIndex + 1}`;
       } else if (data.type === 'endUseSkill') {
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
 
@@ -249,7 +294,7 @@ export default class GameScene extends Phaser.Scene {
         scene: this,
         x: 600,
         y: 400,
-        width: 60,
+        width: 120,
         height: 60,
         text: "End turn",
         onPointerDown: () => {
@@ -273,7 +318,7 @@ export default class GameScene extends Phaser.Scene {
       this.yourTurnBtn.visible = false;
     }
 
-    if (this.gameMode === GameModes.skillCountdown) {
+    if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
       this.yourTurnText.visible = false;
       this.yourTurnBtn.visible = false;
     }

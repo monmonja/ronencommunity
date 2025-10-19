@@ -12,6 +12,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
   constructor() {
     super('RoomSelectionScene');
     this.dropdownOptions = [
+      { label: 'Auto Battler', value: 'autoBattler' },
       { label: 'Skill Countdown', value: 'skillCountdown' },
       { label: 'Turn Based SP', value: 'turnBasedSP' },
       { label: 'Turn Based One Char', value: 'turnBasedOneChar' },
@@ -45,7 +46,6 @@ export default class RoomSelectionScene extends Phaser.Scene {
         "position": "center"
       }
     ];
-    console.log('this.selectedBaxies', this.selectedBaxies)
   }
 
   preload() {
@@ -193,7 +193,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
       width: inputWidth,
       height: inputHeight,
       fontColor: '#9292c9',
-      defaultLabel: 'Skill Countdown',
+      defaultLabel: this.dropdownOptions[0].label,
     })
       .setDepth(12);
 
@@ -215,7 +215,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
         const response = await createGameRoom({
           scene: this,
           gameId: this.game.customConfig.gameId,
-          gameMode: dropdown.getValue() ?? 'skillCountdown',
+          gameMode: dropdown.getValue() ?? 'autoBattler',
         });
 
         inputText.text = response.roomId;
@@ -246,6 +246,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
               isYourTurn: data.isYourTurn,
               turnIndex: data.turnIndex,
               gameMode: data.gameMode,
+              selectedBaxies: this.selectedBaxies,
             });
           }
         };
@@ -358,6 +359,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
                 isYourTurn: data.isYourTurn,
                 turnIndex: data.turnIndex,
                 gameMode: data.gameMode,
+                selectedBaxies: this.selectedBaxies,
               });
             }
           };
@@ -454,7 +456,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
       width: inputWidth,
       height: inputHeight,
       fontColor: '#9292c9',
-      defaultLabel: 'Skill Countdown',
+      defaultLabel: this.dropdownOptions[0].label,
     })
       .setDepth(12);
 
@@ -477,7 +479,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
         createCpuGameRoom({
           scene: this,
           gameId: this.game.customConfig.gameId,
-          gameMode: dropdown.getValue() ?? 'skillCountdown',
+          gameMode: dropdown.getValue() ?? 'autoBattler',
           characterIds: inputText.text && inputText.text !== inputPlaceholder ? inputText.text : undefined,
         }).then((response) => {
           this.ws = new WebSocket(response.wsUrl);
@@ -508,6 +510,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
                 isYourTurn: data.isYourTurn,
                 turnIndex: data.turnIndex,
                 gameMode: data.gameMode,
+                selectedBaxies: this.selectedBaxies,
               });
             }
           });

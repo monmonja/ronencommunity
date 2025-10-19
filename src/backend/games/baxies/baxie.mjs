@@ -181,6 +181,14 @@ export default class Baxie {
     return attack;
   }
 
+  addHp(hp) {
+    this.currentHP = Math.min(this.currentHP + hp, this.getMaxHP());
+  }
+
+  removeHp(hp) {
+    this.currentHP = Math.max(1, this.currentHP - hp);
+  }
+
   takeDamage(damage) {
     for (const effect of this.effects) {
       if (effect.type === EFFECTS.extraDamageTaken && effect.turnsLeft > 0) {
@@ -207,18 +215,20 @@ export default class Baxie {
     if (full) {
       return {
         tokenId: this.tokenId,
-        hp: Math.ceil(this.currentHP),
+        hp: Math.ceil(this.currentHP) ?? 0,
         stamina: this.currentStamina,
         image: this.image,
         skills: this.skills,
         position: this.position,
+        effects: this.effects,
         purity: this.attributes.purity,
       }
     } else {
       return {
         tokenId: this.tokenId,
-        hp: Math.ceil(this.currentHP),
+        hp: Math.ceil(this.currentHP) ?? 0,
         stamina: this.currentStamina,
+        effects: this.effects,
       }
     }
   }
@@ -251,6 +261,7 @@ export default class Baxie {
 
   afterTurnEffects(key, effect) {
     if (key === EFFECTS.burn) {
+      console.log('burn', effect.value)
       this.currentHP -= effect.value;
     }
   }

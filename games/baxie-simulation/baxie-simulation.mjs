@@ -7,9 +7,9 @@ import PreloaderScene from "./scenes/preloader-scene.mjs";
 import RoomsScene from "../common/scene/rooms-scene.mjs";
 import UIScene from "./scenes/ui-scene.mjs";
 import {createGame} from "../common/utils/game.mjs";
-import TestScene from "./scenes/test-scene.mjs";
 import PositionSlotsScene from "./scenes/position-slots-scene.mjs";
 import GameModesScene from "./scenes/game-modes-scene.mjs";
+import EndGameScene from "./scenes/end-game-scene.mjs";
 
 createGame({
   gameScenesArray: [
@@ -23,6 +23,7 @@ createGame({
     UIScene,
     RoomsScene,
     GameModesScene,
+    EndGameScene,
   ],
   customConfig: {
     gameId: 'baxie-simulation',

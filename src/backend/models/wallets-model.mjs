@@ -139,31 +139,4 @@ export default class WalletsModel {
     return wallet.nfts.items;
   }
 
-  static async getNFTMetadata({ nftTokenId, tokenURI, nftId, forceRefresh = false } = {}) {
-    let url = tokenURI;
-    let nftItem;
-
-    if (!forceRefresh) {
-      nftItem = await NftModel.findById({nftTokenId, nftId});
-    }
-
-    if (nftItem && !forceRefresh) {
-      return nftItem;
-    } else {
-console.log('get new info for', nftTokenId, nftId, tokenURI);
-      // handle ipfs:// URIs
-      if (url.startsWith("ipfs://")) {
-        url = `https://ipfs.io/ipfs/${url.replace("ipfs://", "")}`;
-      }
-
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch metadata: ${res.status}`);
-      }
-      const data = await res.json();
-      await NftModel.addRecord({ nftTokenId, nftId, data } )
-
-      return { nftTokenId, nftId, data };
-    }
-  }
 }

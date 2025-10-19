@@ -1,4 +1,4 @@
-<h2 class="header-title">Daily Games Played</h2>
+<h2 class="header-title">Game-rooms</h2>
 <section>
   <table >
     <thead>
@@ -9,18 +9,17 @@
     </tr>
     </thead>
     <tbody>
-    <% if (dailyPlays && dailyPlays.length > 0) { %>
-    <% dailyPlays.forEach(function(dailyPlay) { %>
+    <% if (gameRooms && gameRooms.length > 0) { %>
+    <% gameRooms.forEach(function(gameRoom) { %>
     <tr>
       <%
-      const date = new Date(dailyPlay.date);
+      const date = new Date(gameRoom.date);
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")}`;
       %>
 
       <td><%= formatted %></td>
-      <td><%= JSON.stringify(dailyPlay.game) %></td>
-      <td class="text-center"><%= dailyPlay.totalEnergyUsed %></td>
+      <td><%= JSON.stringify(gameRoom) %></td>
     </tr>
     <% }); %>
     <% } else { %>

@@ -95,13 +95,24 @@ function startTesting(data, address) {
 }
 
 async function buildSelectedBaxies(baxieIds) {
-  const nftDocs = await Promise.all(
-    baxieIds.map((baxieId) =>
-      NftModel.findById({ nftTokenId: 'baxies', nftId: baxieId })
-    )
-  );
-  const data = nftDocs.map((nftData) => makeBaxie(nftData));
-  return data.map((e) => {
+  const nftDocs = [];
+  for (let i = 0; i < baxieIds.length; i += 1) {
+    let data = await NftModel.findById({
+      nftTokenId: 'baxies',
+      nftId: baxieIds[i] });
+
+    if (!data) {
+      data = await NftModel.getNFTMetadata({
+        nftTokenId: 'baxies',
+        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${baxieIds[i]}`,
+        nftId: baxieIds[i],
+      })
+    }
+
+    nftDocs.push(makeBaxie(data));
+  }
+
+  return nftDocs.map((e) => {
     return {
       tokenId: e.tokenId,
       skills: e.skills.map((s) => s.func),

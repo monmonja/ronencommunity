@@ -49,12 +49,11 @@ export default class SyncMenuScene extends Phaser.Scene {
         syncBtn.visible = false;
         labelTxt.visible = true;
 
-        fetch('/list/baxies')
+        fetch('/list/baxies/false')
           .then((res) => res.json())
           .then((results) => {
             this.registry.set(constants.registry.baxies, results);
             this.scene.start('SelectionScene');
-
           }).catch(() => {
             labelTxt.visible = false;
             syncBtn.visible = true;

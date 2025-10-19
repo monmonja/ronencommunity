@@ -22,7 +22,7 @@ export default class FairyBaxie extends Baxie {
     allies.forEach((ally) => {
       const heal = Math.floor(ally.getMaxHP() * 0.12);
 
-      ally.currentHP = Math.min(ally.currentHP + heal, ally.getMaxHP());
+      ally.addHp(heal);
 
       const attackBuffEffect = { type: EFFECTS.attackBoost, value: 0.05, turnsLeft: 2 };
       ally.addEffect(attackBuffEffect);

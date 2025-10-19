@@ -31,7 +31,7 @@ export default class DemonBaxie extends Baxie {
 
       // Lifesteal 15%
       const lifeSteal = Math.floor(damage * 0.15);
-      this.currentHP = Math.min(this.currentHP + lifeSteal, this.getMaxHP());
+      this.addHp(lifeSteal);
 
       return {
         lifeSteal,
@@ -97,7 +97,7 @@ export default class DemonBaxie extends Baxie {
        */
       const resultsEnemies = [];
       const hpSacrifice = Math.floor(this.currentHP * 0.2);
-      this.currentHP = Math.max(1, this.currentHP - hpSacrifice); // cannot suicide
+      this.removeHp(hpSacrifice); // cannot suicide
 
       let restoreAmount = 0;
       let hasKilledAnEnemy = false;
@@ -116,7 +116,7 @@ export default class DemonBaxie extends Baxie {
 
       if (hasKilledAnEnemy) {
         restoreAmount = Math.floor(hpSacrifice * 0.15);
-        this.currentHP = Math.min(this.currentHP + restoreAmount, this.getMaxHP());
+        this.addHp(restoreAmount);
       }
 
       /**

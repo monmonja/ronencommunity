@@ -11,6 +11,7 @@ import Purchases from "../models/purchases.mjs";
 import Consumes from "../models/consumes.mjs";
 import Energies from "../models/energies.mjs";
 import Games from "../models/games.mjs";
+import GameRoomsModel from "../models/game-rooms-model.mjs";
 
 export function initStatsRoutes(app) {
   app.get(
@@ -21,6 +22,7 @@ export function initStatsRoutes(app) {
       const dailyPlays = await Energies.dailySummary();
 
       res.render("stats/index", {
+        gameRooms: await GameRoomsModel.getGameRooms(),
         dailyPlays: dailyPlays.map((item) => {
           return {
             date: item.date,

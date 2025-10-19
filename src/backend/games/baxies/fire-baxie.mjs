@@ -12,14 +12,14 @@ export default class FireBaxie extends Baxie {
   blazingBurst(enemies) {
     const enemiesResults = [];
     const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
-    console.log(this.getCurrentAttack() * 1.4, target.getCurrentDefense());
+
     const damage = this.calculateDamage(this.getCurrentAttack() * 1.4, target.getCurrentDefense());
 
     target.takeDamage(damage);
     enemiesResults.push({ target: target.tokenId, damage });
 
     if (Math.random() < 0.2) {
-      const burnedEffect = { type: EFFECTS.burn, turnsLeft: 2, damage: Math.floor(this.getCurrentAttack() * 0.2) };
+      const burnedEffect = { type: EFFECTS.burn, turnsLeft: 2, value: Math.floor(this.getCurrentAttack() * 0.2) };
       target.addEffect(burnedEffect);
       enemiesResults[0].effects = [burnedEffect];
     }
@@ -39,7 +39,7 @@ export default class FireBaxie extends Baxie {
 
       let attackReduced = false;
       if (Math.random() < 0.15) {
-        target.addEffect({ type: 'attackDebuff', value: -0.05, duration: 1 });
+        target.addEffect({ type: 'attackDebuff', value: -0.05, turnsLeft: 1 });
         attackReduced = true;
       }
 
@@ -59,7 +59,7 @@ export default class FireBaxie extends Baxie {
     const staminaGain = Math.floor(this.getMaxStamina() * 0.15);
     this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
 
-    this.addEffect({ type: 'attackBoost', value: 0.5, duration: 1 });
+    this.addEffect({ type: 'attackBoost', value: 0.5, turnsLeft: 1 });
 
     // @todo
     return {

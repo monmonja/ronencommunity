@@ -3,40 +3,58 @@ import {makeBaxie} from "./baxies/baxie-utilities.mjs";
 import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 import GameRoomManager from "./game-room-manager.mjs";
 import Security from "../models/security.mjs";
+import Baxie from "./baxies/baxie.mjs";
 import {logError} from "../components/logger.mjs";
 
 export async function createCPUPlayer(roomId, characterIds) {
-  GameRoomManager.rooms[roomId].vsCPU = true;
-  GameRoomManager.rooms[roomId].cpuAddress =  'cpu' + (new Date()).getTime() + Math.random().toString(36).substring(2, 6);
+  const currentRoom = GameRoomManager.rooms[roomId];
+  currentRoom.vsCPU = true;
+  currentRoom.cpuAddress =  'cpu' + (new Date()).getTime() + Math.random().toString(36).substring(2, 6);
   const cpuPlayer = {
-    address: GameRoomManager.rooms[roomId].cpuAddress,
+    address: currentRoom.cpuAddress,
   };
 
   characterIds = characterIds || [];
   if (characterIds.length !== 3) {
     characterIds  = [
       {
-        "tokenId": "1",
+        "tokenId": 1,
         "position": "back"
       },
       {
-        "tokenId": "3",
+        "tokenId": 3,
         "position": "center"
       },
       {
-        "tokenId": "4",
+        "tokenId": 4,
         "position": "front"
       }
     ]
   }
 
-  const nftDocs = await Promise.all(
-    characterIds.map((baxie) =>
-      NftModel.findById({ nftTokenId: 'baxies', nftId: Number(baxie.tokenId) })
-    )
-  );
+  const nftDocs = [];
+  for (let i = 0; i < characterIds.length; i += 1) {
+    let data = await NftModel.findById({
+      nftTokenId: 'baxies',
+      nftId: characterIds[i].tokenId });
 
-  cpuPlayer.baxies = nftDocs.map((nftData) => makeBaxie(nftData));
+    if (!data) {
+      data = await NftModel.getNFTMetadata({
+        nftTokenId: 'baxies',
+        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${characterIds[i].tokenId}`,
+        nftId: characterIds[i].tokenId,
+      })
+    }
+
+    nftDocs.push(makeBaxie(data));
+  }
+
+  cpuPlayer.ws = {
+    send: (data) => { console.log('cpu ws', data) },
+    session: {wallet: {address: currentRoom.cpuAddress}}
+  };
+  cpuPlayer.baxies = nftDocs;
+  cpuPlayer.baxieIds = characterIds;
   characterIds.forEach((baxie) => {
     const baxieId = baxie.tokenId;
     cpuPlayer.baxies.forEach((playerBaxie) => {
@@ -51,6 +69,10 @@ export async function createCPUPlayer(roomId, characterIds) {
 }
 
 function isGameOver(currentRoom) {
+  if (currentRoom.gameOver) {
+    return;
+  }
+
   let gameOver = false;
   currentRoom.players.forEach((player) => {
     if (player.baxies.filter((b) => b.isAlive()).length === 0) {
@@ -68,6 +90,7 @@ function isGameOver(currentRoom) {
         }));
       }
     });
+    currentRoom.gameOver = true;
   }
 
   return gameOver;
@@ -167,17 +190,64 @@ function afterTurnEffectsHandler(player) {
   });
 }
 
+/**
+ *
+ * @param data
+ * @param {Baxie} selectedBaxie
+ */
 function baxieAutoBattlerTurn(data, selectedBaxie) {
   const currentRoom = GameRoomManager.rooms[data.roomId];
+
   const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
   const playerWithSelectedBaxie = currentRoom.players.filter((p) => p.baxieIds.map((b => b.tokenId)).includes(selectedBaxie.tokenId))[0];
   const userAddress = playerWithSelectedBaxie.address;
+
+  const nextBaxie = () => {
+    if (currentRoom.gameOver) {
+      return false;
+    }
+
+    setTimeout(() => {
+      currentRoom.baxieTurnIndex += 1;
+
+      if (currentRoom.baxieTurnIndex >= 6) {
+        currentRoom.baxieTurnIndex = 0;
+        currentRoom.turnIndex += 1;
+
+        currentRoom.players.forEach((player) => {
+          player.ws.send(JSON.stringify({
+            type: 'newTurn',
+            turnIndex: currentRoom.turnIndex,
+          }));
+        });
+        console.log('--- Auto Battler Round End ---', currentRoom.turnIndex);
+
+        const player = GameRoomManager.getPlayer(data.roomId, userAddress);
+        const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
+
+        afterTurnEffectsHandler(player);
+        afterTurnEffectsHandler(enemy);
+        baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+      } else {
+        baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+      }
+    }, 2000);
+  }
+
+
+  if (!selectedBaxie.isAlive()) {
+    nextBaxie();
+    return;
+  }
 
   if (selectedBaxie.canAttack()) {
     const skill = selectedBaxie.skills.filter((s) => s.func === selectedSkill)[0];
     let canAttack = selectedBaxie.currentStamina >= skill.cost;
 
     if (currentRoom.gameMode === GameModes.skillCountdown) {
+      canAttack = true;
+    }
+    if (currentRoom.gameMode === GameModes.autoBattler) {
       canAttack = true;
     }
 
@@ -192,53 +262,50 @@ function baxieAutoBattlerTurn(data, selectedBaxie) {
         return;
       }
 
-      setTimeout(() => {
-        currentRoom.baxieTurnIndex += 1;
-
-        if (currentRoom.baxieTurnIndex >= 6) {
-          currentRoom.baxieTurnIndex = 0;
-          currentRoom.turnIndex += 1;
-          console.log('--- Auto Battler Round End ---', currentRoom.turnIndex);
-
-          const player = GameRoomManager.getPlayer(data.roomId, userAddress);
-          const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
-
-          afterTurnEffectsHandler(player);
-          afterTurnEffectsHandler(enemy);
-          baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
-        } else {
-          baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
-        }
-      }, 2000);
+      nextBaxie();
     } else {
       // tryAttack(attempts + 1);
-      console.log('CPU baxie not enough stamina', selectedBaxie.currentStamina, skill.cost);
+      console.log('auto battler not enough stamina', selectedBaxie.currentStamina, skill.cost);
     }
   } else {
     console.log('Baxie cannot attack', selectedBaxie.reasonCannotAttack());
-    currentRoom.baxieTurnIndex += 1;
-    baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+    nextBaxie();
   }
 }
 
 async function handleGameLoaded(ws, data) {
   const currentRoom = GameRoomManager.rooms[data.roomId];
   const userAddress = ws.session.wallet.address.toLowerCase();
-console.log('handleGameLoaded', userAddress, data.roomId, currentRoom.vsCPU);
+
   if (currentRoom.vsCPU) {
-    let startCPU = false;
-
-    if (currentRoom.playerTurn === currentRoom.cpuAddress && currentRoom.gameMode === GameModes.turnBasedSP) {
-      startCPU = true;
-    } else if (currentRoom.gameMode === GameModes.skillCountdown) {
-      startCPU = true;
-    }
-
-    if (startCPU) {
+    if (currentRoom.gameMode === GameModes.autoBattler) {
+      currentRoom.players.forEach((player) => {
+        player.ws.send(JSON.stringify({
+          type: 'startBattle',
+          roomId: data.roomId,
+          baxieTurnOrder: currentRoom.baxieTurnOrder,
+          turnIndex: currentRoom.turnIndex,
+        }));
+      });
       setTimeout(() => {
-        const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
-        simulateCPUSkills(mockWs, data);
-      }, 2000);
+        baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
+      }, 1000);
+
+    } else {
+      let startCPU = false;
+
+      if (currentRoom.playerTurn === currentRoom.cpuAddress && currentRoom.gameMode === GameModes.turnBasedSP) {
+        startCPU = true;
+      } else if (currentRoom.gameMode === GameModes.skillCountdown) {
+        startCPU = true;
+      }
+
+      if (startCPU) {
+        setTimeout(() => {
+          const mockWs = {session: {wallet: {address: currentRoom.cpuAddress}}};
+          simulateCPUSkills(mockWs, data);
+        }, 2000);
+      }
     }
   } else {
     for (let i = 0; i < currentRoom.players.length; i++) {
@@ -247,11 +314,13 @@ console.log('handleGameLoaded', userAddress, data.roomId, currentRoom.vsCPU);
       }
     }
 
-    if (currentRoom.players.filter((i) => i.gameLoaded).length === 2) {
+    if (currentRoom.players.filter((i) => i.gameLoaded).length === currentRoom.players.length) {
+      console.log(currentRoom.players)
       currentRoom.players.forEach((player) => {
         player.ws.send(JSON.stringify({
           type: 'startBattle',
           roomId: data.roomId,
+          baxieTurnOrder: data.baxieTurnOrder ,
         }));
       });
 
@@ -322,7 +391,7 @@ async function handleJoinRoom(ws, data) {
             player: player.baxies?.map((baxie) => baxie.getGameInfo(true)),
             enemy: enemy.baxies?.map((baxie) => baxie.getGameInfo(true)),
             gameMode: currentRoom.gameMode,
-            baxieTurnOrder: currentRoom.baxieTurnOrder.map((baxie) => baxie.tokenId),
+            baxieTurnOrder: currentRoom.baxieTurnOrder?.map((baxie) => baxie.tokenId),
           }));
           player.ws.send(JSON.stringify({
             type: 'DeductEnergy',
@@ -478,18 +547,18 @@ function handleUseSkill(ws, data, request) {
             baxieId: selectedBaxie.tokenId,
             message: message,
             isYourTurn: currentRoom.playerTurn === currentRoom.playerTurn,
+            baxieTurnIndex: currentRoom.baxieTurnIndex,
             roomId: data.roomId,
           }));
 
-          if (currentRoom.gameMode === GameModes.skillCountdown) {
-            roomPlayer.ws.send(JSON.stringify({
-              type: 'updateStats',
-              player: roomPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
-              enemy: (currentRoom.players.filter((p) => p.address !== roomPlayer.address)[0])?.baxies?.map((baxie) => baxie.getGameInfo()),
-            }));
 
-            isGameOver(currentRoom);
-          }
+          roomPlayer.ws.send(JSON.stringify({
+            type: 'updateStats',
+            player: roomPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
+            enemy: (currentRoom.players.filter((p) => p.address !== roomPlayer.address)[0])?.baxies?.map((baxie) => baxie.getGameInfo()),
+          }));
+
+          isGameOver(currentRoom);
         }
       });
 
@@ -501,7 +570,7 @@ function handleUseSkill(ws, data, request) {
       message: 'error in handleUseSkill',
       auditData: {
         e,
-        address: ws.session.wallet.address.toLowerCase(),
+        // address: ws.session.wallet.address.toLowerCase(),
       }
     });
   }

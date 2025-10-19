@@ -57,7 +57,7 @@ export default class PlantBaxie extends Baxie {
 
       allies.forEach(ally => {
         const healAmount = Math.floor(ally.getMaxHP() * 0.1);
-        ally.currentHP = Math.min(ally.currentHP + healAmount, ally.getMaxHP());
+        ally.addHp(healAmount);
         alliesResult.push({ target: ally.tokenId, heal: healAmount });
       });
 

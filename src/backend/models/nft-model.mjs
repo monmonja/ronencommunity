@@ -11,13 +11,14 @@ const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
 export default class NftModel {
 
 
-  static async addRecord({ nftTokenId, nftId, data } = {}) {
+  static async addRecord({ nftTokenId, nftId, data, address } = {}) {
     const mongoDbConnection = await getConnection();
 
     await mongoDbConnection.db().collection(config.mongo.table.nfts).updateOne(
       { nftTokenId, network: "ronin", nftId }, // match criteria
       {
         $setOnInsert: {
+          address,
           data,
           createdAt: getUtcNow()
         }
@@ -34,14 +35,9 @@ export default class NftModel {
 
     if (data) {
       return data;
-    } else {
-      return await WalletsModel.getNFTMetadata({
-        nftTokenId,
-        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${nftId}`,
-        nftId,
-        forceRefresh: true,
-      })
     }
+
+    return null;
   }
 
   /**
@@ -134,24 +130,26 @@ export default class NftModel {
   static async getNftItems(nftTokenId, address) {
     const mongoDbConnection = await getConnection();
 
-    const wallet = await mongoDbConnection
+    const nftsArray = await mongoDbConnection
       .db()
-      .collection(config.mongo.table.wallets)
-      .findOne(
-        { address, "nfts.tokenId": nftTokenId },
-        { projection: { "nfts.items": 1, _id: 0 } }
-      );
-console.log(wallet)
-    if (!wallet || !wallet.nfts || !wallet.nfts.items) {
-      return [];
-    }
+      .collection(config.mongo.table.nfts)
+      .find(
+        { address, nftTokenId },
+      )
+      .toArray();
 
-    return wallet.nfts.items;
+    const nfts = nftsArray.reduce((acc, nft) => {
+      acc[nft.nftId] = nft;
+      return acc;
+    }, {});
+
+    return nfts;
   }
 
-  static async getNFTMetadata(tokenURI) {
+  static async getNFTMetadata({ nftTokenId, tokenURI, nftId, address } = {}) {
     let url = tokenURI;
 
+    console.log('get new info for', nftTokenId, nftId, tokenURI, address);
     // handle ipfs:// URIs
     if (url.startsWith("ipfs://")) {
       url = `https://ipfs.io/ipfs/${url.replace("ipfs://", "")}`;
@@ -161,5 +159,10 @@ console.log(wallet)
     if (!res.ok) {
       throw new Error(`Failed to fetch metadata: ${res.status}`);
     }
-    return await res.json();
-  }}
+    const data = await res.json();
+    console.log('dd', address)
+    await NftModel.addRecord({ nftTokenId, nftId, data, address } )
+
+    return { nftTokenId, nftId, data, address };
+  }
+}
