@@ -5,6 +5,8 @@ import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
 import constants from "../../common/constants.mjs";
 import BackgroundRect from "../../common/ui/background-rect.mjs";
 import EndGameScene from "./end-game-scene.mjs";
+import {VerticalScrollContainer} from "../../common/ui/vertical-scroll-container.ts";
+import {formatSkillName} from "../../common/utils/baxie.mjs";
 
 export default class GameScene extends Phaser.Scene {
   enemyTeam;
@@ -52,6 +54,16 @@ export default class GameScene extends Phaser.Scene {
     // Add background first, then text on top
     container.add([bg, text]);
 
+    // === SHAKE EFFECT on the attacking Baxie ===
+    this.tweens.add({
+      targets: baxieUI,
+      x: baxieUI.x + 5,
+      duration: 50,
+      yoyo: true,
+      repeat: 3, // number of shakes
+      ease: 'Sine.easeInOut'
+    });
+
     // Optional: float up and fade out
     this.tweens.add({
       targets: container,
@@ -91,7 +103,7 @@ export default class GameScene extends Phaser.Scene {
       targets: container,
       y: y - 30,
       alpha: 0,
-      duration: 2000,
+      duration: 4000,
       ease: 'EaseOut',
       onComplete: () => container.destroy()
     });
@@ -126,7 +138,7 @@ export default class GameScene extends Phaser.Scene {
       targets: container,
       y: y - 30,
       alpha: 0,
-      duration: 2000,
+      duration: 4000,
       ease: 'EaseOut',
       onComplete: () => container.destroy()
     });
@@ -134,7 +146,7 @@ export default class GameScene extends Phaser.Scene {
 
   drawTurn(index) {
     // Create a container to hold the background and text
-    const container = this.add.container(this.game.scale.width / 2, 40);
+    const container = this.add.container(this.game.scale.width / 2, 20);
     const hpBackgroundRect = new BackgroundRect(this, {
       x: -(80 / 2),
       y: 0,
@@ -172,8 +184,8 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: baxieData.position === 'front' ? 370 : (baxieData.position === 'center' ? 300 : 230),
-      y: 110 * i + 80,
+      x: baxieData.position === 'front' ? 340 : (baxieData.position === 'center' ? 260 : 210),
+      y: 100 * i + 100,
       renderPosition: i,
       gameMode: data.gameMode,
     }));
@@ -182,8 +194,8 @@ export default class GameScene extends Phaser.Scene {
       data: baxieData,
       roomId: this.roomId,
       // inverse for the enemy
-      x: baxieData.position === 'front' ? 570: (baxieData.position === 'center' ? 630 : 700),
-      y: 110 * i + 80,
+      x: baxieData.position === 'front' ? 590: (baxieData.position === 'center' ? 630 : 680),
+      y: 100 * i + 100,
       renderPosition: i,
       isEnemy: true,
       gameMode: data.gameMode,
@@ -207,7 +219,6 @@ export default class GameScene extends Phaser.Scene {
       const data = JSON.parse(message.data);
 
       if (data.type === 'gameOver') {
-        console.log(data.message)
         setTimeout(() => {
           this.scene.start('EndGameScene', {
             youWin: data.youWin,
@@ -215,7 +226,10 @@ export default class GameScene extends Phaser.Scene {
           });
         }, 1000);
       } else if (data.type === 'startBattle') {
+        this.loggerScene.addLog('Start Battle')
         this.status = 'playing';
+        this.drawBaxieTurnOrder(data.baxieTurnOrder);
+        this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
         this.drawTurn(data.turnIndex + 1);
       } else if (data.type === 'newTurn') {
         this.turnText.text = `TURN\n${data.turnIndex + 1}`;
@@ -223,10 +237,13 @@ export default class GameScene extends Phaser.Scene {
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
 
         if (baxieUI) {
+          this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
+          this.loggerScene.addLog(`#${data.baxieId} uses ${formatSkillName(data.skill, ' ')}`);
           this.showEnemySkillIndicator({
             baxieUI,
             skillName: data.skill,
-          })
+          });
+
           data.message.enemies?.forEach((enemyResult) => {
             const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
 
@@ -239,6 +256,7 @@ export default class GameScene extends Phaser.Scene {
               console.log(`baxie-${enemyResult.target} not found in show damage`)
             }
           });
+
           data.message.allies?.forEach((allyResult) => {
             const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
 
@@ -268,12 +286,26 @@ export default class GameScene extends Phaser.Scene {
           const updatedBaxie = data.player.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
+
+            if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
+              if (!baxie.logDeadStatus) {
+                this.loggerScene.addLog(`#${baxie.tokenId} is dead!`);
+                baxie.logDeadStatus = true;
+              }
+            }
           }
         });
         this.enemyTeam.forEach((baxie) => {
           const updatedBaxie = data.enemy.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
+
+            if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
+              if (!baxie.logDeadStatus) {
+                this.loggerScene.addLog(`#${baxie.tokenId} is dead!`);
+                baxie.logDeadStatus = true;
+              }
+            }
           }
         });
       }
@@ -288,7 +320,108 @@ export default class GameScene extends Phaser.Scene {
     this.enemyTeam.forEach((baxie) => baxie.preload());
   }
 
+  // Draw all Baxies based on the turn order
+  drawBaxieTurnOrder(baxieTurnOrder) {
+    const baxieBaseY = 47;
+    const baxieLeftStartX = 310;
+    const baxieRightStartX = 600;
+    const baxieSpacingX = 60;
+
+    // Clear any existing Baxie turn visuals
+    if (this.baxieTurnContainers) {
+      this.baxieTurnContainers.forEach(baxieContainer => baxieContainer.destroy());
+    }
+    this.baxieTurnContainers = [];
+
+    baxieTurnOrder.forEach((baxieTurnData, baxieTurnIndex) => {
+      const isLeftSide = baxieTurnIndex < 3;
+      const baxieX = isLeftSide
+        ? baxieLeftStartX + (baxieTurnIndex * baxieSpacingX)
+        : baxieRightStartX + ((baxieTurnIndex - 3) * baxieSpacingX);
+      const baxieY = baxieBaseY;
+
+      // Main container for this Baxie
+      const baxieTurnContainer = this.add.container(baxieX, baxieY);
+
+      // Baxie sprite (replace with actual texture key)
+      const maskSize = 50;
+      const baxieTurnSprite = this.add.image(0, 10, `image-${baxieTurnData.tokenId}`)
+        .setOrigin(0.5);
+      baxieTurnSprite.texture.setFilter(Phaser.Textures.NEAREST);
+      const scaleX = 100 / baxieTurnSprite.width;
+      const scaleY = 100 / baxieTurnSprite.height;
+      const scale = Math.min(scaleX, scaleY); // ensures it fits inside width & height
+
+      baxieTurnSprite.setScale(scale);
+
+      // Create graphics for mask
+      const maskShape = this.make.graphics({ x: baxieX, y: baxieY, add: false });
+      maskShape.fillStyle(0xffffff);
+
+      // Draw circle for mask
+      maskShape.fillRoundedRect(-maskSize / 2, -maskSize / 2, maskSize, maskSize, {
+        tl: 4, // top-left
+        tr: 4, // top-right
+        bl: 4,  // bottom-left
+        br: 4   // bottom-right
+      });
+
+// Apply mask
+      const mask = maskShape.createGeometryMask();
+      baxieTurnSprite.setMask(mask);
+      // baxieTurnContainer.add(maskShape);
+      baxieTurnContainer.add(baxieTurnSprite);
+
+
+      // Highlight rectangle (initially hidden)
+      const baxieTurnHighlight = this.add.rectangle(
+        0, 0,
+        50,
+        50,
+        0xffff00,
+        0.3
+      )
+        .setStrokeStyle(4, 0xffff00)
+        .setVisible(false);
+
+      // Add highlight and sprite to container
+      baxieTurnContainer.add([baxieTurnHighlight]);
+
+      // Attach references for easy use later
+      baxieTurnContainer.baxieTurnData = baxieTurnData;
+      baxieTurnContainer.baxieTurnSprite = baxieTurnSprite;
+      baxieTurnContainer.baxieTurnHighlight = baxieTurnHighlight;
+
+      this.baxieTurnContainers.push(baxieTurnContainer);
+    });
+  }
+
+  /**
+   * Highlights the Baxie currently taking its turn
+   * using its index in the baxieTurnContainers array.
+   */
+  highlightActiveBaxieTurnByIndex(activeBaxieTurnIndex) {
+    this.baxieTurnContainers.forEach((baxieTurnContainer, index) => {
+      const isActive = index === activeBaxieTurnIndex;
+
+      baxieTurnContainer.baxieTurnHighlight.setVisible(isActive);
+
+      // Tween opacity for dimming effect
+      this.tweens.add({
+        targets: baxieTurnContainer,
+        alpha: isActive ? 1 : 0.3,
+        duration: 200,
+        ease: 'Sine.easeInOut'
+      });
+
+    });
+  }
+
+
   create() {
+    this.scene.launch('LoggerScene');
+    this.loggerScene = this.scene.get('LoggerScene');
+
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});
     this.yourTurnBtn = createButton({
         scene: this,
@@ -342,6 +475,7 @@ export default class GameScene extends Phaser.Scene {
       this.enemyContainer.add(baxie.renderHPSP(i * 90, true));
       baxie.renderCharacter(this.skillContainer);
     });
+
     this.afterCreate();
   }
 

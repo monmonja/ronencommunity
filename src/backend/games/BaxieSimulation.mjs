@@ -174,7 +174,7 @@ function simulateCPUSkills (ws, data) {
 }
 
 function afterTurnEffectsHandler(player) {
-  player.baxies.map((baxie) => {
+  player?.baxies?.map((baxie) => {
     for (let i = baxie.effects.length - 1; i >= 0; i--) {
       const effect = baxie.effects[i];
       baxie.afterTurnEffects(effect.type, effect);
@@ -198,11 +198,15 @@ function afterTurnEffectsHandler(player) {
 function baxieAutoBattlerTurn(data, selectedBaxie) {
   const currentRoom = GameRoomManager.rooms[data.roomId];
 
+  if (!currentRoom) {
+    return;
+  }
+
   const selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
   const playerWithSelectedBaxie = currentRoom.players.filter((p) => p.baxieIds.map((b => b.tokenId)).includes(selectedBaxie.tokenId))[0];
   const userAddress = playerWithSelectedBaxie.address;
 
-  const nextBaxie = () => {
+  const nextBaxie = (timeout = 2000) => {
     if (currentRoom.gameOver) {
       return false;
     }
@@ -215,10 +219,12 @@ function baxieAutoBattlerTurn(data, selectedBaxie) {
         currentRoom.turnIndex += 1;
 
         currentRoom.players.forEach((player) => {
-          player.ws.send(JSON.stringify({
-            type: 'newTurn',
-            turnIndex: currentRoom.turnIndex,
-          }));
+          if (player.ws) {
+            player.ws.send(JSON.stringify({
+              type: 'newTurn',
+              turnIndex: currentRoom.turnIndex,
+            }));
+          }
         });
         console.log('--- Auto Battler Round End ---', currentRoom.turnIndex);
 
@@ -231,12 +237,12 @@ function baxieAutoBattlerTurn(data, selectedBaxie) {
       } else {
         baxieAutoBattlerTurn(data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
       }
-    }, 2000);
+    }, timeout);
   }
 
 
   if (!selectedBaxie.isAlive()) {
-    nextBaxie();
+    nextBaxie(0);
     return;
   }
 
@@ -284,6 +290,7 @@ async function handleGameLoaded(ws, data) {
           type: 'startBattle',
           roomId: data.roomId,
           baxieTurnOrder: currentRoom.baxieTurnOrder,
+          baxieTurnIndex: currentRoom.baxieTurnIndex,
           turnIndex: currentRoom.turnIndex,
         }));
       });
@@ -320,7 +327,9 @@ async function handleGameLoaded(ws, data) {
         player.ws.send(JSON.stringify({
           type: 'startBattle',
           roomId: data.roomId,
-          baxieTurnOrder: data.baxieTurnOrder ,
+          baxieTurnOrder: currentRoom.baxieTurnOrder,
+          baxieTurnIndex: currentRoom.baxieTurnIndex,
+          turnIndex: currentRoom.turnIndex,
         }));
       });
 
@@ -391,7 +400,6 @@ async function handleJoinRoom(ws, data) {
             player: player.baxies?.map((baxie) => baxie.getGameInfo(true)),
             enemy: enemy.baxies?.map((baxie) => baxie.getGameInfo(true)),
             gameMode: currentRoom.gameMode,
-            baxieTurnOrder: currentRoom.baxieTurnOrder?.map((baxie) => baxie.tokenId),
           }));
           player.ws.send(JSON.stringify({
             type: 'DeductEnergy',

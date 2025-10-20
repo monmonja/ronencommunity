@@ -33,6 +33,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     this.isEnemy = isEnemy;
     this.roomId = roomId;
     this.isYourTurn = false;
+    this.logDeadStatus = false;
   }
 
   startSkillCountdown(x, y, radius, duration) {
@@ -330,13 +331,14 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       key: `image-${this.tokenId}`,
       add: false,
     });
-    image.setScale(0.07);
-    image.setOrigin(0.5, 0)
+    image.setScale(0.06);
+    image.setOrigin(0.5, 0);
+    image.texture.setFilter(Phaser.Textures.NEAREST);
 
 
     const shadow = this.scene.make.image({
       x: this.width / 2,
-      y: 95,
+      y: 80,
       key: 'shadow',
       add: false,
     });

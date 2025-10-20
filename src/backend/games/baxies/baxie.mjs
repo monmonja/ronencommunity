@@ -261,8 +261,7 @@ export default class Baxie {
 
   afterTurnEffects(key, effect) {
     if (key === EFFECTS.burn) {
-      console.log('burn', effect.value)
-      this.currentHP -= effect.value;
+      this.currentHP = Math.max(this.currentHP - effect.value, 0);
     }
   }
 }

@@ -4,6 +4,7 @@ import {createButton} from "../../common/buttons.mjs";
 import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
 import constants from "../../common/constants.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
+import {formatSkillName} from "../../common/utils/baxie.mjs";
 
 export default class PositionSlotsScene extends Phaser.Scene {
   constructor() {
@@ -405,28 +406,6 @@ export default class PositionSlotsScene extends Phaser.Scene {
     }
   }
 
-  formatSkillName(str) {
-    // Insert space before capital letters
-    const spaced = str.replace(/([a-z])([A-Z])/g, '$1 $2');
-
-    // Split into words
-    const words = spaced.split(' ');
-
-    // Capitalize each word
-    const capitalizedWords = words.map(
-      word => word.charAt(0).toUpperCase() + word.slice(1)
-    );
-
-    // If more than one word, split into two lines
-    if (capitalizedWords.length > 1) {
-      return `${capitalizedWords[0]}\n${capitalizedWords.slice(1).join(' ')}`;
-    }
-
-    // Otherwise just return the single capitalized word
-    return capitalizedWords[0];
-  }
-
-
   createSkills(baxie, itemWidth) {
     const baxieSkillContainer = this.add.container(0, 295);
     const radius = 30;
@@ -459,7 +438,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
       }
       skillContainer.add(border);
 
-      const name = this.add.text(0, radius + 20, this.formatSkillName(skill.func), {
+      const name = this.add.text(0, radius + 20, formatSkillName(skill.func), {
         fontSize: "12px",
         color: "#ffff00",
         backgroundColor: "#000000",

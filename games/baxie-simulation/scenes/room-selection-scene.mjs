@@ -13,9 +13,9 @@ export default class RoomSelectionScene extends Phaser.Scene {
     super('RoomSelectionScene');
     this.dropdownOptions = [
       { label: 'Auto Battler', value: 'autoBattler' },
-      { label: 'Skill Countdown', value: 'skillCountdown' },
+      // { label: 'Skill Countdown', value: 'skillCountdown' },
       { label: 'Turn Based SP', value: 'turnBasedSP' },
-      { label: 'Turn Based One Char', value: 'turnBasedOneChar' },
+      // { label: 'Turn Based One Char', value: 'turnBasedOneChar' },
     ];
   }
 

@@ -17,10 +17,11 @@ export default class PreloaderScene extends Phaser.Scene {
       scene: this,
       width: 220,
       height: 14,
-      launchScreen: 'SyncMenuScene',
+      launchScreen: 'ToolSelection',
+      // launchScreen: 'SyncMenuScene',
       // launchScreen: 'GameModesScene',
       // launchScreen: 'PositionSlotsScene',
-      //launchScreen: 'RoomSelectionScene',
+      // launchScreen: 'RoomSelectionScene',
       // launchScreen: 'EndGameScene',
     });
 
@@ -39,6 +40,9 @@ export default class PreloaderScene extends Phaser.Scene {
     this.load.image('battle-bg', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/bg/stadium.webp`)
     this.load.image('shadow', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/shadow.webp`)
     this.load.audio('bgm', '{{config.cdnLink}}/game-assets/match-3-baxies/audio/bg.mp3');
+
+    this.load.image('game-simulation', '{{config.cdnLink}}/game-assets/baxie-simulation/images/game-simulation.png')
+    this.load.image('under-construction', '{{config.cdnLink}}/game-assets/baxie-simulation/images/under-construction.jpg')
 
     this.load.image('electric-charge-up', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/electric-charge-up.png`);
     this.load.image('electric-storm-breaker', `{{config.cdnLink}}/game-assets/${this.game.customConfig.gameId}/images/skills/electric-storm-breaker.png`);

@@ -127,15 +127,34 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
     });
   }
 
-  addItem(item: Phaser.GameObjects.Container, spacing: number = 10) {
+  addItem(item: Phaser.GameObjects.Container, spacing: number = 10, x: number|null) {
     // Position item at the end of innerContainer
     item.y = this.innerHeight;
-    item.x = this.widthValue / 2 - item.width / 2;
+    item.x = x ?? this.widthValue / 2 - item.width / 2;
 
     this.innerContainer.add(item);
 
     this.items.push(item);
 
+    this.innerHeight += item.height + spacing;
+    this.innerContainer.height = this.innerHeight;
+  }
+
+  prependItem(item: Phaser.GameObjects.Container, spacing: number = 10, x: number | null) {
+    // Position item at the TOP
+    item.y = 0;
+    item.x = x ?? this.widthValue / 2 - item.width / 2;
+
+    // Shift all existing items down
+    for (const existing of this.items) {
+      existing.y += item.height + spacing;
+    }
+
+    // Add to container visually
+    this.innerContainer.addAt(item, 0); // put at the top of the display list
+    this.items.unshift(item);
+
+    // Update inner height
     this.innerHeight += item.height + spacing;
     this.innerContainer.height = this.innerHeight;
   }

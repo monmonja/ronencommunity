@@ -61,6 +61,7 @@ export default class EndGameScene extends Phaser.Scene {
       height: 60,
       text: 'Baxie Selection',
       onPointerDown: async () => {
+        this.scene.stop('LoggerScene');
         this.scene.start('SelectionScene');
       },
     });
@@ -72,6 +73,7 @@ export default class EndGameScene extends Phaser.Scene {
       height: 60,
       text: 'Rooms',
       onPointerDown: async () => {
+        this.scene.stop('LoggerScene');
         this.scene.start('RoomSelectionScene', {
           selectedBaxies: this.selectedBaxies,
         });

@@ -39,7 +39,7 @@ export default class NftModel {
     if (address) {
       findQuery.address = address;
     }
-
+console.log(findQuery)
     const data = await mongoDbConnection.db().collection(config.mongo.table.nfts)
       .findOne(findQuery);
 
