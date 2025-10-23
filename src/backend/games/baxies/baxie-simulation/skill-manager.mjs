@@ -12,10 +12,10 @@ export default class SkillManager {
     { func: 'voltOverload', cost: 40, cooldown: 15, image: 'electric-volt-overload',
       description: 'Strikes 2 random enemies (75% Attack each). 20% chance to stun for 1 turn.'
     },
-    { func: 'chargeUp', cost: 30, cooldown: 15, image: 'electric-charge-up',
+    { func: 'chargeUp', cost: 20, cooldown: 15, image: 'electric-charge-up',
       description: 'Restores 10% Stamina, increases own Attack by 10% for 1 turn.'
     },
-    { func: 'stormBreaker', cost: 20, cooldown: 15, image: 'electric-storm-breaker',
+    { func: 'stormBreaker', cost: 30, cooldown: 15, image: 'electric-storm-breaker',
       description: '50% damage to all enemies. Stunned enemies take +20% extra damage this turn.'
     },
     { func: 'shadowStrike', cost: 40, cooldown: 15, image: 'shadow-shadow-strike',

@@ -196,6 +196,10 @@ export default class SelectionScene extends Phaser.Scene {
         border.visible = false;
         container.add(border);
 
+        if (this.selectedBaxiesId.includes(baxie.tokenId)) {
+          border.visible = true;
+        }
+
         const label = this.add.text(width / 2, 20, `#${baxie.tokenId}`, {
           fontSize: "20px",
           fontFamily: constants.fonts.troika,

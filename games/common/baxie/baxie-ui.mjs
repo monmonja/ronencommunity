@@ -312,8 +312,8 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       x: startHpBarX,
       y: -2,
       width: 120,
-      // height: [GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode) ? 45 : 90,
-      height: [GameModes.skillCountdown].includes(this.gameMode) ? 45 : 90,
+      height: [GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode) ? 45 : 90,
+      // height: [GameModes.skillCountdown].includes(this.gameMode) ? 45 : 90,
       // height: 90,
       radius: 0,
       innerBaseColor: 0x8b4e24,
@@ -378,8 +378,8 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     }).setOrigin(0);
     hpBackgroundRect.add(spLabel);
 
-    // if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
-    if ([GameModes.skillCountdown].includes(this.gameMode)) {
+    if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
+    // if ([GameModes.skillCountdown].includes(this.gameMode)) {
       this.spBar.visible = false;
       this.spText.visible = false;
       spLabel.visible = false;
