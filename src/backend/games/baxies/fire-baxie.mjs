@@ -56,6 +56,7 @@ export default class FireBaxie extends Baxie {
 
   // Phoenix Reign – conditional, check after a kill
   phoenixReign() {
+    // todo: this is wrong
     const staminaGain = Math.floor(this.getMaxStamina() * 0.15);
     this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
 

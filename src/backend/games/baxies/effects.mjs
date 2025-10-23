@@ -18,4 +18,5 @@ export const EFFECTS = {
   // in baxie.getCurrentAttack
   burn: 'burn',
 
+  reflect: 'reflect',
 }

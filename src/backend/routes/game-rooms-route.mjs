@@ -98,7 +98,8 @@ export function initGameRoomsRoutes(app, server) {
     ws.on('close', (code, reason) => {
       // Find and cleanup rooms with this ws
       Object.entries(GameRoomManager.rooms).forEach(([roomId, room]) => {
-        const player = room.players.find((player) => player.ws === ws);
+        console.log(room)
+        const player = room?.players?.find((player) => player.ws === ws);
 
         if (player) {
           GameRoomManager.handlePlayerDisconnect(roomId, player.address);

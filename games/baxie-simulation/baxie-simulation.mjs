@@ -12,6 +12,7 @@ import GameModesScene from "./scenes/game-modes-scene.mjs";
 import EndGameScene from "./scenes/end-game-scene.mjs";
 import LoggerScene from "./scenes/logger-scene.mjs";
 import ToolSelection from "./scenes/tool-selection.mjs";
+import OverlayScene from "./scenes/overlay-scene.mjs";
 
 createGame({
   gameScenesArray: [
@@ -28,6 +29,7 @@ createGame({
     EndGameScene,
     LoggerScene,
     ToolSelection,
+    OverlayScene,
   ],
   customConfig: {
     gameId: 'baxie-simulation',

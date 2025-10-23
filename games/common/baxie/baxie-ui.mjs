@@ -5,6 +5,7 @@ import {GameModes} from "./baxie-simulation.mjs";
 import ProgressBar from "../ui/progress-bar.mjs";
 import BackgroundRect from "../ui/background-rect.mjs";
 import constants from "../constants.mjs";
+import {formatSkillName} from "../utils/baxie.mjs";
 
 export default class BaxieUi extends Phaser.GameObjects.Container {
   attributes;
@@ -25,10 +26,10 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     this.tokenId = data.tokenId;
     this.image = data.image;
     this.skills = data.skills;
-    this.currentSP = data.stamina;
-    this.maxSP = data.stamina;
+    this.currentSP = data.sp;
+    this.maxSP = data.maxSP;
     this.currentHP = data.hp;
-    this.maxHP = data.hp;
+    this.maxHP = data.maxHP;
     this.gameMode = gameMode;
     this.isEnemy = isEnemy;
     this.roomId = roomId;
@@ -82,30 +83,46 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     return countdown;
   }
 
-  formatSkillName(str) {
-    // Insert space before capital letters
-    const spaced = str.replace(/([a-z])([A-Z])/g, '$1 $2');
-
-    // Split into words
-    const words = spaced.split(' ');
-
-    // Capitalize each word
-    const capitalizedWords = words.map(
-      word => word.charAt(0).toUpperCase() + word.slice(1)
-    );
-
-    // If more than one word, split into two lines
-    if (capitalizedWords.length > 1) {
-      return `${capitalizedWords[0]}\n${capitalizedWords.slice(1).join(' ')}`;
+  drawSkillSPRequirement(x, y, radius, currentSP, skillCost) {
+    console.log('currentSP', currentSP, skillCost)
+    // If we already can afford it, do nothing
+    if (currentSP >= skillCost) {
+      return null;
     }
 
-    // Otherwise just return the single capitalized word
-    return capitalizedWords[0];
+    const gfx = this.scene.add.graphics();
+    gfx.setName('sp-requirement');
+
+    const ratio = currentSP / skillCost; // 0 → 1
+
+    gfx.clear();
+
+    // Transparent base
+    gfx.fillStyle(0x000000, 0);
+    gfx.fillCircle(x, y, radius);
+
+    // Draw the missing SP pie
+    gfx.beginPath();
+    gfx.moveTo(x, y);
+    gfx.fillStyle(0x000000, 0.4);       // red-ish overlay for missing SP
+    gfx.arc(
+      x,
+      y,
+      radius,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * (1 - ratio),
+      false
+    );
+    gfx.closePath();
+    gfx.fillPath();
+
+    return gfx;
   }
 
   renderSkills(container) {
     let baxieSkillContainer = container.getByName(this.tokenId);
-    console.log('this.currentHP', this.currentHP)
+    const radius = 36; // since width/height = 100px total
+
     if (this.currentHP === 0) {
       return;
     }
@@ -113,6 +130,28 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     container.iterate((child) => {
       if (child === baxieSkillContainer) {
         child.setVisible(true);
+        child.list.forEach((item) => {
+          const redraw = () => {
+            this.skills.forEach((skill, index) => {
+              if (item.name === `skill-${skill.func}`) {
+                console.log('Redrawing SP requirement for', skill.func);
+                const skillIndicator = this.drawSkillSPRequirement(0, 0, radius + 10, this.currentSP, skill.cost);
+
+                if (skillIndicator) {
+                  item.add(skillIndicator);
+                }
+              }
+            });
+          }
+
+          if (item.getByName('sp-requirement')) {
+            item.getByName('sp-requirement').destroy();
+            redraw();
+          } else {
+            console.log('no sp-requirement found for', item.name);
+            redraw();
+          }
+        });
       } else {
         child.setVisible(false);
       }
@@ -126,7 +165,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     baxieSkillContainer.setName(this.tokenId);
     container.add(baxieSkillContainer);
 
-    const radius = 30; // since width/height = 100px total
+
     const y = radius;
     const skillWidth = radius * 2;
     const spacing = 20;
@@ -137,18 +176,10 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       const x = startX + index * (skillWidth + spacing);
 
       const skillContainer = this.scene.add.container(x, y);
-
-      const skillText = this.scene.add.text(0, radius + 20, this.formatSkillName(skill.func), {
-        fontSize: "16px",
-        color: "#ffff00",
-        backgroundColor: "#000000",
-        padding: { x: 5, y: 5 },
-      })
-        .setOrigin(0.5);
-      skillText.visible = false;
+      skillContainer.setName(`skill-${skill.func}`);
 
       const image = this.scene.add.image(0, 0, skill.image)
-        .setScale(1)
+        .setScale(0.09)
         .setOrigin(0.5);
       skillContainer.add(image);
 
@@ -158,11 +189,17 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
           interactiveBoundsChecker,
         )
         .on("pointerover", () => {
-          skillText.visible = true;
+          const bounds = image.getBounds();
+          this.scene.game.events.emit('show-overlay', {
+            text: skill.description,
+            x: bounds.x - 120,
+            y: bounds.y + 90,
+          });
+
           this.scene.input.manager.canvas.style.cursor = "pointer";
         })
         .on("pointerout", () => {
-          skillText.visible = false;
+          this.scene.game.events.emit('hide-overlay');
           this.scene.input.manager.canvas.style.cursor = "default";
         })
         .on('pointerdown', () => {
@@ -174,7 +211,6 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
             skillContainer.add(this.startSkillCountdown(0, 0, radius, 1000 * skill.cooldown));
           }
 
-          console.log(this.scene.ws.readyState, 'readyState')
           this.scene.ws.send(
             JSON.stringify({
               type: "useSkill",
@@ -186,10 +222,45 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
           );
         });
 
-      skillContainer.add(skillText);
+      const skillIndicator = this.drawSkillSPRequirement(0, 0, radius + 10, this.currentSP, skill.cost);
+
+      if (skillIndicator) {
+        skillContainer.add(skillIndicator);
+      } else {
+        console.log('No SP indicator needed for', skill.func ,this.currentSP, skill.cost);
+      }
+
       baxieSkillContainer.add(skillContainer);
     });
   }
+
+  highlightUsedSkill(baxieSkillContainer, skillName) {
+    const skillContainer = baxieSkillContainer.getByName(this.tokenId).getByName(`skill-${skillName}`);
+    console.log('highlightUsedSkill', `skill-${skillName}`)
+    if (!skillContainer) return;
+
+    const image = skillContainer.list.find(child => child instanceof Phaser.GameObjects.Image);
+    if (!image) {
+      console.warn(`No image found inside skill-${skillName}`);
+      return;
+    }
+
+    // Clear any old tween first
+    this.scene.tweens.killTweensOf(image);
+
+    // Highlight effect
+    image.setTint(0xffff00);
+    this.scene.tweens.add({
+      targets: image,
+      scale: { from: 0.09 * 1.2, to: 0.09 }, // your original scale is 0.09
+      duration: 700,
+      onComplete: () => {
+        image.clearTint();
+        image.setScale(0.09);
+      },
+    });
+  }
+
 
   preload() {
     this.scene.load.image(`image-${this.tokenId}`, this.image);
@@ -241,7 +312,8 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       x: startHpBarX,
       y: -2,
       width: 120,
-      height: [GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode) ? 45 : 90,
+      // height: [GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode) ? 45 : 90,
+      height: [GameModes.skillCountdown].includes(this.gameMode) ? 45 : 90,
       // height: 90,
       radius: 0,
       innerBaseColor: 0x8b4e24,
@@ -306,7 +378,8 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     }).setOrigin(0);
     hpBackgroundRect.add(spLabel);
 
-    if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
+    // if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
+    if ([GameModes.skillCountdown].includes(this.gameMode)) {
       this.spBar.visible = false;
       this.spText.visible = false;
       spLabel.visible = false;
@@ -348,7 +421,6 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     this.add(image);
 
     // Add a text label for debugging
-    console.log('this.tokenId',this.tokenId)
     const nameText = this.scene.add.text(0, 0, this.tokenId || "BaxieUi", {
       fontSize: "20px",
       color: "#ffffff",
@@ -383,11 +455,11 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
 
   updateStats(data) {
     this.currentHP = data.hp;
-    this.currentSP = data.stamina;
+    this.currentSP = data.sp;
     this.hpText.setText(`${data.hp}/${this.maxHP}`);
     this.hpBar.setValue(data.hp);
-    this.spText.setText(`${data.stamina}/${this.maxSP}`);
-    this.spBar.setValue(data.stamina);
+    this.spText.setText(`${data.sp}/${this.maxSP}`);
+    this.spBar.setValue(data.sp);
 
     if (this.currentHP === 0) {
       this.scene.tweens.add({
@@ -401,7 +473,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
       });
 
       const child = this.scene.children.getByName('skillContainer').list.find(c => c.name === this.tokenId);
-      console.log(this.list, child)
+
       if (child) {
         child.setVisible(false); // preferred Phaser method
       }

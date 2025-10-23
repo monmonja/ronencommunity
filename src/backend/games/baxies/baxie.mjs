@@ -16,6 +16,9 @@ export default class Baxie {
    * @type BaxieEffect[]
    */
   effects = [];
+  /**
+   * @type {BaxieSkill[]}
+   */
   skills = [];
   skillsTimer = {};
 
@@ -40,7 +43,7 @@ export default class Baxie {
     }
 
     this.currentHP = this.getMaxHP();
-    this.currentStamina = this.getMaxStamina();
+    this.currentStamina = this.getMaxStamina() * 0.3;
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
   }
@@ -90,6 +93,18 @@ export default class Baxie {
     }
   }
 
+  getPhysicalDamage(enemy) {
+    let attack = this.currentAttack;
+
+    for (const effect of this.effects) {
+      if (effect.type === EFFECTS.attackBoost && effect.turnsLeft > 0) {
+        attack += attack * effect.value;
+      }
+    }
+
+    return this.calculateDamage(attack * 0.4, enemy.getCurrentDefense(), true);
+  }
+
   canAttack() {
     if (!this.isAlive()) {
       return false;
@@ -97,9 +112,6 @@ export default class Baxie {
 
     for (const effect of this.effects) {
       if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
-        return false;
-      }
-      if (effect.type === EFFECTS.silence && effect.turnsLeft > 0) {
         return false;
       }
     }
@@ -114,6 +126,13 @@ export default class Baxie {
       return false;
     }
 
+    for (const effect of this.effects) {
+      if (effect.type === EFFECTS.silence && effect.turnsLeft > 0) {
+        return false;
+      }
+    }
+
+
     if (gameMode === GameModes.skillCountdown) {
       const now = Date.now(); // same as new Date().getTime()
       const cooldownMs = skill.cooldown * 1000; // convert sec → ms
@@ -125,25 +144,38 @@ export default class Baxie {
 
       return now >= lastUse + cooldownMs;
     }
+    console.log(`${this.tokenId} will use ${skill.func}`,this.currentStamina, skill.cost)
+    if (gameMode === GameModes.autoBattler) {
+      return this.currentStamina > skill.cost;
+    }
 
     return true;
   }
 
-  calculateDamage(attack, defense) {
-    const critChance = 0.01; // 1% chance
+  calculateDamage(attack, defense, allowCrit = false) {
+    const critChance = 0.1; // 10% chance
     const critMultiplier = 0.2; // 50% more damage
 
     let baseDamage = attack * (attack / (attack + defense));
     const minDamage = attack * 0.1;
 
     // Critical hit check
-    if (Math.random() < critChance) {
+    if (allowCrit && Math.random() < critChance) {
       baseDamage *= critMultiplier;
+    }
+
+    for (const effect of this.effects) {
+      if (effect.type === EFFECTS.extraDamageTaken && effect.turnsLeft > 0) {
+        baseDamage += baseDamage * effect.value;
+      }
+
+      if (effect.type === EFFECTS.reduceDamageTaken && effect.turnsLeft > 0) {
+        baseDamage -= baseDamage * effect.value;
+      }
     }
 
     return Math.floor(Math.max(baseDamage, minDamage));
   }
-
 
   getCurrentStamina () {
     return this.currentStamina;
@@ -190,16 +222,6 @@ export default class Baxie {
   }
 
   takeDamage(damage) {
-    for (const effect of this.effects) {
-      if (effect.type === EFFECTS.extraDamageTaken && effect.turnsLeft > 0) {
-        damage += damage * effect.value;
-      }
-
-      if (effect.type === EFFECTS.reduceDamageTaken && effect.turnsLeft > 0) {
-        damage -= damage * effect.value;
-      }
-    }
-
     this.currentHP = Math.max(this.currentHP - damage, 0);
 
     return this.currentHP;
@@ -215,8 +237,10 @@ export default class Baxie {
     if (full) {
       return {
         tokenId: this.tokenId,
+        maxHP: Math.ceil(this.getMaxHP()),
         hp: Math.ceil(this.currentHP) ?? 0,
-        stamina: this.currentStamina,
+        maxSP: Math.ceil(this.getMaxStamina()),
+        sp: Math.ceil(this.currentStamina)  ?? 0,
         image: this.image,
         skills: this.skills,
         position: this.position,
@@ -226,8 +250,10 @@ export default class Baxie {
     } else {
       return {
         tokenId: this.tokenId,
+        maxHP: Math.ceil(this.getMaxHP()),
         hp: Math.ceil(this.currentHP) ?? 0,
-        stamina: this.currentStamina,
+        maxSP: Math.ceil(this.getMaxStamina()),
+        sp: Math.ceil(this.currentStamina)  ?? 0,
         effects: this.effects,
       }
     }

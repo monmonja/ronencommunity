@@ -1,4 +1,5 @@
 import Baxie from './baxie.mjs';
+import {EFFECTS} from "./effects.mjs";
 
 export default class PlantBaxie extends Baxie {
   constructor(props) {
@@ -34,7 +35,7 @@ export default class PlantBaxie extends Baxie {
     try {
       const alliesResults = [];
       const reflectEffect = {
-        type: "reflect",
+        type: EFFECTS.reflect,
         damageType: "physical",
         value: 0.2, // 20% reflect
         turnsLeft: 2,
@@ -55,7 +56,7 @@ export default class PlantBaxie extends Baxie {
     try {
       const alliesResult = [];
 
-      allies.forEach(ally => {
+      allies.forEach((ally) => {
         const healAmount = Math.floor(ally.getMaxHP() * 0.1);
         ally.addHp(healAmount);
         alliesResult.push({ target: ally.tokenId, heal: healAmount });

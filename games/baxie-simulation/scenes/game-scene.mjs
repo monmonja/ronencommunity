@@ -7,6 +7,7 @@ import BackgroundRect from "../../common/ui/background-rect.mjs";
 import EndGameScene from "./end-game-scene.mjs";
 import {VerticalScrollContainer} from "../../common/ui/vertical-scroll-container.ts";
 import {formatSkillName} from "../../common/utils/baxie.mjs";
+import {EFFECTS} from "../../../src/backend/games/baxies/effects.mjs";
 
 export default class GameScene extends Phaser.Scene {
   enemyTeam;
@@ -20,39 +21,7 @@ export default class GameScene extends Phaser.Scene {
     this.isPlayerTurn = true;
   }
 
-  showEnemySkillIndicator({ baxieUI, skillName }) {
-    let x = baxieUI.x - 90;
-    if (x < 300) {
-      x = baxieUI.x + baxieUI.width + 100;
-    }
-    let y = baxieUI.y + 20;
-
-    const formatted = skillName.replace(/([a-z])([A-Z])/g, '$1 $2');
-
-    // Create a container to hold the background and text
-    const container = this.add.container(x, y);
-
-    // Text
-    const text = this.add.text(0, 0, formatted, {
-      fontFamily: constants.fonts.troika,
-      fontSize: '16px',
-      color: '#ffffff',
-      align: 'center',
-      padding: { x: 8, y: 4 }
-    }).setOrigin(0.5);
-
-    // Background rectangle based on text size
-    const bg = this.add.rectangle(
-      0,
-      0,
-      text.width + 16, // extra padding
-      text.height + 8,
-      0x000000,
-      0.3 // alpha for semi-transparent black
-    ).setOrigin(0.5);
-
-    // Add background first, then text on top
-    container.add([bg, text]);
+  shakeBaxieIndicator({ baxieUI }) {
 
     // === SHAKE EFFECT on the attacking Baxie ===
     this.tweens.add({
@@ -62,16 +31,6 @@ export default class GameScene extends Phaser.Scene {
       yoyo: true,
       repeat: 3, // number of shakes
       ease: 'Sine.easeInOut'
-    });
-
-    // Optional: float up and fade out
-    this.tweens.add({
-      targets: container,
-      y: y,
-      alpha: 0,
-      duration: 3000,
-      ease: 'EaseOut',
-      onComplete: () => container.destroy()
     });
   }
 
@@ -234,44 +193,88 @@ export default class GameScene extends Phaser.Scene {
       } else if (data.type === 'newTurn') {
         this.turnText.text = `TURN\n${data.turnIndex + 1}`;
       } else if (data.type === 'endUseSkill') {
+        /**
+         * @type {BaxieUi}
+         */
         const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
 
         if (baxieUI) {
           this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
-          this.loggerScene.addLog(`#${data.baxieId} uses ${formatSkillName(data.skill, ' ')}`);
-          this.showEnemySkillIndicator({
-            baxieUI,
-            skillName: data.skill,
-          });
+          baxieUI.renderSkills(this.skillContainer);
 
-          data.message.enemies?.forEach((enemyResult) => {
-            const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
+          setTimeout(() => {
+            this.loggerScene.addLog(`#${data.baxieId} uses ${formatSkillName(data.skill, ' ')}`);
+            this.shakeBaxieIndicator({
+              baxieUI,
+            });
+            console.log('render skils')
 
-            if (enemyUi) {
-              this.showDamage({
-                baxieUI: enemyUi,
-                damage: enemyResult.damage,
-              });
-            } else {
-              console.log(`baxie-${enemyResult.target} not found in show damage`)
-            }
-          });
+            baxieUI.highlightUsedSkill(this.skillContainer, data.skill);
 
-          data.message.allies?.forEach((allyResult) => {
-            const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
+            data.message.enemies?.forEach((enemyResult) => {
+              const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
 
-            console.log('allyUi', allyResult.target)
-            if (allyUi && allyResult.heal) {
-              this.showHeal({
-                baxieUI: allyUi,
-                heal: allyResult.heal,
-              });
-            }
-          });
+              if (enemyUi) {
+                this.showDamage({
+                  baxieUI: enemyUi,
+                  damage: enemyResult.damage,
+                });
+              } else {
+                console.log(`baxie-${enemyResult.target} not found in show damage`)
+              }
+            });
+
+            data.message.allies?.forEach((allyResult) => {
+              const allyUi = this.children.getByName(`baxie-${allyResult.target}`);
+
+              console.log('allyUi', allyResult.target)
+              if (allyUi && allyResult.heal) {
+                this.showHeal({
+                  baxieUI: allyUi,
+                  heal: allyResult.heal,
+                });
+              }
+            });
+          }, 500);
         } else {
           console.log(`baxie-${enemyResult.target} not found in show damage indicator`)
         }
         console.log(data)
+      } else if (data.type === 'endPhysicalAttack') {
+        /**
+         * @type {BaxieUi}
+         */
+        const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
+
+        if (baxieUI) {
+          this.loggerScene.addLog(`#${data.baxieId} uses Physical Attack`);
+          baxieUI.renderSkills(this.skillContainer);
+          this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
+
+          setTimeout(() => {
+            this.shakeBaxieIndicator({
+              baxieUI,
+            });
+            console.log('do physical attack')
+
+            data.message.enemies?.forEach((enemyResult) => {
+              const enemyUi = this.children.getByName(`baxie-${enemyResult.target}`);
+
+              if (enemyResult.skill === EFFECTS.reflect) {
+                this.loggerScene.addLog(`#${enemyResult.reflectFrom} reflected Physical Attack to #${enemyResult.target}`);
+              }
+
+              if (enemyUi) {
+                this.showDamage({
+                  baxieUI: enemyUi,
+                  damage: enemyResult.damage,
+                });
+              } else {
+                console.log(`baxie-${enemyResult.target} not found in show damage`)
+              }
+            });
+          }, 500);
+        }
       } else if (data.type === 'yourTurn') {
         if (this.gameMode === GameModes.turnBasedSP) {
           this.yourTurnText.visible = true;
@@ -420,6 +423,7 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     this.scene.launch('LoggerScene');
+    this.scene.launch('OverlayScene');
     this.loggerScene = this.scene.get('LoggerScene');
 
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});

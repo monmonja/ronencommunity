@@ -448,7 +448,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
       skillContainer.add(name)
 
       const image = this.add.image(0, 0, skill.image)
-        .setScale(1)
+        .setScale(0.09)
         .setOrigin(0.5);
       skillContainer.add(image);
 

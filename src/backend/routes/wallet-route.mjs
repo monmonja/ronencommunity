@@ -52,13 +52,9 @@ export function initWalletRoutes(app) {
     async (req, res) => {
       const nftTokeId = 'baxies';
       const userWallet = req.session.wallet.address;
-      let walletNft;
+      let walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
 
-      if (req.params.sync === 'false' && await WalletsModel.hasNftSyncToday(nftTokeId, userWallet)) {
-        walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
-
-      } else {
-        console.log('Syncing NFTs for', userWallet);
+      if (req.params.sync === 'true' || walletNft.length === 0) {
         const contractAddress = "0xb79f49ac669108426a69a26a6ca075a10c0cfe28";
         const abi = [
           "function balanceOf(address owner) view returns (uint256)",
