@@ -105,7 +105,7 @@ export function initGameProfilesRoutes(app) {
         }
       } catch (error) {
         console.error('Error saving game profile:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error. Error saving game profile.' });
       }
     }
   );

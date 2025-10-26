@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import url from "url";
 import { verifyMessage } from "ethers";
 import { body, param, validationResult } from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
@@ -6,6 +7,7 @@ import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
 import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
 import NftModel from "../models/nft-model.mjs";
+import {logError} from "../components/logger.mjs";
 
 export function initWalletRoutes(app) {
   app.get(
@@ -50,35 +52,45 @@ export function initWalletRoutes(app) {
     requireWalletSession,
     cookieCheckMiddleware,
     async (req, res) => {
-      const nftTokeId = 'baxies';
-      const userWallet = req.session.wallet.address;
-      let walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
+      try {
+        const nftTokeId = 'baxies';
+        /// get from query string
+        const parsedUrl = url.parse(req.url, true);
+        const userWallet = parsedUrl.query.wallet || req.session.wallet.address ;
 
-      if (req.params.sync === 'true' || walletNft.length === 0) {
-        const contractAddress = "0xb79f49ac669108426a69a26a6ca075a10c0cfe28";
-        const abi = [
-          "function balanceOf(address owner) view returns (uint256)",
-          "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-          "function tokenURI(uint256 tokenId) view returns (string)",
-          "function ownerOf(uint256 tokenId) view returns (address)"
-        ];
+        let walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
 
-        walletNft = await WalletsModel.getUserNFTs('baxies', contractAddress, abi, userWallet);
-      }
+        if (req.params.sync === 'true' || walletNft.length === 0) {
+          const contractAddress = "0xb79f49ac669108426a69a26a6ca075a10c0cfe28";
+          const abi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+            "function tokenURI(uint256 tokenId) view returns (string)",
+            "function ownerOf(uint256 tokenId) view returns (address)"
+          ];
 
-      const nfts = await NftModel.getNftItems(nftTokeId, userWallet);
-
-      walletNft.forEach((item) => {
-        if (nfts[item.tokenId]) {
-          const baxie = makeBaxie(nfts[item.tokenId]);
-
-          item.nft = {
-            ...nfts[item.tokenId],
-            ...baxie.getGameInfo(true),
-          };
+          walletNft = await WalletsModel.getUserNFTs('baxies', contractAddress, abi, userWallet);
         }
-      });
 
-      res.json(walletNft);
+        const nfts = await NftModel.getNftItems(nftTokeId, userWallet);
+
+        walletNft.forEach((item) => {
+          if (nfts[item.tokenId]) {
+            const baxie = makeBaxie(nfts[item.tokenId]);
+
+            item.nft = {
+              ...nfts[item.tokenId],
+              ...baxie.getGameInfo(true),
+            };
+          }
+        });
+
+        res.json(walletNft);
+      } catch (error) {
+        logError({
+          message: "Error in /list/baxies/:sync",
+          auditData: error,
+        });
+      }
     });
 }
