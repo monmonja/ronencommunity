@@ -19,6 +19,9 @@ export default class EndGameScene extends Phaser.Scene {
   }
 
   create() {
+    this.game.events.emit('hide-overlay');
+
+
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)

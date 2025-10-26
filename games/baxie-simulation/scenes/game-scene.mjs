@@ -22,7 +22,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   shakeBaxieIndicator({ baxieUI }) {
-
     // === SHAKE EFFECT on the attacking Baxie ===
     this.tweens.add({
       targets: baxieUI,
@@ -435,11 +434,11 @@ export default class GameScene extends Phaser.Scene {
       buff: this.sound.add('sfx-buff'),
       crit: this.sound.add('sfx-crit'),
       electric: this.sound.add('sfx-lightning-magic'),
-      water: this.sound.add('sfx-water-magic'),
+      aqua: this.sound.add('sfx-water-magic'),
       plant: this.sound.add('sfx-plant-magic'),
       fairy: this.sound.add('sfx-healing-magic'),
       fire: this.sound.add('sfx-fire-magic'),
-      dark: this.sound.add('sfx-dark-magic')
+      demon: this.sound.add('sfx-dark-magic')
     };
 
     this.loggerScene = this.scene.get('LoggerScene');

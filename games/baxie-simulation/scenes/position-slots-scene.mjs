@@ -432,7 +432,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const border = this.add.graphics()
       border.fillStyle(0xAC022F, 1);
       border.fillCircle(0, 0, radius + 2);
-      console.log('baxie.selectedSkills', baxie.selectedSkills, skill.func)
+      console.log('baxie.selectedSkills', baxie.selectedSkills, skill)
       if (!baxie.selectedSkills.includes(skill.func)) {
         border.visible = false;
       }
@@ -448,7 +448,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
       skillContainer.add(name)
 
       const image = this.add.image(0, 0, skill.image)
-        .setScale(0.09)
+        .setScale(0.06)
         .setOrigin(0.5);
       skillContainer.add(image);
 
@@ -458,9 +458,19 @@ export default class PositionSlotsScene extends Phaser.Scene {
           interactiveBoundsChecker,
         )
         .on("pointerover", () => {
+          // @todo add description
+          const bounds = image.getBounds();
+
+          this.game.events.emit('show-overlay', {
+            text: skill.description,
+            x: bounds.x - 120,
+            y: bounds.y + 90,
+          });
+
           this.input.manager.canvas.style.cursor = "pointer";
         })
         .on("pointerout", () => {
+          this.game.events.emit('hide-overlay');
           this.input.manager.canvas.style.cursor = "default";
         })
         .on('pointerdown', () => {
@@ -530,6 +540,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
 
 
   create() {
+    this.scene.launch('OverlayScene');
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
       .setOrigin(0, 0)

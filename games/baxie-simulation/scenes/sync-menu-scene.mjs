@@ -16,6 +16,17 @@ export default class SyncMenuScene extends Phaser.Scene {
   }
 
   create() {
+    if (!this.game.registry.get('bgMusic')) {
+      const bgMusic = this.sound.add('bgm', {
+        volume: 0.2,
+        loop: true
+      });
+      bgMusic.play();
+
+      // Store in game registry so all scenes can access it
+      this.game.registry.set('bgMusic', bgMusic);
+    }
+
     this.world = this.add.container(0, 0);
 
     this.backgroundDay = this.add
