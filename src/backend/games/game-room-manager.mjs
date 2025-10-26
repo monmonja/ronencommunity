@@ -94,6 +94,26 @@ export default class GameRoomManager {
     }
   }
 
+  /**
+   *
+   * @param roomId
+   * @param address
+   * @returns {boolean}
+   */
+  static canJoinRoom({ roomId, address } = {}) {
+    if (GameRoomManager.rooms[roomId] && GameRoomManager.rooms[roomId].canJoin) {
+      if (GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length > 0) {
+        return false;
+      }
+
+      if (!GameRoomManager.rooms[roomId].canJoin) {
+        return false;
+      }
+
+      return true;
+    }
+  }
+
 
 
   // ========== MATCH TRACKING METHODS (OPTIMIZED) ==========

@@ -9,6 +9,7 @@ export function createButton({
   bottomBgColor = 0x556853,
   innerBaseColor = 0x537a4e,
   borderColor = 0x223220,
+  fontSize = '26px',
 } = {}) {
   const button = scene.add.container(x, y);
 
@@ -31,7 +32,7 @@ export function createButton({
 
   if (text) {
     const label = scene.add.text(width / 2, height / 2  + 2, text, {
-      fontSize: '26px',
+      fontSize,
       fontFamily: 'troika',
       color: '#ffffff'
     }).setOrigin(0.5, 0.5);

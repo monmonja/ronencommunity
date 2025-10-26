@@ -11,6 +11,7 @@ export default class PlantBaxie extends Baxie {
    * Nature’s Resurgence – Restores 15% Stamina to all allies.
    */
   naturesResurgence(enemies, allies) {
+    return this.thornGuard();
     try {
       const restored = [];
 
@@ -40,7 +41,7 @@ export default class PlantBaxie extends Baxie {
         value: 0.2, // 20% reflect
         turnsLeft: 2,
       };
-      this.effects.push(reflectEffect);
+      this.addEffect(reflectEffect);
       alliesResults.push({ ally: this.tokenId, effects: [reflectEffect] });
 
       return { allies: alliesResults };
@@ -53,6 +54,7 @@ export default class PlantBaxie extends Baxie {
    * Bloom Overgrowth – Heals all allies for 10% HP.
    */
   bloomOvergrowth(enemies, allies) {
+    return this.thornGuard();
     try {
       const alliesResult = [];
 

@@ -72,7 +72,7 @@ export default class DemonBaxie extends Baxie {
          * @type BaxieEffect
          */
         const extraDamageEffect = { type: EFFECTS.extraDamageTaken, value: 0.1, turnsLeft: 1 };
-        target.effects.push(extraDamageEffect);
+        target.addEffect(extraDamageEffect);
         resultEnemies[0].effects = [extraDamageEffect];
       }
 

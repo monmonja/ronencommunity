@@ -388,6 +388,56 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     return hpSpContainer;
   }
 
+  renderEffectsUI(container, updatedBaxie, x, y) {
+    const key = `effects-container-${updatedBaxie.tokenId}`;
+
+    if (container.getByName(key)) {
+      console.log('distroying old effects container for', updatedBaxie.tokenId, key);
+      container.getByName(key).destroy();
+    }
+
+    const effectsContainer = this.scene.add.container(x, y);
+    effectsContainer.setName(key);
+
+    const iconSize = 32;
+    const spacing = 16;
+
+    updatedBaxie.effects.forEach((effect, index) => {
+      const itemX = (iconSize + spacing) * index;
+
+      // background graphic frame
+      const bg = this.scene.add.graphics();
+      bg.fillStyle(0x000000, 0.4);
+      bg.fillRoundedRect(0, 0, iconSize + 12, iconSize, 6);
+
+      // icon
+      console.log(`effects-${effect.type}`)
+      const icon = this.scene.add.image(0, 0, `effects-${effect.type}`)
+        .setOrigin(0, 0)
+        .setDisplaySize(iconSize, iconSize);
+
+      // turnsLeft text
+      const turnsText = this.scene.add.text(
+        iconSize - 2,
+        iconSize / 2 - 8,
+        effect.turnsLeft.toString(),
+        {
+          fontFamily: constants.fonts.Newsreader,
+          fontSize: '14px',
+          color: '#ffffff',
+        }
+      );
+
+      // group into a mini container
+      const itemContainer = this.scene.add.container(itemX, 0);
+      itemContainer.add([bg, icon, turnsText]);
+      effectsContainer.add(itemContainer);
+    });
+
+    container.add(effectsContainer);
+  }
+
+
   renderCharacter(skillContainer, hasEvents = false) {
     this.skillContainer = skillContainer;
     // Clear any existing children
@@ -460,6 +510,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     this.hpBar.setValue(data.hp);
     this.spText.setText(`${data.sp}/${this.maxSP}`);
     this.spBar.setValue(data.sp);
+    this.effects = data.effects;
 
     if (this.currentHP === 0) {
       this.scene.tweens.add({

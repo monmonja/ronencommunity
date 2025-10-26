@@ -11,7 +11,7 @@ export default class Baxie {
   currentStamina = 0;
   currentAttack = 0;
   currentDefense = 0;
-  position = 'B';
+  position = 'back';
   /**
    * @type BaxieEffect[]
    */
@@ -51,15 +51,15 @@ export default class Baxie {
   populateSkills(skills) {
     const skillCount = skills.length;//Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
 
+    if (skills.filter((skill) => typeof skill !== 'string').length > 0) {
+      return skills;
+    }
+
     this.skills = SkillManager.getBaxieSkill(skills.slice(0, skillCount), this.getMaxStamina());
   }
 
   isAlive() {
     return this.currentHP > 0;
-  }
-
-  getMysticCount() {
-    return Number(this.attributes.mystic.split('/')[0]);
   }
 
   getMaxStamina() {
@@ -83,7 +83,7 @@ export default class Baxie {
       return 'Not alive';
     }
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
         return `Cannot attack it is stunned for ${effect.turnsLeft} more turn(s).`;
       }
@@ -96,7 +96,7 @@ export default class Baxie {
   getPhysicalDamage(enemy) {
     let attack = this.currentAttack;
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.attackBoost && effect.turnsLeft > 0) {
         attack += attack * effect.value;
       }
@@ -110,7 +110,7 @@ export default class Baxie {
       return false;
     }
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
         return false;
       }
@@ -126,7 +126,7 @@ export default class Baxie {
       return false;
     }
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.silence && effect.turnsLeft > 0) {
         return false;
       }
@@ -164,7 +164,7 @@ export default class Baxie {
       baseDamage *= critMultiplier;
     }
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.extraDamageTaken && effect.turnsLeft > 0) {
         baseDamage += baseDamage * effect.value;
       }
@@ -184,7 +184,7 @@ export default class Baxie {
   getCurrentDefense () {
     let defense = this.currentDefense;
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.defenseBoost && effect.turnsLeft > 0) {
         defense += effect.value;
       }
@@ -200,7 +200,7 @@ export default class Baxie {
   getCurrentAttack () {
     let attack = this.currentAttack;
 
-    for (const effect of this.effects) {
+    for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.attackBoost && effect.turnsLeft > 0) {
         attack += attack * effect.value;
       }
@@ -260,7 +260,7 @@ export default class Baxie {
   }
 
   // Generic skill executor
-  useSkill(skillName, enemies, allies = [], gameMode = GameModes.turnBasedSP) {
+  useSkill({ skillName, enemies, allies = [], gameMode = GameModes.turnBasedSP, turnIndex = 0 } = {}) {
     const skill = this.skills.find(s => s.func === skillName);
 
     if (!skill) {
@@ -274,15 +274,39 @@ export default class Baxie {
     this.useStamina(skill.cost);
     this.skillsTimer[skillName] = Date.now();
 
+    this.gameTurnIndex = turnIndex;
     return this[skillName](enemies, allies);
   }
 
+  getActiveEffect() {
+    const effects = [];
+
+    for (const effect of this.effects) {
+      if (effect.turnsLeft > 0) {
+        effects.push(effect);
+      }
+    }
+
+    return effects;
+  }
+
   addEffect(effect) {
-    this.effects.push(effect);
+    if (this.hasEffect(effect.type)) {
+      // refresh effect duration
+      const existingEffect = this.effects.find((e) => e.type === effect.type);
+
+      existingEffect.turnIndexAdded = this.gameTurnIndex;
+      existingEffect.turnsLeft = effect.turnsLeft;
+    } else {
+      effect.turnIndexAdded = this.gameTurnIndex;
+      effect.active = false;
+
+      this.effects.push(effect);
+    }
   }
 
   hasEffect(effect) {
-    return this.effects.filter((e) => e.type === effect && e.turnsLeft > 0).length > 0;
+    return this.effects.filter((e) => e.type === effect && e.turnsLeft >= 0).length > 0;
   }
 
   afterTurnEffects(key, effect) {

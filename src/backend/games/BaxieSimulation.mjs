@@ -3,7 +3,6 @@ import {makeBaxie} from "./baxies/baxie-utilities.mjs";
 import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 import GameRoomManager from "./game-room-manager.mjs";
 import Security from "../models/security.mjs";
-import Baxie from "./baxies/baxie.mjs";
 import {logError} from "../components/logger.mjs";
 import SkillManager from "./baxies/baxie-simulation/skill-manager.mjs";
 import {EFFECTS} from "./baxies/effects.mjs";
@@ -179,21 +178,22 @@ function simulateCPUSkills (ws, data) {
   }
 }
 
-function afterTurnEffectsHandler(player) {
-  player?.baxies?.map((baxie) => {
-    for (let i = baxie.effects.length - 1; i >= 0; i--) {
-      const effect = baxie.effects[i];
-      baxie.afterTurnEffects(effect.type, effect);
+function afterTurnEffectsHandler(baxie, turnIndex) {
+  for (let i = baxie.effects.length - 1; i >= 0; i--) {
+    const effect = baxie.effects[i];
+    baxie.afterTurnEffects(effect.type, effect);
 
+    if (turnIndex !== effect.turnIndexAdded) {
       effect.turnsLeft -= 1;
-      console.log(`Baxie ${baxie.tokenId} effect ${effect.type} turn left: ${effect.turnsLeft}`);
+
+      console.log(`Baxie ${baxie.tokenId} effect ${effect.type} turn left: ${effect.turnsLeft}, ${turnIndex} `);
 
       if (effect.turnsLeft <= 0) {
         console.log('Removing effect:', effect.type);
         baxie.effects.splice(i, 1); // remove effect at index i
       }
     }
-  });
+  }
 }
 
 function doPhysicalAttack({ roomId, playerWithSelectedBaxie, selectedBaxie } = {}) {
@@ -201,6 +201,7 @@ function doPhysicalAttack({ roomId, playerWithSelectedBaxie, selectedBaxie } = {
   const enemy = GameRoomManager.getOpponent(roomId, playerWithSelectedBaxie.address);
 
   const target = SkillManager.getBaxieFromPosition(enemy.baxies.filter((b) => b.isAlive()), 1)[0];
+  console.log('target', target)
   const damage = selectedBaxie.getPhysicalDamage(target);
   let message;
 
@@ -243,6 +244,7 @@ function doPhysicalAttack({ roomId, playerWithSelectedBaxie, selectedBaxie } = {
 /**
  *
  * @param data
+ * @param ws
  * @param {Baxie} selectedBaxie
  */
 function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
@@ -262,8 +264,6 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
   } else {
     selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
   }
-
-  const userAddress = playerWithSelectedBaxie.address;
 
   const nextBaxie = (timeout = turnTimeout) => {
     if (currentRoom.gameOver) {
@@ -300,11 +300,6 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
 
         console.log('--- Auto Battler Round End ---', currentRoom.turnIndex);
 
-        const player = GameRoomManager.getPlayer(data.roomId, userAddress);
-        const enemy = GameRoomManager.getOpponent(data.roomId, userAddress);
-
-        afterTurnEffectsHandler(player);
-        afterTurnEffectsHandler(enemy);
         baxieAutoBattlerTurn(ws, data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
       } else {
         baxieAutoBattlerTurn(ws, data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
@@ -314,6 +309,7 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
 
 
   if (!selectedBaxie.isAlive()) {
+    afterTurnEffectsHandler(selectedBaxie, currentRoom.turnIndex);
     nextBaxie(0);
     return;
   }
@@ -350,6 +346,7 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
         return;
       }
 
+      afterTurnEffectsHandler(selectedBaxie, currentRoom.turnIndex);
       nextBaxie();
     } else {
       doPhysicalAttack({
@@ -357,10 +354,12 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
         playerWithSelectedBaxie,
         selectedBaxie,
       });
+      afterTurnEffectsHandler(selectedBaxie, currentRoom.turnIndex);
       // tryAttack(attempts + 1);
       console.log('auto battler not enough stamina', selectedBaxie.currentStamina, skill.cost);
     }
   } else {
+    afterTurnEffectsHandler(selectedBaxie, currentRoom.turnIndex);
     console.log('Baxie cannot attack', selectedBaxie.reasonCannotAttack());
     nextBaxie();
   }
@@ -382,6 +381,7 @@ async function handleGameLoaded(ws, data) {
         }));
       });
       setTimeout(() => {
+        console.log('currentRoom.baxieTurnIndex', currentRoom.baxieTurnIndex)
         baxieAutoBattlerTurn(ws, data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
       }, 1000);
 
@@ -448,6 +448,7 @@ async function handleJoinRoom(ws, data) {
           const baxieId = baxie.tokenId;
           GameRoomManager.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
             if (Number(playerBaxie.tokenId) === Number(baxieId)) {
+            console.log(`Setting position and skills for baxie ${baxieId} to ${JSON.stringify(baxie.skills)}`);
               playerBaxie.position = baxie.position;
               playerBaxie.populateSkills(baxie.skills);
             }
@@ -625,12 +626,13 @@ function handleUseSkill(ws, data, request) {
     const canUseSkill = selectedBaxie.canUseSkill(data.selectedSkill, currentRoom.gameMode);
 
     if (canUseSkill) {
-      const message = selectedBaxie.useSkill(
-        data.selectedSkill,
-        enemy.baxies.filter((b) => b.isAlive()),
-        player.baxies.filter((b) => b.isAlive()),
-        currentRoom.gameMode
-      );
+      const message = selectedBaxie.useSkill({
+        skillName: data.selectedSkill,
+        enemies: enemy.baxies.filter((b) => b.isAlive()),
+        allies: player.baxies.filter((b) => b.isAlive()),
+        gameMode: currentRoom.gameMode,
+        turnIndex: currentRoom.turnIndex,
+      });
       console.log('message', message)
       // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
 
@@ -640,6 +642,7 @@ function handleUseSkill(ws, data, request) {
             type: 'endUseSkill',
             skill: data.selectedSkill,
             baxieId: selectedBaxie.tokenId,
+            baxieType: selectedBaxie.attributes.class.toLowerCase(), // later should be based on skill type
             message: message,
             isYourTurn: currentRoom.playerTurn === currentRoom.playerTurn,
             baxieTurnIndex: currentRoom.baxieTurnIndex,

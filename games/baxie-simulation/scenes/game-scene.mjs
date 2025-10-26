@@ -201,6 +201,8 @@ export default class GameScene extends Phaser.Scene {
         if (baxieUI) {
           this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
           baxieUI.renderSkills(this.skillContainer);
+          this.sounds[data.baxieType].play({ volume: 0.3 });
+          console.log('baxieUI.attributes', )
 
           setTimeout(() => {
             this.loggerScene.addLog(`#${data.baxieId} uses ${formatSkillName(data.skill, ' ')}`);
@@ -250,6 +252,7 @@ export default class GameScene extends Phaser.Scene {
           this.loggerScene.addLog(`#${data.baxieId} uses Physical Attack`);
           baxieUI.renderSkills(this.skillContainer);
           this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
+          this.sounds.hit.play({ volume: 0.3 });
 
           setTimeout(() => {
             this.shakeBaxieIndicator({
@@ -285,10 +288,11 @@ export default class GameScene extends Phaser.Scene {
         }
       } else if (data.type === 'updateStats') {
         // {"type":"updateStats","player":[{"tokenId":"1250","hp":100,"stamina":48,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1250.png","skills":[{"func":"voltOverload","cost":40},{"func":"chargeUp","cost":30},{"func":"stormBreaker","cost":10}]},{"tokenId":"1251","hp":100,"stamina":87,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1251.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1252","hp":100,"stamina":78,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1252.png","skills":[{"func":"voltOverload","cost":40},{"func":"chargeUp","cost":30},{"func":"stormBreaker","cost":10}]}],"enemy":[{"tokenId":"1269","hp":100,"stamina":89,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1269.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1271","hp":100,"stamina":109,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1271.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]},{"tokenId":"1265","hp":100,"stamina":78,"image":"https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1265.png","skills":[{"func":"shadowStrike","cost":40},{"func":"cursedChains","cost":30},{"func":"soulFeast","cost":10}]}]}
-        this.playerTeam.forEach((baxie) => {
+        this.playerTeam.forEach((baxie, i) => {
           const updatedBaxie = data.player.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
+            baxie.renderEffectsUI(this.playerContainer, updatedBaxie, 53, (i * 90) + 48);
 
             if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
               if (!baxie.logDeadStatus) {
@@ -298,10 +302,11 @@ export default class GameScene extends Phaser.Scene {
             }
           }
         });
-        this.enemyTeam.forEach((baxie) => {
+        this.enemyTeam.forEach((baxie, i) => {
           const updatedBaxie = data.enemy.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
+            baxie.renderEffectsUI(this.enemyContainer, updatedBaxie, 53, (i * 90) + 48);
 
             if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
               if (!baxie.logDeadStatus) {
@@ -424,6 +429,19 @@ export default class GameScene extends Phaser.Scene {
   create() {
     this.scene.launch('LoggerScene');
     this.scene.launch('OverlayScene');
+
+    this.sounds = {
+      hit: this.sound.add('sfx-hit'),
+      buff: this.sound.add('sfx-buff'),
+      crit: this.sound.add('sfx-crit'),
+      electric: this.sound.add('sfx-lightning-magic'),
+      water: this.sound.add('sfx-water-magic'),
+      plant: this.sound.add('sfx-plant-magic'),
+      fairy: this.sound.add('sfx-healing-magic'),
+      fire: this.sound.add('sfx-fire-magic'),
+      dark: this.sound.add('sfx-dark-magic')
+    };
+
     this.loggerScene = this.scene.get('LoggerScene');
 
     this.yourTurnText = this.add.text(100, 50, "Your Turn", {font: "32px Arial", fill: "#ffffff"});

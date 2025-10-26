@@ -19,4 +19,5 @@ export const EFFECTS = {
   burn: 'burn',
 
   reflect: 'reflect',
+  attackDebuff: 'attackDebuff',
 }

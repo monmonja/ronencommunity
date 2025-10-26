@@ -39,7 +39,7 @@ export default class FireBaxie extends Baxie {
 
       let attackReduced = false;
       if (Math.random() < 0.15) {
-        target.addEffect({ type: 'attackDebuff', value: -0.05, turnsLeft: 1 });
+        target.addEffect({ type: EFFECTS.attackDebuff, value: -0.05, turnsLeft: 1 });
         attackReduced = true;
       }
 
@@ -60,7 +60,7 @@ export default class FireBaxie extends Baxie {
     const staminaGain = Math.floor(this.getMaxStamina() * 0.15);
     this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
 
-    this.addEffect({ type: 'attackBoost', value: 0.5, turnsLeft: 1 });
+    this.addEffect({ type: EFFECTS.attackBoost, value: 0.5, turnsLeft: 1 });
 
     // @todo
     return {

@@ -140,7 +140,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
           }
         ],
         "purity":"1/6",
-        "position": "B"
+        "position": "back"
       },
       {
         "_id": "68dbddfa96eb8e86151ff2cb",
@@ -265,7 +265,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
           }
         ],
         "purity":"3/6",
-        "position": "B"
+        "position": "back"
       },
       {
         "_id": "68dbddfa96eb8e86151ff2cc",
@@ -390,7 +390,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
           }
         ],
         "purity":"5/6",
-        "position": "B"
+        "position": "back"
       }
     ];
   }

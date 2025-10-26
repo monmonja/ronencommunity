@@ -178,7 +178,6 @@ export function initGameRoomsRoutes(app, server) {
         game,
         vsCPU: true,
         gameMode,
-        characterIds,
       });
       await createCPUPlayer(room.roomId)
 
@@ -214,19 +213,23 @@ export function initGameRoomsRoutes(app, server) {
 
       const roomId = req.params.roomId;
       const address = req.session.wallet?.address.toLowerCase();
-      const room = GameRoomManager.joinRoom({ roomId, address });
+      if (GameRoomManager.canJoinRoom({ roomId, address })) {
+        const room = GameRoomManager.joinRoom({roomId, address});
 
-      if (room) {
-        if (game.slug === 'baxie-simulation') {
-          room.canJoin = false;
+        if (room) {
+          if (game.slug === 'baxie-simulation') {
+            room.canJoin = false;
+          }
+
+          return res.json({
+            roomId,
+            wsUrl: config.wsUrl,
+          });
+        } else {
+          return res.status(400).json({success: false, errors: "No room"});
         }
-
-        return res.json({
-          roomId,
-          wsUrl: config.wsUrl,
-        });
       } else {
-        return res.status(400).json({ success: false, errors: "No room" });
+        return res.status(400).json({success: false, errors: "Cannot join"});
       }
 
     });

@@ -86,6 +86,7 @@ export default class SkillManager {
    * @returns {*[]}
    */
   static getBaxieFromPosition(baxies, count, excludeId = null) {
+    console.log(baxies)
     const shuffle = (arr) => arr
       .map(a => ({ sort: Math.random(), value: a }))
       .sort((a, b) => a.sort - b.sort)
