@@ -1,12 +1,15 @@
 import Rollbar from "rollbar";
 import config from "../config/default.json" with { type: "json" };
 
-const rollbar = { log: (message, { auditData } = {}) => {}};
-// const rollbar = new Rollbar({
-//   accessToken: config.web3.rollbar,
-//   captureUncaught: true,
-//   captureUnhandledRejections: true,
-// });
+let rollbar = { log: (message, { auditData } = {}) => {}};
+
+if (config.isProd) {
+  rollbar = new Rollbar({
+    accessToken: config.web3.rollbar,
+    captureUncaught: true,
+    captureUnhandledRejections: true,
+  });
+}
 
 export function logError({ message, auditData } = {}) {
   console.log('config.isProd', config.isProd)
