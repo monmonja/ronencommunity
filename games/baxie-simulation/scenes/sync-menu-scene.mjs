@@ -4,6 +4,7 @@ import InputText from 'phaser3-rex-plugins/plugins/inputtext.js';
 import {createGameRoom, joinGameRoom} from "../../common/scene/rooms-scene.mjs";
 import { SimpleTextBox } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import constants from "../../common/constants.mjs";
+import {addBgMusic} from "../../common/settings.mjs";
 
 export default class SyncMenuScene extends Phaser.Scene {
   constructor() {
@@ -16,17 +17,6 @@ export default class SyncMenuScene extends Phaser.Scene {
   }
 
   create() {
-    if (!this.game.registry.get('bgMusic')) {
-      const bgMusic = this.sound.add('bgm', {
-        volume: 0.2,
-        loop: true
-      });
-      bgMusic.play();
-
-      // Store in game registry so all scenes can access it
-      this.game.registry.set('bgMusic', bgMusic);
-    }
-
     this.world = this.add.container(0, 0);
 
     this.backgroundDay = this.add
@@ -40,12 +30,14 @@ export default class SyncMenuScene extends Phaser.Scene {
 
     const btnWidth = 300;
 
-    const labelTxt = this.add.text(this.scale.width / 2,  465, "Syncing. please wait.", {
-      fontSize: "32px",
+    const labelTxt = this.add.text(this.scale.width / 2,  465, "Syncing. please wait.\nThe more baxies you have,\nthe longer the wait.", {
+      fontSize: "33px",
       fontFamily: constants.fonts.troika,
       color: "#FFF",
-      fontStyle: "bold"
-    }).setOrigin(0.5, 0.5);
+      fontStyle: "bold",
+      align: 'center',
+      wordWrap: { width: 450, useAdvancedWrap: true },
+    }).setOrigin(0.5);
     labelTxt.setShadow(2, 2, '#000', 4, true, true);
     labelTxt.visible = false;
 

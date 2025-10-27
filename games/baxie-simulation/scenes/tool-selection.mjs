@@ -5,6 +5,7 @@ import {createGameRoom, joinGameRoom} from "../../common/scene/rooms-scene.mjs";
 import { SimpleTextBox } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import constants from "../../common/constants.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
+import {addBgMusic} from "../../common/settings.mjs";
 
 export default class ToolSelection extends Phaser.Scene {
   constructor() {
@@ -71,6 +72,7 @@ export default class ToolSelection extends Phaser.Scene {
 
   create() {
     this.world = this.add.container(0, 0);
+    addBgMusic(this);
 
     this.backgroundDay = this.add
       .image(0, 0, 'bg')
@@ -90,7 +92,21 @@ export default class ToolSelection extends Phaser.Scene {
       imageKey: 'game-simulation',
       description: 'This is a simulation of the game that will be release in phase 1, it is based from our understanding of the whitepaper',
       onPointerDown: () => {
-        this.scene.start("SyncMenuScene");
+        const selectedBaxies = localStorage.getItem('selectedBaxies');
+
+        if (selectedBaxies) {
+          // background task to fetch baxies
+          fetch('/list/baxies/false')
+            .then((res) => res.json())
+            .then((results) => {
+              this.registry.set(constants.registry.baxies, results);
+            });
+          this.scene.start("RoomSelectionScene", {
+            selectedBaxies: JSON.parse(selectedBaxies),
+          });
+        } else {
+          this.scene.start("SyncMenuScene");
+        }
       }
     });
     this.createItem({

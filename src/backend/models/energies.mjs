@@ -66,7 +66,7 @@ export default class Energies {
     return dailyEnergy - Math.min(dailyEnergy, energyFromDb.energyUsed) + purchasedEnergy;
   }
 
-  static async useEnergy({ address, gameId, date } = {}) {
+  static async useEnergy({ address, gameId, date, amount = 1 } = {}) {
     if (!date) {
       date = getUtcNow();
     }
@@ -87,20 +87,20 @@ export default class Energies {
       if (purchasedEnergy > 0) {
         await PurchasedEnergies.deductEnergy({
           address,
-          amount: 1,
+          amount: amount,
           gameId,
         });
       } else {
-        throw new Error("Cannot use more energy");
+        throw new Error(`Cannot use more energy ${purchasedEnergy} ${gameEnergy.energyUsed} ${dailyEnergy}`);
       }
     } else {
       await Energies.addUpdateRecord({
         address, gameId, date,
-        energyUsed: gameEnergy.energyUsed + 1
+        energyUsed: gameEnergy.energyUsed + amount
       });
     }
 
-    return dailyEnergy - Math.min(dailyEnergy, gameEnergy.energyUsed) + purchasedEnergy - 1;
+    return dailyEnergy - Math.min(dailyEnergy, gameEnergy.energyUsed) + purchasedEnergy - amount;
   }
 
   static async getEnergySummary({

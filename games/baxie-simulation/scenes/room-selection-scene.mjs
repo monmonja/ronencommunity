@@ -5,6 +5,7 @@ import constants from "../../common/constants.mjs";
 import Dropdown from "../../common/ui/dropdown.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 import {createEnergyUI, fetchEnergy} from "../../common/energies.mjs";
+import {addSettingsIcon} from "../../common/settings.mjs";
 
 const panelHeight = 180;
 
@@ -20,399 +21,23 @@ export default class RoomSelectionScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.selectedBaxies = data.selectedBaxies ?? [
-      {
-        "_id": "68dbddfa96eb8e86151ff2ca",
-        "nftId": "1250",
-        "network": "ronin",
-        "nftTokenId": "baxies",
-        "createdAt": "2025-09-30T13:41:13.968Z",
-        "data": {
-          "name": "Baxie Ethernity #1250",
-          "external_url": "https://baxieethernity.com/",
-          "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1250.png",
-          "attributes": [
-            {
-              "display_type": "string",
-              "trait_type": "Status",
-              "value": "Finalized"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Class",
-              "value": "Electric"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Gender",
-              "value": "Male"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Tail",
-              "value": "Fairy #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Ears",
-              "value": "Fire #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mouth",
-              "value": "Electric #4"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Eyes",
-              "value": "Plant #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Forehead",
-              "value": "Electric #1"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Attack",
-              "value": "66"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Defense",
-              "value": "67"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Stamina",
-              "value": "78"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Skill",
-              "value": "2"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mystic",
-              "value": "0/5"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Purity",
-              "value": "3/6"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Breed Count",
-              "value": "0"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Reroll Count",
-              "value": "3"
-            },
-            {
-              "display_type": "date",
-              "trait_type": "Birthdate",
-              "value": 1757173635
-            }
-          ]
-        },
-        "tokenId": "1250",
-        "hp": 101,
-        "stamina": 78,
-        "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1250.png",
-        "skills": [
-          {
-            "func": "voltOverload",
-            "cost": 40,
-            "cooldown": 7.6923076923076925,
-            "image": "electric-volt-overload"
-          },
-          {
-            "func": "chargeUp",
-            "cost": 30,
-            "cooldown": 7.6923076923076925,
-            "image": "electric-charge-up"
-          },
-          {
-            "func": "stormBreaker",
-            "cost": 10,
-            "cooldown": 7.6923076923076925,
-            "image": "electric-storm-breaker"
-          }
-        ],
-        "purity":"1/6",
-        "position": "back"
-      },
-      {
-        "_id": "68dbddfa96eb8e86151ff2cb",
-        "nftTokenId": "baxies",
-        "network": "ronin",
-        "nftId": "1251",
-        "createdAt": "2025-09-30T13:41:13.972Z",
-        "data": {
-          "name": "Baxie Ethernity #1251",
-          "external_url": "https://baxieethernity.com/",
-          "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1251.png",
-          "attributes": [
-            {
-              "display_type": "string",
-              "trait_type": "Status",
-              "value": "Finalized"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Class",
-              "value": "Plant"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Gender",
-              "value": "Male"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Tail",
-              "value": "Plant #1"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Ears",
-              "value": "Plant #2"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mouth",
-              "value": "Demon #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Eyes",
-              "value": "Plant #2"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Forehead",
-              "value": "Plant #1"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Attack",
-              "value": "88"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Defense",
-              "value": "99"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Stamina",
-              "value": "87"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Skill",
-              "value": "3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mystic",
-              "value": "0/5"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Purity",
-              "value": "5/6"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Breed Count",
-              "value": "0"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Reroll Count",
-              "value": "3"
-            },
-            {
-              "display_type": "date",
-              "trait_type": "Birthdate",
-              "value": 1757173647
-            }
-          ]
-        },
-        "tokenId": "1251",
-        "hp": 149,
-        "stamina": 87,
-        "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1251.png",
-        "skills": [
-          {
-            "func": "naturesResurgence",
-            "cost": 30,
-            "cooldown": 6.896551724137931,
-            "image": "plant-natures-resurgence"
-          },
-          {
-            "func": "thornGuard",
-            "cost": 25,
-            "cooldown": 6.896551724137931,
-            "image": "plant-thorn-guard"
-          },
-          {
-            "func": "bloomOvergrowth",
-            "cost": 40,
-            "cooldown": 6.896551724137931,
-            "image": "plant-bloom-overgrowth"
-          }
-        ],
-        "purity":"3/6",
-        "position": "back"
-      },
-      {
-        "_id": "68dbddfa96eb8e86151ff2cc",
-        "nftTokenId": "baxies",
-        "network": "ronin",
-        "nftId": "1252",
-        "createdAt": "2025-09-30T13:41:13.971Z",
-        "data": {
-          "name": "Baxie Ethernity #1252",
-          "external_url": "https://baxieethernity.com/",
-          "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1252.png",
-          "attributes": [
-            {
-              "display_type": "string",
-              "trait_type": "Status",
-              "value": "Finalized"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Class",
-              "value": "Electric"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Gender",
-              "value": "Male"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Tail",
-              "value": "Electric #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Ears",
-              "value": "Fairy #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mouth",
-              "value": "Fairy #1"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Eyes",
-              "value": "Aqua #3"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Forehead",
-              "value": "Aqua #1"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Attack",
-              "value": "56"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Defense",
-              "value": "58"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Stamina",
-              "value": "68"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Skill",
-              "value": "1"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Mystic",
-              "value": "0/5"
-            },
-            {
-              "display_type": "string",
-              "trait_type": "Purity",
-              "value": "2/6"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Breed Count",
-              "value": "0"
-            },
-            {
-              "display_type": "number",
-              "trait_type": "Reroll Count",
-              "value": "3"
-            },
-            {
-              "display_type": "date",
-              "trait_type": "Birthdate",
-              "value": 1757173654
-            }
-          ]
-        },
-        "tokenId": "1252",
-        "hp": 87,
-        "stamina": 68,
-        "image": "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28_1252.png",
-        "skills": [
-          {
-            "func": "voltOverload",
-            "cost": 40,
-            "cooldown": 8.823529411764707,
-            "image": "electric-volt-overload"
-          },
-          {
-            "func": "chargeUp",
-            "cost": 30,
-            "cooldown": 8.823529411764707,
-            "image": "electric-charge-up"
-          },
-          {
-            "func": "stormBreaker",
-            "cost": 10,
-            "cooldown": 8.823529411764707,
-            "image": "electric-storm-breaker"
-          }
-        ],
-        "purity":"5/6",
-        "position": "back"
-      }
-    ];
+    this.selectedBaxies = data.selectedBaxies ?? localStorage.getItem('selectedBaxies');
   }
 
   preload() {
     this.load.image("energy-icon", "{{config.cdnLink}}/game-assets/common/images/energy.png");
+    this.load.image("settings", "{{config.cdnLink}}/game-assets/common/images/settings.png");
     fetchEnergy(this);
-    this.preload2();
-  }
 
-  preload2() {
     for (let i = 0; i < this.selectedBaxies.length; i++) {
       const baxie = this.selectedBaxies[i];
       const key = `baxie-${baxie.tokenId}`;
-      this.load.image(key, baxie.image);
+
+      if (!this.textures.exists(key)) {
+        this.load.image(key, baxie.image);
+      }
     }
   }
-
 
   createPanelBg(panelWidth, panelHeight) {
     const bg = this.add.graphics();
@@ -428,7 +53,6 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
   createInputBg(panelWidth, currentY, inputWidth, inputHeight) {
     const inputBg = this.add.graphics();
-
 
 // Draw filled rounded rectangle
     inputBg.fillStyle(0x101022, 1); // background color
@@ -522,44 +146,57 @@ export default class RoomSelectionScene extends Phaser.Scene {
       innerBaseColor: 0x6A6AFF,
       borderColor: 0x6A6AFF,
       onPointerDown: async () => {
-        const response = await createGameRoom({
-          scene: this,
-          gameId: this.game.customConfig.gameId,
-          gameMode: 'autoBattler',
-        });
+        if (!startBtn.clicked) {
+          const energy = this.registry.get(constants.registry.energy);
 
-        inputText.text = response.roomId;
-        inputText.setColor('#ffffff');
-        startBtn.getByName('label').text = 'Waiting...';
+          if (energy.available >= 5) {
+            try {
+              const response = await createGameRoom({
+                scene: this,
+                gameId: this.game.customConfig.gameId,
+                gameMode: 'autoBattler',
+              });
 
-        this.ws = new WebSocket(response.wsUrl);
+              inputText.text = response.roomId;
+              inputText.setColor('#ffffff');
+              startBtn.getByName('label').text = 'Waiting...';
 
-        this.ws.addEventListener('open', () => {
-          this.ws.send(
-            JSON.stringify({
-              type: 'joinRoom',
-              gameId: this.game.customConfig.gameId,
-              roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies,
-            })
-          );
-        });
+              this.ws = new WebSocket(response.wsUrl);
 
-        this.ws.onmessage = (msg) => {
-          const data = JSON.parse(msg.data);
-          if (data.type === 'initGame') {
-            this.scene.start('GameScene', {
-              ws: this.ws,
-              roomId: response.roomId,
-              player: data.player,
-              enemy: data.enemy,
-              isYourTurn: data.isYourTurn,
-              turnIndex: data.turnIndex,
-              gameMode: data.gameMode,
-              selectedBaxies: this.selectedBaxies,
-            });
+              this.ws.addEventListener('open', () => {
+                this.ws.send(
+                  JSON.stringify({
+                    type: 'joinRoom',
+                    gameId: this.game.customConfig.gameId,
+                    roomId: response.roomId,
+                    selectedBaxies: this.selectedBaxies,
+                  })
+                );
+              });
+
+              this.ws.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+                if (data.type === 'initGame') {
+                  this.scene.start('GameScene', {
+                    ws: this.ws,
+                    roomId: response.roomId,
+                    player: data.player,
+                    enemy: data.enemy,
+                    isYourTurn: data.isYourTurn,
+                    turnIndex: data.turnIndex,
+                    gameMode: data.gameMode,
+                    selectedBaxies: this.selectedBaxies,
+                  });
+                  startBtn.clicked = false;
+                }
+              };
+            } catch (e) {
+              console.error('Error creating game room:', e);
+            }
+          } else {
+            this.scene.launch('EnergiesScene');
           }
-        };
+        }
       },
     });
     container.add(startBtn);
@@ -620,38 +257,49 @@ export default class RoomSelectionScene extends Phaser.Scene {
       innerBaseColor: 0x6A6AFF,
       borderColor: 0x6A6AFF,
       onPointerDown: async () => {
-        joinGameRoom({
-          scene: this,
-          gameId: this.game.customConfig.gameId,
-          roomId: inputText.text,
-        }).then((response) => {
-          this.ws = new WebSocket(response.wsUrl);
+        if (!joinBtn.clicked) {
+          const energy = this.registry.get(constants.registry.energy);
 
-          this.ws.onopen = () => {
-            this.ws.send(JSON.stringify({
-              type: 'joinRoom',
+          if (energy.available >= 5) {
+            joinBtn.clicked = true;
+            joinGameRoom({
+              scene: this,
               gameId: this.game.customConfig.gameId,
-              roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies,
-            }));
-          };
+              roomId: inputText.text,
+            }).then((response) => {
+              this.ws = new WebSocket(response.wsUrl);
 
-          this.ws.onmessage = (msg) => {
-            const data = JSON.parse(msg.data);
-            if (data.type === 'initGame') {
-              this.scene.start('GameScene', {
-                ws: this.ws,
-                roomId: response.roomId,
-                player: data.player,
-                enemy: data.enemy,
-                isYourTurn: data.isYourTurn,
-                turnIndex: data.turnIndex,
-                gameMode: data.gameMode,
-                selectedBaxies: this.selectedBaxies,
-              });
-            }
-          };
-        });
+              this.ws.onopen = () => {
+                this.ws.send(JSON.stringify({
+                  type: 'joinRoom',
+                  gameId: this.game.customConfig.gameId,
+                  roomId: response.roomId,
+                  selectedBaxies: this.selectedBaxies,
+                }));
+              };
+
+              this.ws.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+
+                if (data.type === 'initGame') {
+                  this.scene.start('GameScene', {
+                    ws: this.ws,
+                    roomId: response.roomId,
+                    player: data.player,
+                    enemy: data.enemy,
+                    isYourTurn: data.isYourTurn,
+                    turnIndex: data.turnIndex,
+                    gameMode: data.gameMode,
+                    selectedBaxies: this.selectedBaxies,
+                  });
+                  joinBtn.clicked = false;
+                }
+              };
+            });
+          } else {
+            this.scene.launch('EnergiesScene');
+          }
+        }
       },
     });
     container.add(joinBtn);
@@ -692,44 +340,54 @@ export default class RoomSelectionScene extends Phaser.Scene {
       innerBaseColor: 0x6A6AFF,
       borderColor: 0x6A6AFF,
       onPointerDown: async () => {
-        createCpuGameRoom({
-          scene: this,
-          gameId: this.game.customConfig.gameId,
-          gameMode: 'autoBattler',
-        }).then((response) => {
-          this.ws = new WebSocket(response.wsUrl);
+        if (!btnBg.clicked) {
+          const energy = this.registry.get(constants.registry.energy);
 
-          this.ws.addEventListener("open", (event) => {
-            this.ws.send(JSON.stringify({
-              type: 'joinRoom',
+          if (energy.available >= 3) {
+            btnBg.clicked = true;
+            createCpuGameRoom({
+              scene: this,
               gameId: this.game.customConfig.gameId,
-              roomId: response.roomId,
-              selectedBaxies: this.selectedBaxies,
-            }));
-          });
+              gameMode: 'autoBattler',
+            }).then((response) => {
+              this.ws = new WebSocket(response.wsUrl);
 
-          this.ws.addEventListener("error", (msg) => {
-            console.log("WebSocket error:", msg)
-          });
-          this.ws.addEventListener("close", (msg) => {
-            console.log("WebSocket close:", msg)
-          });
-          this.ws.addEventListener("message", (msg) => {
-            const data = JSON.parse(msg.data);
-            if (data.type === 'initGame') {
-              this.scene.start('GameScene', {
-                ws: this.ws,
-                roomId: response.roomId,
-                player: data.player,
-                enemy: data.enemy,
-                isYourTurn: data.isYourTurn,
-                turnIndex: data.turnIndex,
-                gameMode: data.gameMode,
-                selectedBaxies: this.selectedBaxies,
+              this.ws.addEventListener("open", (event) => {
+                this.ws.send(JSON.stringify({
+                  type: 'joinRoom',
+                  gameId: this.game.customConfig.gameId,
+                  roomId: response.roomId,
+                  selectedBaxies: this.selectedBaxies,
+                }));
               });
-            }
-          });
-        });
+
+              this.ws.addEventListener("error", (msg) => {
+                console.log("WebSocket error:", msg)
+              });
+              this.ws.addEventListener("close", (msg) => {
+                console.log("WebSocket close:", msg)
+              });
+              this.ws.addEventListener("message", (msg) => {
+                const data = JSON.parse(msg.data);
+                if (data.type === 'initGame') {
+                  this.scene.start('GameScene', {
+                    ws: this.ws,
+                    roomId: response.roomId,
+                    player: data.player,
+                    enemy: data.enemy,
+                    isYourTurn: data.isYourTurn,
+                    turnIndex: data.turnIndex,
+                    gameMode: data.gameMode,
+                    selectedBaxies: this.selectedBaxies,
+                  });
+                  btnBg.clicked = false;
+                }
+              });
+            });
+          } else {
+            this.scene.launch('EnergiesScene');
+          }
+        }
       },
     })
     container.add(btnBg);
@@ -748,7 +406,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     createButton({
       scene: this,
-      x: 820, // center horizontally
+      x: 830, // center horizontally
       y: 280,
       width: 120,
       height: 40,
@@ -761,7 +419,24 @@ export default class RoomSelectionScene extends Phaser.Scene {
       onPointerDown: () => {
         this.scene.start('SelectionScene');
       },
-    })
+    });
+
+    createButton({
+      scene: this,
+      x: 830, // center horizontally
+      y: 220,
+      width: 120,
+      height: 40,
+      text: 'Sync Baxies',
+      topBgColor: 0x6A6AFF,
+      bottomBgColor: 0x6A6AFF,
+      innerBaseColor: 0x6A6AFF,
+      borderColor: 0x6A6AFF,
+      fontSize: '18px',
+      onPointerDown: () => {
+        this.scene.start('SyncMenuScene');
+      },
+    });
   }
 
   create() {
@@ -771,14 +446,6 @@ export default class RoomSelectionScene extends Phaser.Scene {
       .setInteractive();
     this.world = this.add.container(0, 0);
     this.renderSelectedBaxies();
-
-    const label = this.add.text(20, 20, `Room selection`, {
-      fontSize: "30px",
-      fontFamily: constants.fonts.troika,
-      color: "#FFF",
-      fontStyle: "bold"
-    }).setOrigin(0, 0);
-    label.setShadow(2, 2, '#000', 4, true, true);
 
     document.fonts.load('16px troika').then(() => {
       let center = this.cameras.main.width / 2;
@@ -790,6 +457,12 @@ export default class RoomSelectionScene extends Phaser.Scene {
       this.createARoomContainer(center - halfPanelWidth - panelWidth - padding, startY);
       this.createJoinRoomContainer(center - halfPanelWidth, startY);
       this.createPracticeModeContainer(center + halfPanelWidth + padding, startY);
+
+      addSettingsIcon({
+        scene: this,
+        width: 32,
+      });
+
       createEnergyUI({
         scene: this,
         x: this.game.scale.width - 100,

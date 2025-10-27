@@ -95,6 +95,5 @@ export default class PreloaderScene extends Phaser.Scene {
   }
 
   create() {
-    addBgMusic(this);
   }
 }

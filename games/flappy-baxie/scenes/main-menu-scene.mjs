@@ -1,5 +1,3 @@
-import { assets } from "../constants.mjs";
-import {addSettingsIcon} from "../../common/settings.mjs";
 import {useEnergy} from "../../common/energies.mjs";
 import constants from "../../common/constants.mjs";
 import Phaser from "phaser";

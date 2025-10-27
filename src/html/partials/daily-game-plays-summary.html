@@ -11,17 +11,19 @@
     <tbody>
     <% if (dailyPlays && dailyPlays.length > 0) { %>
     <% dailyPlays.forEach(function(dailyPlay) { %>
-    <tr>
-      <%
-      const date = new Date(dailyPlay.date);
-      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")}`;
-      %>
+      <% if (dailyPlay.date) { %>
+      <tr>
+        <%
+        const date = new Date(dailyPlay.date);
+        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")}`;
+        %>
 
-      <td><%= formatted %></td>
-      <td><%= JSON.stringify(dailyPlay.game) %></td>
-      <td class="text-center"><%= dailyPlay.totalEnergyUsed %></td>
-    </tr>
+        <td><%= formatted %></td>
+        <td><%= JSON.stringify(dailyPlay.game?.name) %></td>
+        <td class="text-center"><%= dailyPlay.totalEnergyUsed %></td>
+      </tr>
+    <% } %>
     <% }); %>
     <% } else { %>
     <tr>

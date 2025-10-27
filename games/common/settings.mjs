@@ -3,7 +3,54 @@ import {createButton, createCloseButton} from "./buttons.mjs";
 import constants from "./constants.mjs";
 import {interactiveBoundsChecker} from "./rotate-utils.mjs";
 
-export function addSettingsIcon({ scene } = {}) {
+export function addSettingsIcon({
+  scene,
+  x = 0,
+  y = 10,
+  width = 60,
+} = {}) {
+  const container = scene.add.container(x, y)
+    .setInteractive(
+      new Phaser.Geom.Rectangle(0, y / 2, 80, 90),
+      interactiveBoundsChecker,
+    );
+
+  const settingsIcon = scene.add.image(8, 0, "settings")
+    .setOrigin(0, 0)
+    .setInteractive(
+      new Phaser.Geom.Rectangle(4, 4, 24, 24),
+      interactiveBoundsChecker,
+    )
+    .setDisplaySize(width, width);
+
+  container.add(settingsIcon);
+
+  container.on("pointerover", () => {
+    scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
+  });
+  container.on("pointerout", () => {
+    scene.input.manager.canvas.style.cursor = "default";
+  });
+  container.on("pointerdown", () => {
+    scene.scene.launch("SettingsScene");
+    scene.scene.bringToTop("SettingsScene");
+  });
+  settingsIcon.on("pointerover", () => {
+    scene.input.manager.canvas.style.cursor = "pointer"; // or custom image: url("assets/cursor.png"), pointer
+  });
+  settingsIcon.on("pointerout", () => {
+    scene.input.manager.canvas.style.cursor = "default";
+  });
+  settingsIcon.on("pointerdown", () => {
+    scene.scene.launch("SettingsScene");
+    scene.scene.bringToTop("SettingsScene");
+  });
+
+  return settingsIcon;
+}
+
+
+export function addSettingsAndProfileIcon({ scene } = {}) {
   const x = 0;
   const y = 10;
   const width = 60;
@@ -98,6 +145,7 @@ export function addBgMusic (scene) {
   }
 
   scene.input.once("pointerdown", () => {
+    console.log("fd")
     if (!scene.bgm.isPlaying) {
       const isPlaying = localStorage.getItem("music-muted");
 

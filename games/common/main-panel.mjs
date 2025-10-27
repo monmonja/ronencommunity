@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import {addSettingsIcon} from "./settings.mjs";
+import {addSettingsAndProfileIcon} from "./settings.mjs";
 import {createEnergyUI} from "./energies.mjs";
 import constants from "./constants.mjs";
 
@@ -90,7 +90,7 @@ export class MainPanelScene extends Phaser.Scene {
       width: constants.mainMenu.panelWidth - 13
     });
 
-    addSettingsIcon({
+    addSettingsAndProfileIcon({
       scene: this,
     });
 

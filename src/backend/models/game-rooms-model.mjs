@@ -10,7 +10,7 @@ export default class GameRoomsModel {
       .db()
       .collection(config.mongo.table.gameRooms)
       .find({ })
-      .sort({ createdAt: -1 }) // -1 = descending, latest first
+      .sort({ date: -1 }) // -1 = descending, latest first
       .limit(50)
       .toArray();
 

@@ -4,8 +4,11 @@
     <thead>
     <tr>
       <th>Date Created</th>
-      <th>Game</th>
-      <th>Count</th>
+      <th>Player 1</th>
+      <th>Baxie</th>
+      <th>Player 2</th>
+      <th>Baxie</th>
+      <th>Status</th>
     </tr>
     </thead>
     <tbody>
@@ -15,11 +18,19 @@
       <%
       const date = new Date(gameRoom.date);
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")}`;
+      const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${date.getHours()}:${String(date.getMinutes()).padStart(2,"0")}`;
       %>
 
       <td><%= formatted %></td>
-      <td><%= JSON.stringify(gameRoom) %></td>
+      <td>
+        <%= gameRoom.players[0].address.slice(0, 6) + '••' + gameRoom.players[0].address.slice(-4) %>
+      </td>
+      <td><%= JSON.stringify(gameRoom.players[0].baxies?.map((baxie) => `#${baxie.tokenId}`)) %></td>
+      <td>
+        <%= gameRoom.players[1].address.slice(0, 6) + '••' + gameRoom.players[1].address.slice(-4) %>
+      </td>
+      <td><%= JSON.stringify(gameRoom.players[1].baxies?.map((baxie) => `#${baxie.tokenId}`)) %></td>
+      <td><%= gameRoom.status %></td>
     </tr>
     <% }); %>
     <% } else { %>

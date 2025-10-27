@@ -1,7 +1,5 @@
 import Phaser from 'phaser';
-import {assets} from "../../flappy-baxie/constants.mjs";
 import {createButton} from "../../common/buttons.mjs";
-import {addSettingsIcon} from "../../common/settings.mjs";
 import constants from "../../common/constants.mjs";
 import {getRotatedCoordinate} from "../../common/rotate-utils.mjs";
 

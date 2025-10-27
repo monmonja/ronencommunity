@@ -49,13 +49,15 @@ export default class FairyBaxie extends Baxie {
     const alliesResults = [];
     const ally = SkillManager.getBaxieFromPosition(allies, 1, this.tokenId)[0];
 
-    /**
-     * @type BaxieEffect
-     */
-    const damageReductionEffect = { type: EFFECTS.reduceDamageTaken, value: 0.15, turnsLeft: 1 };
+    if (ally) {
+      /**
+       * @type BaxieEffect
+       */
+      const damageReductionEffect = {type: EFFECTS.reduceDamageTaken, value: 0.15, turnsLeft: 1};
 
-    ally.addEffect(damageReductionEffect);
-    alliesResults.push({ target: ally.tokenId, effects: [damageReductionEffect] });
+      ally.addEffect(damageReductionEffect);
+      alliesResults.push({target: ally.tokenId, effects: [damageReductionEffect]});
+    }
 
     return {
       allies: alliesResults,
@@ -75,17 +77,19 @@ export default class FairyBaxie extends Baxie {
     const alliesResults = [];
     const ally = SkillManager.getBaxieFromPosition(allies, 1, this.tokenId)[0];
 
-    const staminaGain = Math.floor(ally.getMaxStamina() * 0.5);
+    if (ally) {
+      const staminaGain = Math.floor(ally.getMaxStamina() * 0.5);
 
-    ally.currentStamina = Math.min(ally.currentStamina + staminaGain, ally.getMaxStamina());
+      ally.currentStamina = Math.min(ally.currentStamina + staminaGain, ally.getMaxStamina());
 
-    /**
-     * @type BaxieEffect
-     */
-    const skillDmgBuffEffect = { type: EFFECTS.skillDamageBoost, value: 0.15, turnsLeft: 2 };
+      /**
+       * @type BaxieEffect
+       */
+      const skillDmgBuffEffect = {type: EFFECTS.skillDamageBoost, value: 0.15, turnsLeft: 2};
 
-    ally.addEffect(skillDmgBuffEffect);
-    alliesResults.push({ target: ally.tokenId, staminaRestored: staminaGain, effects: [skillDmgBuffEffect] });
+      ally.addEffect(skillDmgBuffEffect);
+      alliesResults.push({target: ally.tokenId, staminaRestored: staminaGain, effects: [skillDmgBuffEffect]});
+    }
 
     return {
       allies: alliesResults,

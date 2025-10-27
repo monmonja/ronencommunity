@@ -7,8 +7,20 @@ import {createButton} from "../../common/buttons.mjs";
 export default class SelectionScene extends Phaser.Scene {
   constructor() {
     super('SelectionScene');
+
     this.selectedBaxiesId = [];
     this.selectedBaxies = [];
+  }
+
+  init(data) {
+    if (localStorage.getItem('selectedBaxies')) {
+      this.selectedBaxiesId = JSON.parse(localStorage.getItem('selectedBaxiesId'));
+      this.selectedBaxies = JSON.parse(localStorage.getItem('selectedBaxies'));
+    } else {
+      this.selectedBaxiesId = data.selectedBaxiesId ?? [];
+      this.selectedBaxies = data.selectedBaxies ?? [];
+    }
+    console.log('this.selectedBaxiesId', this.selectedBaxiesId)
   }
 
   preload() {
@@ -98,10 +110,14 @@ export default class SelectionScene extends Phaser.Scene {
       text: 'Slots',
       onPointerDown: async () => {
         if (this.selectedBaxiesId.length === 3) {
-          console.log(this.selectedBaxies, this.selectedBaxiesId)
+          const selectedBaxies = this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId));
+
+          localStorage.setItem('selectedBaxiesId', JSON.stringify(this.selectedBaxiesId));
+          localStorage.setItem('selectedBaxies', JSON.stringify(selectedBaxies));
+
           this.scene.start('PositionSlotsScene', {
             selectedBaxiesId: this.selectedBaxiesId,
-            selectedBaxies: this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId)),
+            selectedBaxies: selectedBaxies,
           });
         } else {
           const warningText = this.add.text(this.scale.width - slotSize - 100 + 20, this.scale.height - 100, `Select 3 baxies to start`, {

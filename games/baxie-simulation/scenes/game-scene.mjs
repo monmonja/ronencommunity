@@ -4,8 +4,6 @@ import {createButton} from "../../common/buttons.mjs";
 import {GameModes} from "../../common/baxie/baxie-simulation.mjs";
 import constants from "../../common/constants.mjs";
 import BackgroundRect from "../../common/ui/background-rect.mjs";
-import EndGameScene from "./end-game-scene.mjs";
-import {VerticalScrollContainer} from "../../common/ui/vertical-scroll-container.ts";
 import {formatSkillName} from "../../common/utils/baxie.mjs";
 import {EFFECTS} from "../../../src/backend/games/baxies/effects.mjs";
 
@@ -32,6 +30,29 @@ export default class GameScene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
   }
+
+  showSimulationText() {
+    let x = this.game.scale.width - 20;
+    let y = this.game.scale.height  - 60;
+
+    // Create a container to hold the background and text
+    const container = this.add.container(x, y);
+
+    // Text
+    const text = this.add.text(0, 0, 'This is a simulation tool.\nNot the real game!', {
+      fontFamily: constants.fonts.troika,
+      fontSize: '24px',
+      color: '#ff0000',
+      align: 'center',
+      padding: { x: 8, y: 4 },
+      wordWrap: { width: 360, useAdvancedWrap: true },
+    }).setOrigin(1, 0);
+    text.setShadow(2, 2, "#222", 4, false, true);
+
+    // Add background first, then text on top
+    container.add(text);
+  }
+
 
   showDamage({ baxieUI, damage }) {
     let x = baxieUI.x;
@@ -132,6 +153,24 @@ export default class GameScene extends Phaser.Scene {
     container.add(this.turnText);
   }
 
+  showLoading() {
+    this.loadingContainer = this.add.container(this.game.scale.width / 2, this.game.scale.height / 2);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.7);
+    bg.fillRoundedRect(-250, -40, 500, 80, 10);
+    this.loadingContainer.add(bg);
+
+    const loadingText = this.add.text(0, 0, 'Loading game and resources...', {
+      fontFamily: constants.fonts.troika,
+      fontSize: '32px',
+      color: '#ffffff',
+      align: 'center',
+    }).setOrigin(0.5);
+    loadingText.setShadow(2, 2, "#222", 4, false, true);
+    this.loadingContainer.add(loadingText);
+  }
+
 
   init(data) {
     this.ws = data.ws;
@@ -142,7 +181,7 @@ export default class GameScene extends Phaser.Scene {
       scene: this,
       data: baxieData,
       roomId: this.roomId,
-      x: baxieData.position === 'front' ? 340 : (baxieData.position === 'center' ? 260 : 210),
+      x: baxieData.position === 'front' ? 360 : (baxieData.position === 'center' ? 280 : 230),
       y: 100 * i + 100,
       renderPosition: i,
       gameMode: data.gameMode,
@@ -184,7 +223,8 @@ export default class GameScene extends Phaser.Scene {
           });
         }, 1000);
       } else if (data.type === 'startBattle') {
-        this.loggerScene.addLog('Start Battle')
+        this.loadingContainer.visible = false;
+        this.loggerScene.addLog('Start Battle');
         this.status = 'playing';
         this.drawBaxieTurnOrder(data.baxieTurnOrder);
         this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
@@ -323,6 +363,7 @@ export default class GameScene extends Phaser.Scene {
     this.add.image(0, 0, "battle-bg")
       .setDisplaySize(this.game.scale.width, this.game.scale.height)
       .setOrigin(0, 0);
+    this.showLoading();
     this.playerTeam.forEach((baxie) => baxie.preload());
     this.enemyTeam.forEach((baxie) => baxie.preload());
   }
@@ -497,6 +538,7 @@ export default class GameScene extends Phaser.Scene {
       baxie.renderCharacter(this.skillContainer);
     });
 
+    this.showSimulationText();
     this.afterCreate();
   }
 

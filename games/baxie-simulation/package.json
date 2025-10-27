@@ -3,8 +3,8 @@
   "name": "Baxie Simulation",
   "description": "Baxie Simulation",
   "lastUpdate": 1757033476000,
-  "visible": false,
-  "dailyEnergy": 300,
+  "visible": true,
+  "dailyEnergy": 100,
   "gameRoomSlug": "bsim",
   "changeLog": [
     {
