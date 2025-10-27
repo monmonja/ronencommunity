@@ -1,11 +1,11 @@
-import Baxie from './baxie.mjs';
+import Baxie from "./baxie.mjs";
 import {EFFECTS} from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class FairyBaxie extends Baxie {
   constructor(props) {
     super(props);
-    this.populateSkills(['arcaneBlessing', 'pixieVeil', 'celestialHarmony']);
+    this.populateSkills(["arcaneBlessing", "pixieVeil", "celestialHarmony"]);
   }
 
   //  Heals all allies by 12% HP, boosts their Attack by 5% for 2 turns.
@@ -19,12 +19,14 @@ export default class FairyBaxie extends Baxie {
      * @type {BaxieSkillReturnItem[]}
      */
     const alliesResults = [];
+
     allies.forEach((ally) => {
       const heal = Math.floor(ally.getMaxHP() * 0.12);
 
       ally.addHp(heal);
 
       const attackBuffEffect = { type: EFFECTS.attackBoost, value: 0.05, turnsLeft: 2 };
+
       ally.addEffect(attackBuffEffect);
       alliesResults.push({ target: ally.tokenId, healed: heal, effects: [attackBuffEffect] });
     });
@@ -51,6 +53,7 @@ export default class FairyBaxie extends Baxie {
      * @type BaxieEffect
      */
     const damageReductionEffect = { type: EFFECTS.reduceDamageTaken, value: 0.15, turnsLeft: 1 };
+
     ally.addEffect(damageReductionEffect);
     alliesResults.push({ target: ally.tokenId, effects: [damageReductionEffect] });
 
@@ -73,12 +76,14 @@ export default class FairyBaxie extends Baxie {
     const ally = SkillManager.getBaxieFromPosition(allies, 1, this.tokenId)[0];
 
     const staminaGain = Math.floor(ally.getMaxStamina() * 0.5);
+
     ally.currentStamina = Math.min(ally.currentStamina + staminaGain, ally.getMaxStamina());
 
     /**
      * @type BaxieEffect
      */
     const skillDmgBuffEffect = { type: EFFECTS.skillDamageBoost, value: 0.15, turnsLeft: 2 };
+
     ally.addEffect(skillDmgBuffEffect);
     alliesResults.push({ target: ally.tokenId, staminaRestored: staminaGain, effects: [skillDmgBuffEffect] });
 

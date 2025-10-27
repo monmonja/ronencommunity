@@ -1,8 +1,5 @@
 import {getConnection} from "../components/db.mjs";
-
-import { getTodayDateString } from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
-import Games from "./games.mjs";
 import { getUtcNow } from "../utils/date-utils.mjs";
 import {logError} from "../components/logger.mjs";
 
@@ -19,9 +16,7 @@ export default class PurchasedEnergies {
     return wallet?.purchasedEnergy || 0;
   }
 
-
-  static async addEnergy({ txHash, address, amount = 0, token = 'RON', price }){
-
+  static async addEnergy({ txHash, address, amount = 0, token = "RON", price }) {
     if (amount <= 0) {
       throw new Error("Amount must be positive");
     }
@@ -32,6 +27,7 @@ export default class PurchasedEnergies {
     const walletsCol = mongoDbConnection.db().collection(config.mongo.table.wallets);
 
     try {
+      // eslint-disable-next-line no-console
       console.log({
         txHash,
         address: address.toLowerCase(),
@@ -40,7 +36,8 @@ export default class PurchasedEnergies {
         type: "energy",
         token,
         createdAt: getUtcNow()
-      })
+      });
+
       // Step 1: Try insert into purchases (with unique index on txHash!)
       await purchasesCol.insertOne({
         txHash,
@@ -69,13 +66,15 @@ export default class PurchasedEnergies {
 
     } catch (err) {
       logError({
-        message: 'PurchasedEnergies.addEnergy error',
+        message: "PurchasedEnergies.addEnergy error",
         auditData: err,
-      })
+      });
+
       if (err.code === 11000) {
         // Duplicate txHash (already inserted purchase)
         return null;
       }
+
       throw err;
     }
   }

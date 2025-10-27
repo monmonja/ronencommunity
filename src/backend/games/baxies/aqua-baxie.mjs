@@ -1,11 +1,11 @@
-import Baxie from './baxie.mjs';
+import Baxie from "./baxie.mjs";
 import {EFFECTS} from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class AquaBaxie extends Baxie {
   constructor(props) {
     super(props);
-    this.populateSkills(['tidalShield', 'bubbleTrap', 'oceansEmbrace']);
+    this.populateSkills(["tidalShield", "bubbleTrap", "oceansEmbrace"]);
   }
 
   // Tidal Shield – Shields all allies for 20% of max Stamina for 2 turns.
@@ -27,6 +27,7 @@ export default class AquaBaxie extends Baxie {
        * @type BaxieEffect
        */
       const shieldEffect = { type: EFFECTS.shield, value: shieldValue, turnsLeft: 2 };
+
       ally.addEffect(shieldEffect);
 
       resultsAllies.push({ target: ally.tokenId, effects: [shieldEffect] });
@@ -56,6 +57,7 @@ export default class AquaBaxie extends Baxie {
        * @type BaxieEffect
        */
       const silenceEffect = { type: EFFECTS.silence, turnsLeft: 1 };
+
       target.addEffect(silenceEffect);
       resultEnemies[0].effects = [silenceEffect];
     }
@@ -85,6 +87,7 @@ export default class AquaBaxie extends Baxie {
     );
 
     const healAmount = Math.floor(target.getMaxHP() * 0.15);
+
     target.currentHP = Math.min(target.currentHP + healAmount, target.getMaxHP());
     resultsAllies.push({ target: target.tokenId, healed: healAmount });
 
@@ -93,6 +96,7 @@ export default class AquaBaxie extends Baxie {
      * @type BaxieEffect
      */
     const defenseEffect = { type: EFFECTS.defenseBoost, value: 5, turnsLeft: 2 };
+
     target.addEffect(defenseEffect);
     resultsAllies[0].effects = [defenseEffect];
 

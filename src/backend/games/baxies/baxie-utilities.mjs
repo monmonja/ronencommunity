@@ -4,26 +4,29 @@ import FairyBaxie from "./fairy-baxie.mjs";
 import AquaBaxie from "./aqua-baxie.mjs";
 import PlantBaxie from "./plant-baxie.mjs";
 import FireBaxie from "./fire-baxie.mjs";
+import Baxie from "./baxie.mjs";
 
 /**
  * @param nftData
  * @returns {ElectricBaxie|FireBaxie|PlantBaxie|AquaBaxie|DemonBaxie|FairyBaxie}
  */
 export function makeBaxie(nftData) {
-  const type = nftData.data.attributes.find((attr) => attr.trait_type === 'Class')?.value;
+  const type = nftData.data.attributes.find((attr) => attr.trait_type === "Class")?.value;
 
   switch (type) {
-    case 'Electric':
+    case "Electric":
       return new ElectricBaxie(nftData);
-    case 'Demon':
+    case "Demon":
       return new DemonBaxie(nftData);
-    case 'Fairy':
+    case "Fairy":
       return new FairyBaxie(nftData);
-    case 'Aqua':
+    case "Aqua":
       return new AquaBaxie(nftData);
-    case 'Plant':
+    case "Plant":
       return new PlantBaxie(nftData);
-    case 'Fire':
+    case "Fire":
       return new FireBaxie(nftData);
+    default:
+      return new Baxie(nftData);
   }
 }

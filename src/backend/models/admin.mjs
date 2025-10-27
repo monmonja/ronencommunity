@@ -1,10 +1,5 @@
 import {getConnection} from "../components/db.mjs";
-
-import { getTodayDateString } from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
-import Games from "./games.mjs";
-import { getUtcNow } from "../utils/date-utils.mjs";
-import {logError} from "../components/logger.mjs";
 
 // gameEnergy model for tracking lives per wallet per game
 export default class Admin {
@@ -18,6 +13,7 @@ export default class Admin {
       .toArray();
 
     const result = {};
+
     for (const doc of docs) {
       result[doc.key] = doc.value;
     }

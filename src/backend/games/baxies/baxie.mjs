@@ -11,7 +11,7 @@ export default class Baxie {
   currentStamina = 0;
   currentAttack = 0;
   currentDefense = 0;
-  position = 'back';
+  position = "back";
   /**
    * @type BaxieEffect[]
    */
@@ -36,8 +36,8 @@ export default class Baxie {
           value = Number(attr.value);
         }
 
-        // @ts-ignore
         acc[key] = value;
+
         return acc;
       },  {});
     }
@@ -49,9 +49,9 @@ export default class Baxie {
   }
 
   populateSkills(skills) {
-    const skillCount = skills.length;//Math.ceil(Number(this.attributes.purity.split('/')[0]) / 2);
+    const skillCount = skills.length;//Math.ceil(Number(this.attributes.purity.split("/")[0]) / 2);
 
-    if (skills.filter((skill) => typeof skill !== 'string').length > 0) {
+    if (skills.filter((skill) => typeof skill !== "string").length > 0) {
       return skills;
     }
 
@@ -80,13 +80,14 @@ export default class Baxie {
 
   reasonCannotAttack() {
     if (!this.isAlive()) {
-      return 'Not alive';
+      return "Not alive";
     }
 
     for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
         return `Cannot attack it is stunned for ${effect.turnsLeft} more turn(s).`;
       }
+
       if (effect.type === EFFECTS.silence && effect.turnsLeft > 0) {
         return `Cannot attack it is silence for ${effect.turnsLeft} more turn(s).`;
       }
@@ -132,7 +133,6 @@ export default class Baxie {
       }
     }
 
-
     if (gameMode === GameModes.skillCountdown) {
       const now = Date.now(); // same as new Date().getTime()
       const cooldownMs = skill.cooldown * 1000; // convert sec → ms
@@ -144,7 +144,7 @@ export default class Baxie {
 
       return now >= lastUse + cooldownMs;
     }
-    console.log(`${this.tokenId} will use ${skill.func}`,this.currentStamina, skill.cost)
+
     if (gameMode === GameModes.autoBattler) {
       return this.currentStamina > skill.cost;
     }
@@ -246,7 +246,7 @@ export default class Baxie {
         position: this.position,
         effects: this.effects,
         purity: this.attributes.purity,
-      }
+      };
     } else {
       return {
         tokenId: this.tokenId,
@@ -255,7 +255,7 @@ export default class Baxie {
         maxSP: Math.ceil(this.getMaxStamina()),
         sp: Math.ceil(this.currentStamina)  ?? 0,
         effects: this.effects,
-      }
+      };
     }
   }
 
@@ -268,7 +268,7 @@ export default class Baxie {
     }
 
     if (gameMode === GameModes.turnBasedSP && this.currentStamina < skill.cost) {
-      throw new Error(`Not enough stamina`);
+      throw new Error("Not enough stamina");
     }
 
     this.useStamina(skill.cost);

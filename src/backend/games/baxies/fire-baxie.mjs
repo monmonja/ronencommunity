@@ -1,11 +1,11 @@
-import Baxie from './baxie.mjs';
+import Baxie from "./baxie.mjs";
 import {EFFECTS} from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class FireBaxie extends Baxie {
   constructor(props) {
     super(props);
-    this.populateSkills(['blazingBurst', 'infernoWave', 'phoenixReign']);
+    this.populateSkills(["blazingBurst", "infernoWave", "phoenixReign"]);
   }
 
   // Blazing Burst – 140% damage, 20% chance burn (2 turns)
@@ -20,6 +20,7 @@ export default class FireBaxie extends Baxie {
 
     if (Math.random() < 0.2) {
       const burnedEffect = { type: EFFECTS.burn, turnsLeft: 2, value: Math.floor(this.getCurrentAttack() * 0.2) };
+
       target.addEffect(burnedEffect);
       enemiesResults[0].effects = [burnedEffect];
     }
@@ -32,12 +33,15 @@ export default class FireBaxie extends Baxie {
   // Inferno Wave – 60% AoE, 15% chance -5% Attack for 1 turn
   infernoWave(enemies) {
     const enemiesResult = [];
+
     enemies.forEach((target) => {
       const damage = this.calculateDamage(this.getCurrentAttack() * 0.6, target.getCurrentDefense());
       const hpBefore = target.currentHP;
+
       target.takeDamage(damage);
 
       let attackReduced = false;
+
       if (Math.random() < 0.15) {
         target.addEffect({ type: EFFECTS.attackDebuff, value: -0.05, turnsLeft: 1 });
         attackReduced = true;
@@ -58,13 +62,14 @@ export default class FireBaxie extends Baxie {
   phoenixReign() {
     // todo: this is wrong
     const staminaGain = Math.floor(this.getMaxStamina() * 0.15);
+
     this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
 
     this.addEffect({ type: EFFECTS.attackBoost, value: 0.5, turnsLeft: 1 });
 
     // @todo
     return {
-      skill: 'phoenixReign',
+      skill: "phoenixReign",
       staminaRestored: staminaGain,
       effects: this.effects
     };

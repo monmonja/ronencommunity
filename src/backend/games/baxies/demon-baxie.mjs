@@ -1,11 +1,11 @@
-import Baxie from './baxie.mjs';
+import Baxie from "./baxie.mjs";
 import {EFFECTS} from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class DemonBaxie extends Baxie {
   constructor(props) {
     super(props);
-    this.populateSkills(['shadowStrike', 'cursedChains', 'soulFeast']);
+    this.populateSkills(["shadowStrike", "cursedChains", "soulFeast"]);
   }
 
   //  – Ignores 20% of enemy Defense, life steals 15% of damage dealt.
@@ -31,6 +31,7 @@ export default class DemonBaxie extends Baxie {
 
       // Lifesteal 15%
       const lifeSteal = Math.floor(damage * 0.15);
+
       this.addHp(lifeSteal);
 
       return {
@@ -63,6 +64,7 @@ export default class DemonBaxie extends Baxie {
 
       // Reduce stamina
       const staminaReduction = Math.floor(target.getMaxStamina() * 0.2);
+
       target.currentStamina = Math.max(0, target.currentStamina - staminaReduction);
       resultEnemies.push({ target: target.tokenId, damage, staminaReduction, stamina: target.currentStamina });
 
@@ -72,6 +74,7 @@ export default class DemonBaxie extends Baxie {
          * @type BaxieEffect
          */
         const extraDamageEffect = { type: EFFECTS.extraDamageTaken, value: 0.1, turnsLeft: 1 };
+
         target.addEffect(extraDamageEffect);
         resultEnemies[0].effects = [extraDamageEffect];
       }
@@ -97,6 +100,7 @@ export default class DemonBaxie extends Baxie {
        */
       const resultsEnemies = [];
       const hpSacrifice = Math.floor(this.currentHP * 0.2);
+
       this.removeHp(hpSacrifice); // cannot suicide
 
       let restoreAmount = 0;

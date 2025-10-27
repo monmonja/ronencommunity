@@ -2,7 +2,6 @@ import GameMovesModel from "../models/game-moves-model.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
 import {getUtcNow} from "../utils/date-utils.mjs";
 
-
 const RECONNECT_TIMEOUT = 60000; // 60 seconds
 const BATCH_FLUSH_INTERVAL = 5000; // Flush every 5 seconds
 const BATCH_SIZE_LIMIT = 50; // Flush if batch reaches 50 moves
@@ -13,8 +12,8 @@ let flushInterval = null;
 
 /**
  * @typedef {Object} GameRoomPlayer
- * @property {string} address - Player's wallet address
- * @property {Baxie[]} baxies - Player's selected baxies
+ * @property {string} address - Player"s wallet address
+ * @property {Baxie[]} baxies - Player"s selected baxies
  */
 /**
  * @typedef {Object} GameRoom
@@ -50,7 +49,7 @@ export default class GameRoomManager {
    * @returns {Promise<GameRoom>}
    */
   static async createRoom({ address, game, vsCPU = false, gameMode } = {}) {
-    const shortHand = address ? address.slice(0, 4) + '-' + address.slice(-4) : '';
+    const shortHand = address ? address.slice(0, 4) + "-" + address.slice(-4) : "";
     const roomId = `${game.gameRoomSlug}-${shortHand}-${Math.random().toString(36).substring(2, 10)}`;
 
     // check if address already has a room
@@ -71,7 +70,7 @@ export default class GameRoomManager {
       canJoin: true,
       start: new Date(),
       vsCPU,
-      status: 'waiting',
+      status: "waiting",
       gameMode,
     };
 
@@ -114,8 +113,6 @@ export default class GameRoomManager {
     }
   }
 
-
-
   // ========== MATCH TRACKING METHODS (OPTIMIZED) ==========
 
   static async createMatchRecord(roomId, gameMode, players, vsCPU = false) {
@@ -136,22 +133,24 @@ export default class GameRoomManager {
             skills: b.skills.map(s => s.func)
           }))
         })),
-        status: 'waiting',
+        status: "waiting",
         totalTurns: 0,
         createdAt: new Date(),
         startedAt: null,
         completedAt: null
       };
 
-      await db.collection('game_matches').insertOne(matchData);
+      await db.collection("game_matches").insertOne(matchData);
 
       // Initialize moves buffer for this room
       movesBuffer.set(roomId, []);
 
       console.log(`Match record created for room ${roomId}`);
+
       return matchData;
     } catch (err) {
-      console.error('Error creating match record:', err);
+      console.error("Error creating match record:", err);
+
       return null;
     }
   }
@@ -159,18 +158,18 @@ export default class GameRoomManager {
   static async startMatch(roomId) {
     try {
       const db = getDb();
-      await db.collection('game_matches').updateOne(
+      await db.collection("game_matches").updateOne(
         { roomId },
         {
           $set: {
-            status: 'inProgress',
+            status: "inProgress",
             startedAt: new Date()
           }
         }
       );
       console.log(`Match started for room ${roomId}`);
     } catch (err) {
-      console.error('Error starting match:', err);
+      console.error("Error starting match:", err);
     }
   }
 
@@ -218,7 +217,7 @@ export default class GameRoomManager {
       movesBuffer.get(roomId).push(move);
 
       // Update turn count in memory
-      if (moveData.moveType === 'endTurn') {
+      if (moveData.moveType === "endTurn") {
         if (!room.pendingTurnCount) room.pendingTurnCount = 0;
         room.pendingTurnCount++;
       }
@@ -231,7 +230,7 @@ export default class GameRoomManager {
 
       console.log(`Move buffered: ${moveData.moveType} by ${moveData.playerAddress.substring(0, 8)} (buffer: ${buffer.length})`);
     } catch (err) {
-      console.error('Error recording move:', err);
+      console.error("Error recording move:", err);
     }
   }
 
@@ -257,13 +256,13 @@ export default class GameRoomManager {
       }));
 
       // Batch insert moves - fire and forget
-      db.collection('game_moves').insertMany(moveDocuments).catch(err => {
+      db.collection("game_moves").insertMany(moveDocuments).catch(err => {
         console.error(`Error inserting moves for room ${roomId}:`, err);
       });
 
       // Update turn count in match document
       if (turnCount > 0) {
-        db.collection('game_matches').updateOne(
+        db.collection("game_matches").updateOne(
           { roomId },
           { $inc: { totalTurns: turnCount } }
         ).catch(err => {
@@ -285,7 +284,7 @@ export default class GameRoomManager {
     }
 
     await Promise.all(flushPromises);
-    console.log('All moves flushed');
+    console.log("All moves flushed");
   }
 
   static startPeriodicFlush() {
@@ -295,14 +294,14 @@ export default class GameRoomManager {
       await this.flushAllMoves();
     }, BATCH_FLUSH_INTERVAL);
 
-    console.log('Periodic move flushing started');
+    console.log("Periodic move flushing started");
   }
 
   static stopPeriodicFlush() {
     if (flushInterval) {
       clearInterval(flushInterval);
       flushInterval = null;
-      console.log('Periodic move flushing stopped');
+      console.log("Periodic move flushing stopped");
     }
   }
 
@@ -313,7 +312,7 @@ export default class GameRoomManager {
       // Flush any pending moves immediately
       await this.flushMovesForRoom(roomId);
 
-      const match = await db.collection('game_matches').findOne({ roomId });
+      const match = await db.collection("game_matches").findOne({ roomId });
 
       if (!match) return;
 
@@ -321,11 +320,11 @@ export default class GameRoomManager {
         ? Math.floor((new Date() - match.startedAt) / 1000)
         : 0;
 
-      await db.collection('game_matches').updateOne(
+      await db.collection("game_matches").updateOne(
         { roomId },
         {
           $set: {
-            status: 'completed',
+            status: "completed",
             winner,
             loser,
             endReason,
@@ -340,13 +339,13 @@ export default class GameRoomManager {
 
       console.log(`Match ended: ${winner} defeated ${loser} (${endReason})`);
     } catch (err) {
-      console.error('Error ending match:', err);
+      console.error("Error ending match:", err);
     }
   }
 
   static async abandonMatch(roomId) {
     await GameRoomsModel.updateRoom(roomId, {
-      status: 'abandoned',
+      status: "abandoned",
       completedAt: getUtcNow(),
     });
   }
@@ -371,14 +370,16 @@ export default class GameRoomManager {
     if (room.gameStarted) {
       await GameMovesModel.saveMove(roomId, {
         playerAddress: playerAddress,
-        moveType: 'disconnect'
+        moveType: "disconnect"
       });
     }
 
     if (!room.gameStarted) {
       this.abandonMatch(roomId);
       delete GameRoomManager.rooms[roomId];
+
       console.log(`Room ${roomId} deleted - game never started`);
+
       return;
     }
 
@@ -386,6 +387,7 @@ export default class GameRoomManager {
       this.abandonMatch(roomId);
       delete GameRoomManager.rooms[roomId];
       console.log(`CPU game room ${roomId} deleted`);
+
       return;
     }
 
@@ -393,8 +395,8 @@ export default class GameRoomManager {
 
     if (opponent?.ws) {
       this.sendMessage(opponent.ws, {
-        type: 'opponentDisconnected',
-        message: 'Your opponent has disconnected. Waiting for reconnection...',
+        type: "opponentDisconnected",
+        message: "Your opponent has disconnected. Waiting for reconnection...",
       });
 
       room.disconnectTimeout = setTimeout(() => {
@@ -424,19 +426,19 @@ export default class GameRoomManager {
     // Record forfeit (buffered)
     this.recordMove(roomId, {
       playerAddress: playerAddress,
-      moveType: 'forfeit'
+      moveType: "forfeit"
     });
 
     const opponent = room.players.find(p => p.address !== playerAddress);
 
     // End match (flushes moves)
-    this.endMatch(roomId, opponent?.address, playerAddress, 'timeout');
+    this.endMatch(roomId, opponent?.address, playerAddress, "timeout");
 
     if (opponent?.ws) {
       this.sendMessage(opponent.ws, {
-        type: 'gameOver',
+        type: "gameOver",
         youWin: true,
-        reason: 'Opponent abandoned the game',
+        reason: "Opponent abandoned the game",
       });
     }
 
@@ -467,23 +469,25 @@ export default class GameRoomManager {
     }
 
     const opponent = room.players.find(p => p.address !== playerAddress);
+
     if (opponent?.ws) {
       this.sendMessage(opponent.ws, {
-        type: 'opponentReconnected',
-        message: 'Your opponent has reconnected',
+        type: "opponentReconnected",
+        message: "Your opponent has reconnected",
       });
     }
 
     const enemy = room.players.find(p => p.address !== playerAddress);
+
     this.sendMessage(ws, {
-      type: 'reconnected',
+      type: "reconnected",
       roomId: roomId,
       isYourTurn: room.playerTurn === playerAddress,
       turnIndex: room.turnIndex,
       player: player.baxies?.map((baxie) => baxie.getGameInfo(true)),
       enemy: enemy?.baxies?.map((baxie) => baxie.getGameInfo(true)),
       gameMode: room.gameMode,
-      message: 'Reconnected successfully',
+      message: "Reconnected successfully",
     });
 
     return true;
@@ -512,7 +516,7 @@ export default class GameRoomManager {
       try {
         ws.send(JSON.stringify(message));
       } catch (err) {
-        console.error('Error sending message:', err);
+        console.error("Error sending message:", err);
       }
     }
   }
@@ -531,29 +535,37 @@ export default class GameRoomManager {
         try {
           player.ws.close();
         } catch (err) {
-          console.error('Error closing WebSocket:', err);
+          console.error("Error closing WebSocket:", err);
         }
       }
     });
 
     delete GameRoomManager.rooms[roomId];
-    console.log(`Room ${roomId} cleaned up`);
   }
 
   static getPlayer(roomId, playerAddress) {
     const room = GameRoomManager.rooms[roomId];
-    if (!room) return null;
+
+    if (!room) {
+      return null;
+    }
+
     return room.players.find(p => p.address === playerAddress);
   }
 
   static getOpponent(roomId, playerAddress) {
     const room = GameRoomManager.rooms[roomId];
-    if (!room) return null;
+
+    if (!room) {
+      return null;
+    }
+
     return room.players.find(p => p.address !== playerAddress);
   }
 
   static isPlayerConnected(roomId, playerAddress) {
     const player = this.getPlayer(roomId, playerAddress);
+
     return player && player.ws && player.ws.readyState === 1;
   }
 
@@ -563,7 +575,11 @@ export default class GameRoomManager {
 
   static validatePlayerInRoom(roomId, playerAddress) {
     const room = GameRoomManager.rooms[roomId];
-    if (!room) return false;
+
+    if (!room) {
+      return false;
+    }
+
     return room.players.some(p => p.address === playerAddress);
   }
 

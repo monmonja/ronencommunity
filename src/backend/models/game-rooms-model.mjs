@@ -1,12 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import {getConnection} from "../components/db.mjs";
 import config from "../config/default.json"  with { type: "json" };
 import {getTodayDateString, getUtcNow} from "../utils/date-utils.mjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default class GameRoomsModel {
   static async getGameRooms({  } = {}) {
@@ -22,7 +16,6 @@ export default class GameRoomsModel {
 
     return gameRooms;
   }
-
 
   static async updateRoom(roomId, data) {
     const mongoDbConnection = await getConnection();

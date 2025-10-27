@@ -41,13 +41,11 @@ export function initOverlayDisconnect(): void {
         e.stopPropagation();
 
         try {
-          navigator.clipboard.writeText(walletAddress.getAttribute('data-wallet') ?? '');
+          navigator.clipboard.writeText(walletAddress.getAttribute("data-wallet") ?? "");
           alert("Copied");
         } catch (err) {
           console.error("Failed to copy:", err);
         }
-
-        console.log();
       });
     }
 

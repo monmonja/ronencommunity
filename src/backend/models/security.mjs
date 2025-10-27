@@ -1,10 +1,6 @@
 import {getConnection} from "../components/db.mjs";
-
-import { getTodayDateString } from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
-import Games from "./games.mjs";
 import { getUtcNow } from "../utils/date-utils.mjs";
-import {logError} from "../components/logger.mjs";
 
 // gameEnergy model for tracking lives per wallet per game
 export default class Security {
@@ -18,6 +14,7 @@ export default class Security {
       .toArray();
 
     const result = {};
+
     for (const doc of docs) {
       result[doc.key] = doc.value;
     }
@@ -26,14 +23,14 @@ export default class Security {
   }
 
   static async addRecord(request, {
-     key, value, address
+     value, address
    }) {
     const mongoDbConnection = await getConnection();
     const ip =
-      request.headers['x-forwarded-for']?.split(',')[0] ||
+      request.headers["x-forwarded-for"]?.split(",")[0] ||
       request.socket?.remoteAddress;
 
-    const userAgent = request.headers['user-agent'] || null;
+    const userAgent = request.headers["user-agent"] || null;
 
     // Build dynamic update fields
     const data = {

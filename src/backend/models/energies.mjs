@@ -53,7 +53,6 @@ export default class Energies {
     return energyData;
   }
 
-
   static async getAvailableEnergies({ address, gameId}) {
     const energyFromDb = await this.getEnergy({ address, gameId });
     const dailyEnergy = Games.getDailyEnergy(gameId) ?? 0;
@@ -112,7 +111,6 @@ export default class Energies {
     if (!date) {
       date = getUtcNow();
     }
-
 
     const gameEnergy = await mongoDbConnection.db().collection(config.mongo.table.energies)
       .find({

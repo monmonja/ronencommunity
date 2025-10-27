@@ -8,14 +8,14 @@
     "secret": "localhost"
   },
   "mongo" : {
-    "connectionString": "mongodb://localhost:27017/ronen_community",
+    "connectionString": "mongodb://localhost:27017/ronen_community_main_prod",
     "table": {
-      "wallets": "wallets",
-      "raffles": "raffles",
-      "raffleWinners": "raffle-winners",
-      "energies": "energies",
-      "purchases": "purchases",
-      "consumes": "consumes",
+      "wallets": "wallets-live-prod",
+      "raffles": "raffles-live-prod",
+      "raffleWinners": "raffle-winners-live-prod",
+      "energies": "energies-live-prod",
+      "purchases": "purchases-live-prod",
+      "consumes": "consumes-live-prod",
       "gameProfiles": "game-profiles",
       "nfts": "nfts",
       "adminSettings": "adminSettings",

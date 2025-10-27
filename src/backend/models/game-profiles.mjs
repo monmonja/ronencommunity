@@ -1,12 +1,5 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import {getConnection} from "../components/db.mjs";
-import {getTodayDateString, getUtcNow} from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default class GameProfiles {
   static async getProfile({
@@ -27,6 +20,7 @@ export default class GameProfiles {
 
     // Build dynamic update fields
     const updateFields = { updatedAt: new Date() };
+
     updateFields[label] = value;
 
     const result = await mongoDbConnection.db().collection(config.mongo.table.gameProfiles)

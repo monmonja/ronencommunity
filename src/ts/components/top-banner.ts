@@ -7,7 +7,6 @@ export function initTopBanner (): void {
 
       const content = topBannerAddress.innerHTML.trim();
 
-
       // Copy to clipboard
       navigator.clipboard.writeText(content)
         .then(() => alert("Copied to clipboard!"))

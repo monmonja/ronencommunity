@@ -3,10 +3,8 @@ import {getUtcNow} from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getConnection} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
-import NftModel from "./nft-model.mjs";
 
 const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
-
 
 export default class WalletsModel {
   constructor(address) {
@@ -56,6 +54,7 @@ export default class WalletsModel {
         async function processInBatches(items, batchSize, handler) {
           for (let i = 0; i < items.length; i += batchSize) {
             const batch = items.slice(i, i + batchSize);
+
             await Promise.all(batch.map(handler)); // wait for all in batch
           }
         }
@@ -68,7 +67,7 @@ export default class WalletsModel {
             tokens.push({tokenId: tokenId.toString(), uri});
           } catch (e) {
             logError({
-              message: 'Error on Wallet.getUserNFTs',
+              message: "Error on Wallet.getUserNFTs",
               auditData: e
             });
           }
@@ -95,7 +94,7 @@ export default class WalletsModel {
       }
     } catch (e) {
       logError({
-        message: 'Error on Wallet.getUserNFTs',
+        message: "Error on Wallet.getUserNFTs",
         auditData: e
       });
       return [];
@@ -107,6 +106,7 @@ export default class WalletsModel {
 
     // Get the start of today (midnight)
     const startOfDay = new Date();
+
     startOfDay.setHours(0, 0, 0, 0);
 
     const wallet = await mongoDbConnection

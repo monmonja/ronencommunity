@@ -29,7 +29,7 @@ export function initAuthRoutes(app) {
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { address, message, signature } = req.body;
+      let { address, message, signature } = req.body;
 
       try {
         // Verify nonce

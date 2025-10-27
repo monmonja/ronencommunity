@@ -1,7 +1,7 @@
 import Rollbar from "rollbar";
 import config from "../config/default.json" with { type: "json" };
 
-let rollbar = { log: (message, { auditData } = {}) => {}};
+let rollbar = { log: (_, { } = {}) => {}};
 
 if (config.isProd) {
   rollbar = new Rollbar({
@@ -12,7 +12,6 @@ if (config.isProd) {
 }
 
 export function logError({ message, auditData } = {}) {
-  console.log('config.isProd', config.isProd)
   if (config.isProd) {
     rollbar.log(message, { auditData });
   }

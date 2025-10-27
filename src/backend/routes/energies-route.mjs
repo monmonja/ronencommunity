@@ -188,7 +188,7 @@ export function initEnergyRoutes(app) {
 
           let actualRecipient;
           let purchasedEnergy;
-          let token = 'RON';
+          let token = "RON";
 
           const adminSettings = await Admin.getAllRecordsAsObject();
           const energyConfig = JSON.parse(adminSettings.energies);
@@ -245,7 +245,7 @@ export function initEnergyRoutes(app) {
             txHash,
             address: receipt.from,
             amount: purchasedEnergy[0].energy,
-            price: token === 'RON' ? purchasedEnergy[0].ron: purchasedEnergy[0].ronen,
+            price: token === "RON" ? purchasedEnergy[0].ron : purchasedEnergy[0].ronen,
             token,
           });
 

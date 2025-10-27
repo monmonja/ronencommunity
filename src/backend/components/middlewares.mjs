@@ -14,7 +14,7 @@ export function requireWalletSession(req, res, next) {
   }
 
   return res.status(401).render("games/required-login", {
-    selectedNav: 'games',
+    selectedNav: "games",
   });
 }
 
@@ -115,7 +115,7 @@ export function affiliateMiddleware(req, res, next) {
     'Please donate to support the website: <a id="top-banner-address" href="https://app.roninchain.com/address/0xf84810C321Fe1d9baB045b67893C61Be756FE6c6">0xf84810C321Fe1d9baB045b67893C61Be756FE6c6</a>',
     // End Date:Oct 05, 2025 at 11:59 PM PDT
     `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3IzeLZU">Getting into the Game: A Web3 and Crypto Buying Guide for Newbies</a>`,
-    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3Vsrb8Q">Gaming Socks Do Not Disturb I'm Novelty Boys for Men Women Gamer Youth</a>`,
+    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3Vsrb8Q">Gaming Socks Do Not Disturb I"m Novelty Boys for Men Women Gamer Youth</a>`,
 
   ];
 
@@ -136,12 +136,12 @@ export function forceHTTPSMiddleware(req, res, next) {
 export function noCacheDevelopment(req, res, next) {
   if (!config.isProd) {
     if (req.path.match(/\.(js|css)$/)) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
     } else if (req.path.match(/\.(png|jpg|jpeg|gif|svg|woff2)$/)) {
       // Allow caching for static assets like images/fonts
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
+      res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
     }
 
     return next();

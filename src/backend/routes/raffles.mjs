@@ -31,13 +31,13 @@ export function initRafflesRoutes(app) {
           }),
           allRaffles: await Raffles.getAllRaffles(),
           ...raffleEndsInDHM(),
-          selectedNav: 'raffles',
+          selectedNav: "raffles",
         });
       } else {
         return res.render("raffle/index", {
           raffle,
           allRaffles: await Raffles.getAllRaffles(),
-          selectedNav: 'raffles',
+          selectedNav: "raffles",
         });
       }
     });
@@ -94,7 +94,7 @@ export function initRafflesRoutes(app) {
           }),
           allRaffles: await Raffles.getAllRaffles(),
           ...raffleEndsInDHM(),
-          selectedNav: 'raffles',
+          selectedNav: "raffles",
         });
       } else {
         return res.status(401).json({ message: "No raffle with this Id." });

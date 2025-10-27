@@ -1,23 +1,23 @@
 export const EFFECTS = {
   // in canAttack
-  stunned: 'stunned',
-  silence: 'silence',
+  stunned: "stunned",
+  silence: "silence",
   // in getCurrentDefense
-  shield: 'shield',
+  shield: "shield",
 
   // in getCurrentDefense
-  defenseBoost: 'defenseBoost',
+  defenseBoost: "defenseBoost",
   // in baxie.takeDamage
-  extraDamageTaken: 'extraDamageTaken',
+  extraDamageTaken: "extraDamageTaken",
   // in baxie.takeDamage
-  reduceDamageTaken: 'reduceDamageTaken',
+  reduceDamageTaken: "reduceDamageTaken",
   // in baxie.getCurrentAttack
-  attackBoost: 'attackBoost',
+  attackBoost: "attackBoost",
   // in baxie.getCurrentAttack
-  skillDamageBoost: 'skillDamageBoost',
+  skillDamageBoost: "skillDamageBoost",
   // in baxie.getCurrentAttack
-  burn: 'burn',
+  burn: "burn",
 
-  reflect: 'reflect',
-  attackDebuff: 'attackDebuff',
-}
+  reflect: "reflect",
+  attackDebuff: "attackDebuff",
+};

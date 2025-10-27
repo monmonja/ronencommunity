@@ -1,14 +1,5 @@
-import crypto from "crypto";
-import { verifyMessage } from "ethers";
-import { body, param, validationResult } from "express-validator";
-import {requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import {requireWalletSession} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
-import config from "../config/default.json" with { type: "json" };
-import {logError} from "../components/logger.mjs";
-import WalletsModel from "../models/wallets-model.mjs";
-import path from "path";
-import Purchases from "../models/purchases.mjs";
-import Consumes from "../models/consumes.mjs";
 import Energies from "../models/energies.mjs";
 import Games from "../models/games.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
@@ -31,7 +22,7 @@ export function initStatsRoutes(app) {
             totalEnergyUsed: item.totalEnergyUsed
           };
         }),
-        selectedNav: 'profiles',
+        selectedNav: "profiles",
       });
     });
 }

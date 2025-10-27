@@ -85,8 +85,8 @@ app.get(
   rateLimiterMiddleware,
   (req, res) => {
     res.render("index", {
-      selectedNav: 'wiki',
-      selectedWiki : '',
+      selectedNav: "wiki",
+      selectedWiki : "",
       games: Games.getGames(),
     });
   });

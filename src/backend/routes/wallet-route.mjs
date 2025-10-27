@@ -1,8 +1,5 @@
-import { ethers } from "ethers";
-import url from "url";
-import { verifyMessage } from "ethers";
-import { body, param, validationResult } from "express-validator";
-import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import { param } from "express-validator";
+import {cookieCheckMiddleware, requireWalletSession} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
 import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
@@ -19,7 +16,7 @@ export function initWalletRoutes(app) {
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
-      const nftTokenId = 'baxies';
+      const nftTokenId = "baxies";
       let nftItem = await NftModel.findById({
         nftTokenId,
         nftId: req.params.tokenId,
@@ -53,14 +50,13 @@ export function initWalletRoutes(app) {
     cookieCheckMiddleware,
     async (req, res) => {
       try {
-        const nftTokeId = 'baxies';
+        const nftTokeId = "baxies";
         /// get from query string
-        const parsedUrl = url.parse(req.url, true);
-        const userWallet = parsedUrl.query.wallet || req.session.wallet.address ;
+        const userWallet = req.session.wallet.address;
 
         let walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
 
-        if (req.params.sync === 'true' || walletNft.length === 0) {
+        if (req.params.sync === "true" || walletNft.length === 0) {
           const contractAddress = "0xb79f49ac669108426a69a26a6ca075a10c0cfe28";
           const abi = [
             "function balanceOf(address owner) view returns (uint256)",
@@ -69,10 +65,18 @@ export function initWalletRoutes(app) {
             "function ownerOf(uint256 tokenId) view returns (address)"
           ];
 
-          walletNft = await WalletsModel.getUserNFTs('baxies', contractAddress, abi, userWallet);
+          walletNft = await WalletsModel.getUserNFTs("baxies", contractAddress, abi, userWallet);
         }
 
         const nfts = await NftModel.getNftItems(nftTokeId, userWallet);
+
+        walletNft = walletNft.filter((item) => {
+          if (nfts[item.tokenId]) {
+            const baxie = makeBaxie(nfts[item.tokenId]);
+
+            return baxie.attributes.status !== "Unhatched";
+          }
+        });
 
         walletNft.forEach((item) => {
           if (nfts[item.tokenId]) {

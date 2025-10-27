@@ -3,14 +3,10 @@ import {getUtcNow} from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getConnection} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
-import WalletsModel from "./wallets-model.mjs";
 
 const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
 
-
 export default class NftModel {
-
-
   static async addRecord({ nftTokenId, nftId, data, address } = {}) {
     const mongoDbConnection = await getConnection();
 
@@ -39,7 +35,7 @@ export default class NftModel {
     if (address) {
       findQuery.address = address;
     }
-console.log(findQuery)
+
     const data = await mongoDbConnection.db().collection(config.mongo.table.nfts)
       .findOne(findQuery);
 
@@ -72,6 +68,7 @@ console.log(findQuery)
         async function processInBatches(items, batchSize, handler) {
           for (let i = 0; i < items.length; i += batchSize) {
             const batch = items.slice(i, i + batchSize);
+
             await Promise.all(batch.map(handler)); // wait for all in batch
           }
         }
@@ -84,7 +81,7 @@ console.log(findQuery)
             tokens.push({tokenId: tokenId.toString(), uri});
           } catch (e) {
             logError({
-              message: 'Error on Wallet.getUserNFTs',
+              message: "Error on Wallet.getUserNFTs",
               auditData: e
             });
           }
@@ -111,7 +108,7 @@ console.log(findQuery)
       }
     } catch (e) {
       logError({
-        message: 'Error on Wallet.getUserNFTs',
+        message: "Error on Wallet.getUserNFTs",
         auditData: e
       });
       return [];
@@ -123,6 +120,7 @@ console.log(findQuery)
 
     // Get the start of today (midnight)
     const startOfDay = new Date();
+
     startOfDay.setHours(0, 0, 0, 0);
 
     const wallet = await mongoDbConnection
@@ -159,19 +157,22 @@ console.log(findQuery)
   static async getNFTMetadata({ nftTokenId, tokenURI, nftId, address } = {}) {
     let url = tokenURI;
 
-    console.log('get new info for', nftTokenId, nftId, tokenURI, address);
-    // handle ipfs:// URIs
+    // eslint-disable-next-line no-console
+    console.log("get new info for", nftTokenId, nftId, tokenURI, address);
+
     if (url.startsWith("ipfs://")) {
       url = `https://ipfs.io/ipfs/${url.replace("ipfs://", "")}`;
     }
 
     const res = await fetch(url);
+
     if (!res.ok) {
       throw new Error(`Failed to fetch metadata: ${res.status}`);
     }
+
     const data = await res.json();
-    console.log('dd', address)
-    await NftModel.addRecord({ nftTokenId, nftId, data, address } )
+
+    await NftModel.addRecord({ nftTokenId, nftId, data, address });
 
     return { nftTokenId, nftId, data, address };
   }

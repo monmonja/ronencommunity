@@ -1,4 +1,4 @@
-import WebSocket, { WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import {body, param} from "express-validator";
 import {cookieCheckMiddleware, requireWalletSession, sessionMiddleWare} from "../components/middlewares.mjs";
 import {rateLimiterMiddleware} from "../components/rate-limiter.mjs";
@@ -16,66 +16,69 @@ export function initGameRoomsRoutes(app, server) {
   const heartbeatInterval = setInterval(() => {
     wss.clients.forEach((ws) => {
       if (!ws.isAlive) {
-        console.log('Terminating inactive connection');
+        // eslint-disable-next-line no-console
+        console.log("Terminating inactive connection");
+
         return ws.terminate();
       }
+
       ws.isAlive = false;
       ws.ping();
     });
   }, 60000); // Check every 60 seconds
 
   // Clean up interval when server closes
-  wss.on('close', () => {
+  wss.on("close", () => {
     clearInterval(heartbeatInterval);
   });
 
   server.on("upgrade", (request, socket, head) => {
     try {
       // Parse cookies
-      const cookies = cookie.parse(request.headers.cookie || '');
-      const sessionId = cookies['connect.sid'];
+      const cookies = cookie.parse(request.headers.cookie || "");
+      const sessionId = cookies["connect.sid"];
 
       if (!sessionId) {
-        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         return socket.destroy();
       }
+
       const sessionParser = sessionMiddleWare(); // returns middleware function
 
       sessionParser(request, {}, () => {
         if (!request.session) {
-          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+          socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
           return socket.destroy();
         }
 
         wss.handleUpgrade(request, socket, head, (ws) => {
           ws.session = request.session; // attach session
-          wss.emit('connection', ws, request);
+          wss.emit("connection", ws, request);
         });
       });
     } catch (err) {
-      console.error('WebSocket upgrade error:', err);
+      console.error("WebSocket upgrade error:", err);
       socket.destroy();
     }
   });
 
   wss.on("connection", (ws, request) => {
     ws.isAlive = true;
-    ws.on('pong', () => ws.isAlive = true);
+    ws.on("pong", () => ws.isAlive = true);
 
     // Handle incoming messages
     ws.on("message", (msg) => {
       try {
-        console.log('message')
         const data = JSON.parse(msg);
 
         if (!data.gameId) {
-          ws.send(JSON.stringify({ error: 'No gameId' }));
+          ws.send(JSON.stringify({ error: "No gameId" }));
 
           return;
         }
 
         if (!data.roomId) {
-          ws.send(JSON.stringify({ error: 'No roomId' }));
+          ws.send(JSON.stringify({ error: "No roomId" }));
 
           return;
         }
@@ -83,22 +86,21 @@ export function initGameRoomsRoutes(app, server) {
         const game = Games.getGame(data.gameId);
 
         if (!game) {
-          ws.send(JSON.stringify({ error: 'Invalid gameId' }));
+          ws.send(JSON.stringify({ error: "Invalid gameId" }));
           return;
         }
 
-        if (game.slug === 'baxie-simulation' && GameRoomManager.hasRoom(data.roomId)) {
+        if (game.slug === "baxie-simulation" && GameRoomManager.hasRoom(data.roomId)) {
           handleBaxieSimulationGameRoom(ws, data, request);
         }
       } catch (err) {
-        console.error('Invalid WS message:', err);
+        console.error("Invalid WS message:", err);
       }
     });
 
-    ws.on('close', (code, reason) => {
+    ws.on("close", () => {
       // Find and cleanup rooms with this ws
       Object.entries(GameRoomManager.rooms).forEach(([roomId, room]) => {
-        console.log(room)
         const player = room?.players?.find((player) => player.ws === ws);
 
         if (player) {
@@ -107,8 +109,8 @@ export function initGameRoomsRoutes(app, server) {
       });
     });
 
-    ws.on('error', (err) => {
-      console.error('Socket error', err);
+    ws.on("error", (err) => {
+      console.error("Socket error", err);
     });
   });
 
@@ -140,6 +142,7 @@ export function initGameRoomsRoutes(app, server) {
         game,
         gameMode: req.params.gameMode,
       });
+
       await GameRoomsModel.saveRoom(room);
 
       return res.json({
@@ -153,11 +156,11 @@ export function initGameRoomsRoutes(app, server) {
     param("path")
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
-    body('characterIds')
+    body("characterIds")
       .optional()
-      .matches(/^[0-9,FB]+$/).withMessage('Can only contain numbers and commas'),
-    body('gameMode')
-      .matches(/^[a-zA-Z]+$/).withMessage('Not a valid game mode'),
+      .matches(/^[0-9,FB]+$/).withMessage("Can only contain numbers and commas"),
+    body("gameMode")
+      .matches(/^[a-zA-Z]+$/).withMessage("Not a valid game mode"),
     requireWalletSession,
     cookieCheckMiddleware,
     rateLimiterMiddleware,
@@ -165,7 +168,8 @@ export function initGameRoomsRoutes(app, server) {
       if (!handleValidation(req, res)) {
         return;
       }
-      let { characterIds, gameMode } = req.body;
+
+      let { gameMode } = req.body;
       const game = Games.getGame(req.params.path);
 
       if (!game && !game.gameRoomSlug) {
@@ -179,7 +183,8 @@ export function initGameRoomsRoutes(app, server) {
         vsCPU: true,
         gameMode,
       });
-      await createCPUPlayer(room.roomId)
+
+      await createCPUPlayer(room.roomId);
 
       await GameRoomsModel.saveRoom(room);
 
@@ -213,11 +218,12 @@ export function initGameRoomsRoutes(app, server) {
 
       const roomId = req.params.roomId;
       const address = req.session.wallet?.address.toLowerCase();
+
       if (GameRoomManager.canJoinRoom({ roomId, address })) {
         const room = GameRoomManager.joinRoom({roomId, address});
 
         if (room) {
-          if (game.slug === 'baxie-simulation') {
+          if (game.slug === "baxie-simulation") {
             room.canJoin = false;
           }
 

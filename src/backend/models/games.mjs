@@ -45,9 +45,11 @@ export default class Games {
 
             if (json.hasSubGames) {
               const subFolderEntries = fs.readdirSync(path.join(gamesDir, entry.name), { withFileTypes: true });
+
               for (const subFolderEntry of subFolderEntries) {
                 if (subFolderEntry.isDirectory()) {
                   const subfolderPkgPath = path.join(gamesDir, entry.name, subFolderEntry.name, "package.json");
+
                   if (fs.existsSync(subfolderPkgPath)) {
                     Games.games.push(JSON.parse(fs.readFileSync(subfolderPkgPath, "utf-8")));
                   }

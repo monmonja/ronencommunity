@@ -1,11 +1,11 @@
-import Baxie from './baxie.mjs';
+import Baxie from "./baxie.mjs";
 import { EFFECTS } from "./effects.mjs";
 import SkillManager from "./baxie-simulation/skill-manager.mjs";
 
 export default class ElectricBaxie extends Baxie {
   constructor(props) {
     super(props);
-    this.populateSkills(['voltOverload', 'chargeUp', 'stormBreaker']);
+    this.populateSkills(["voltOverload", "chargeUp", "stormBreaker"]);
   }
 
   // Strikes 2 random enemies (75% Attack each). 20% chance to stun for 1 turn.
@@ -34,9 +34,11 @@ export default class ElectricBaxie extends Baxie {
            * @type BaxieEffect
            */
           const stunEffect = { type: EFFECTS.stunned, turnsLeft: 1 };
+
           target.addEffect(stunEffect);
           enemyResult.effects = [stunEffect];
         }
+
         resultsEnemies.push(enemyResult);
       });
 
@@ -56,9 +58,11 @@ export default class ElectricBaxie extends Baxie {
      */
     const alliesResults = [];
     const staminaGain = Math.floor(this.getMaxStamina() * 0.1);
+
     this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
 
     const attackEffect = { type: EFFECTS.attackBoost, value: 0.1, turnsLeft: 1 };
+
     this.addEffect(attackEffect);
     alliesResults.push({ target: this.tokenId, staminaRestored: staminaGain, effects: [attackEffect] });
 

@@ -6,7 +6,7 @@ export function initTopMenu (): void {
     mobileMenu.addEventListener("click", (e: Event) => {
       e.stopPropagation();
 
-      topMenu.classList.toggle('open');
+      topMenu.classList.toggle("open");
     });
   }
 }
