@@ -9,10 +9,15 @@ import WalletsModel from "../models/wallets-model.mjs";
 
 export function initAuthRoutes(app) {
   app.get(
-    "/auth/login",
+    "/auth/login/:address",
+    param("address")
+      .trim()
+      .isEthereumAddress()
+      .withMessage("Invalid Ethereum address"),
     async (req, res) => {
+      const { address } = req.params;
       req.session.wallet = {
-        address: '0x3D59D5679f04300Fd1a9C5406bC02E6724631454',
+        address: address,
       };
       res.cookie("has-user", "true", {
         maxAge: 3 * 60 * 60 * 1000, // 3 hrs
