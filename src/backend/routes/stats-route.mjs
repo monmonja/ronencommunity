@@ -3,8 +3,22 @@ import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Energies from "../models/energies.mjs";
 import Games from "../models/games.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
+import GameRoomManager from "../games/game-room-manager.mjs";
 
 export function initStatsRoutes(app) {
+  app.get(
+    "/stats/rooms",
+    rateLimiterMiddleware,
+    requireWalletSession,
+    async (req, res) => {
+      res.json({
+        baxies: {
+          current: GameRoomManager.getGameRoomCounts('bsim'),
+          max: GameRoomManager.MAX_ROOMS['bsim'],
+        },
+      })
+    });
+
   app.get(
     "/stats",
     rateLimiterMiddleware,

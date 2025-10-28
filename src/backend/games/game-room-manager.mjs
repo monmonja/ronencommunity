@@ -41,6 +41,25 @@ export default class GameRoomManager {
   static rooms = {};
 
   /**
+   * @type GameRoom
+   */
+  static MAX_ROOMS = {
+    'bsim': 50,
+  };
+
+  static getGameRoomCounts(gameSlug) {
+    let count = 0;
+
+    for (const roomId in GameRoomManager.rooms) {
+      if (roomId.startsWith(gameSlug)) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
+  /**
    * Create a new game room
    * @param address
    * @param game
