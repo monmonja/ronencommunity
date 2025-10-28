@@ -72,7 +72,7 @@ export default class WalletsModel {
             });
           }
         });
-
+console.log(tokens)
         const mongoDbConnection = await getConnection();
 
         await mongoDbConnection.db().collection(config.mongo.table.wallets)

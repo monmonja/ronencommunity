@@ -162,7 +162,7 @@ export default class GameScene extends Phaser.Scene {
     bg.fillRoundedRect(-250, -40, 500, 80, 10);
     this.loadingContainer.add(bg);
 
-    const loadingText = this.add.text(0, 0, 'Loading game and resources...', {
+    const loadingText = this.add.text(0, 0, 'Loading game and resources\nwaiting for other player', {
       fontFamily: constants.fonts.troika,
       fontSize: '32px',
       color: '#ffffff',
@@ -220,6 +220,7 @@ export default class GameScene extends Phaser.Scene {
         setTimeout(() => {
           this.scene.start('EndGameScene', {
             youWin: data.winnerAddress === data.yourAddress,
+            winnerAddress: data.winnerAddress,
             selectedBaxies: this.selectedBaxies,
           });
         }, 1000);

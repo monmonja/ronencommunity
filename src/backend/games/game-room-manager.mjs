@@ -147,6 +147,21 @@ export default class GameRoomManager {
     }
   }
 
+  static getAllSockets(room) {
+    const sockets = [];
+
+    if (room && !room.gameOver) {
+      room.players.forEach((roomPlayer) => {
+        sockets.push({
+          address: roomPlayer.address,
+          ws: roomPlayer.ws,
+        });
+      });
+    }
+
+    return sockets;
+  }
+
   // ========== MATCH TRACKING METHODS (OPTIMIZED) ==========
 
   static async createMatchRecord(roomId, gameMode, players, vsCPU = false) {
@@ -569,7 +584,7 @@ export default class GameRoomManager {
     room.players.forEach(player => {
       if (player.ws) {
         try {
-          player.ws.close();
+          player.ws?.close();
         } catch (err) {
           console.error("Error closing WebSocket:", err);
         }

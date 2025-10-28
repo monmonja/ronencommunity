@@ -135,14 +135,14 @@ export default class NftModel {
     return wallet !== null;
   }
 
-  static async getNftItems(nftTokenId, address) {
+  static async getNftItems(nftTokenId) {
     const mongoDbConnection = await getConnection();
 
     const nftsArray = await mongoDbConnection
       .db()
       .collection(config.mongo.table.nfts)
       .find(
-        { address, nftTokenId },
+        { nftTokenId },
       )
       .toArray();
 

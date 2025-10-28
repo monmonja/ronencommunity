@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
-import {createButton, createCircleButton} from "../../common/buttons.mjs";
-import {createCpuGameRoom, createGameRoom, joinGameRoom} from "../../common/scene/rooms-scene.mjs";
+import {createButton} from "../../common/buttons.mjs";
+import {createCpuGameRoom, createGameRoom, joinGameRoom, watchGameRoom} from "../../common/utils/room-utils.mjs";
 import constants from "../../common/constants.mjs";
-import Dropdown from "../../common/ui/dropdown.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 import {createEnergyUI, fetchEnergy} from "../../common/energies.mjs";
 import {addSettingsIcon} from "../../common/settings.mjs";
@@ -328,17 +327,6 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     let currentY = 30; // Start padding top
 
-    // === Title ===
-    const title = this.add.text(panelWidth / 2, currentY, 'Practice Mode', {
-      fontFamily: constants.fonts.Newsreader,
-      fontSize: '26px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    }).setOrigin(0.5, 0);
-    container.add(title);
-
-    currentY += 50;
-
 
     // === Button ===
     const btnBg = createButton({
@@ -404,6 +392,68 @@ export default class RoomSelectionScene extends Phaser.Scene {
       },
     })
     container.add(btnBg);
+
+    currentY += 70;
+
+    const spectatorBg = createButton({
+      scene: this,
+      x: (panelWidth - (panelWidth - 40)) / 2, // center horizontally
+      y: currentY,
+      width: panelWidth - 40,
+      height: 50,
+      text: 'Spectator Mode',
+      topBgColor: 0x6A6AFF,
+      bottomBgColor: 0x6A6AFF,
+      innerBaseColor: 0x6A6AFF,
+      borderColor: 0x6A6AFF,
+      onPointerDown: async () => {
+        alert('Still in development.');
+        return;
+        const current = prompt('Enter Room ID:');
+        if (current) {
+          watchGameRoom({
+            scene: this,
+            gameId: this.game.customConfig.gameId,
+            roomId: current,
+            gameMode: 'autoBattler',
+          }).then((response) => {
+            this.ws = new WebSocket(response.wsUrl);
+
+            this.ws.addEventListener("open", (event) => {
+              this.ws.send(JSON.stringify({
+                type: 'watchRoom',
+                gameId: this.game.customConfig.gameId,
+                roomId: response.roomId,
+              }));
+            });
+
+            this.ws.addEventListener("error", (msg) => {
+              console.log("WebSocket error:", msg)
+            });
+            this.ws.addEventListener("close", (msg) => {
+              console.log("WebSocket close:", msg)
+            });
+            this.ws.addEventListener("message", (msg) => {
+              const data = JSON.parse(msg.data);
+              if (data.type === 'initGame') {
+                this.scene.start('GameScene', {
+                  ws: this.ws,
+                  roomId: response.roomId,
+                  player: data.player,
+                  enemy: data.enemy,
+                  isYourTurn: data.isYourTurn,
+                  turnIndex: data.turnIndex,
+                  gameMode: data.gameMode,
+                });
+                btnBg.clicked = false;
+              }
+            });
+          });
+
+        }
+      },
+    })
+    container.add(spectatorBg);
 
     return container;
   }

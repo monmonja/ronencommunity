@@ -392,7 +392,6 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     const key = `effects-container-${updatedBaxie.tokenId}`;
 
     if (container.getByName(key)) {
-      console.log('distroying old effects container for', updatedBaxie.tokenId, key);
       container.getByName(key).destroy();
     }
 
