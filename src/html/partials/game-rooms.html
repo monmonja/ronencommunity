@@ -27,9 +27,9 @@
       </td>
       <td><%= JSON.stringify(gameRoom.players[0].baxies?.map((baxie) => `#${baxie.tokenId}`)) %></td>
       <td>
-        <%= gameRoom.players[1].address.slice(0, 6) + '••' + gameRoom.players[1].address.slice(-4) %>
+        <%= gameRoom.players[1]?.address.slice(0, 6) + '••' + gameRoom.players[1]?.address.slice(-4) %>
       </td>
-      <td><%= JSON.stringify(gameRoom.players[1].baxies?.map((baxie) => `#${baxie.tokenId}`)) %></td>
+      <td><%= JSON.stringify(gameRoom.players[1]?.baxies?.map((baxie) => `#${baxie.tokenId}`)) %></td>
       <td><%= gameRoom.status %></td>
     </tr>
     <% }); %>
