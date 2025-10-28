@@ -106,7 +106,7 @@ export default class ToolSelection extends Phaser.Scene {
                 this.registry.set(constants.registry.baxies, results);
               });
             this.scene.start("RoomSelectionScene", {
-              selectedBaxies: JSON.parse(selectedBaxies),
+              selectedBaxies,
             });
           } catch (e) {
             this.scene.start("SyncMenuScene");
