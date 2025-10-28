@@ -67,7 +67,7 @@ export default class GameRoomManager {
    * @param gameMode
    * @returns {Promise<GameRoom>}
    */
-  static async createRoom({ address, game, vsCPU = false, gameMode } = {}) {
+  static async createRoom({ address, game, vsCPU = false, gameMode, creator, maxPlayers = 2 } = {}) {
     const shortHand = address ? address.slice(0, 4) + "-" + address.slice(-4) : "";
     const roomId = `${game.gameRoomSlug}-${shortHand}-${Math.random().toString(36).substring(2, 10)}`;
 
@@ -83,6 +83,8 @@ export default class GameRoomManager {
 
     GameRoomManager.rooms[roomId] = {
       roomId,
+      maxPlayers,
+      creator: creator ?? address,
       players: [{
         address
       }],
@@ -104,10 +106,16 @@ export default class GameRoomManager {
    * @returns {GameRoom} The room object if joined successfully, else undefined
    */
   static joinRoom({ roomId, address } = {}) {
-    if (GameRoomManager.rooms[roomId] && GameRoomManager.rooms[roomId].canJoin) {
-      GameRoomManager.rooms[roomId].players.push({
-        address
-      });
+    if (GameRoomManager.rooms[roomId]) {
+      if (GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length === 0) {
+        if (GameRoomManager.rooms[roomId].players.length >= GameRoomManager.rooms[roomId].maxPlayers) {
+          return null;
+        }
+
+        GameRoomManager.rooms[roomId].players.push({
+          address
+        });
+      }
 
       return GameRoomManager.rooms[roomId];
     }
@@ -120,12 +128,18 @@ export default class GameRoomManager {
    * @returns {boolean}
    */
   static canJoinRoom({ roomId, address } = {}) {
-    if (GameRoomManager.rooms[roomId] && GameRoomManager.rooms[roomId].canJoin) {
+    if (GameRoomManager.rooms[roomId]) {
+      console.log(GameRoomManager.rooms[roomId].players, address, GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length)
       if (GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length > 0) {
+        return true;
+      }
+
+      if (GameRoomManager.rooms[roomId].players.length >= GameRoomManager.rooms[roomId].maxPlayers) {
         return false;
       }
 
       if (!GameRoomManager.rooms[roomId].canJoin) {
+        console.log('cannot join: room closed');
         return false;
       }
 

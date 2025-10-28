@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games - Ronen Community</title>
+  <link rel="stylesheet" href="/css/games-<%= config.distVersion %>.css">
+  <%- include('../partials/analytics.html') %>
+</head>
+<body>
+  <%- include('../partials/top-menu.html') %>
+  <%- include('../partials/ads-top-banner.html') %>
+  <div class="page-content">
+    <h2 class="header-title">
+      Make Room
+    </h2>
+    <section class="card">
+      <% if (typeof room !== 'undefined') { %>
+        <div class="info-message">
+          Room created successfully!<br />
+          Room ID: <br /><strong><%= room.roomId %></strong><br /><Br />
+          Player 1: <strong><%= room.players[0]?.address %></strong><br />
+          Player 2: <strong><%= room.players[1]?.address %></strong><br />
+        </div>
+      <% } else { %>
+        <form action="/game-rooms/make" method="post">
+          <div>
+            <label>Player 1 Address</label><br />
+            <input type="text" name="player1" />
+          </div>
+          <div>
+            <label>Player 2 Address</label><br />
+            <input type="text" name="player2" />
+          </div>
+          <div>
+            <button class="button">Submit</button>
+          </div>
+        </form>
+      <% } %>
+    </section>
+
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-raffle.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/games-<%= config.distVersion %>.js"></script>
+</body>
+</html>

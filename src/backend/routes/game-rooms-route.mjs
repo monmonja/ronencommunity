@@ -9,6 +9,7 @@ import {createCPUPlayer, handleBaxieSimulationGameRoom} from "../games/BaxieSimu
 import cookie from "cookie";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
 import GameRoomManager from "../games/game-room-manager.mjs";
+import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 
 export function initGameRoomsRoutes(app, server) {
   const wss = new WebSocketServer({ noServer: true });
@@ -113,6 +114,50 @@ export function initGameRoomsRoutes(app, server) {
       console.error("Socket error", err);
     });
   });
+
+  app.get(
+    "/game-rooms/make",
+    requireWalletSession,
+    cookieCheckMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      return res.render("game-rooms/make", {
+        selectedNav: "games",
+      });
+    });
+
+  app.post(
+    "/game-rooms/make",
+    requireWalletSession,
+    cookieCheckMiddleware,
+    rateLimiterMiddleware,
+    body("player1")
+      .trim()
+      .isEthereumAddress().withMessage("Player1 Ethereum address"), // validator.js
+    body("player2")
+      .trim()
+      .isEthereumAddress().withMessage("Player2 Invalid Ethereum address"), // validator.js
+    async (req, res) => {
+      let { player1, player2 } = req.body;
+      const game = Games.getGame('baxie-simulation');
+
+      const room = await GameRoomManager.createRoom({
+        address: player1.toLowerCase(),
+        game,
+        gameMode: GameModes.autoBattler,
+        creator: req.session.wallet?.address.toLowerCase(),
+      });
+
+      GameRoomManager.joinRoom({
+        roomId: room.roomId,
+        address: player2.toLowerCase(),
+      });
+
+      return res.render("game-rooms/make", {
+        selectedNav: "games",
+        room,
+      });
+    });
 
   app.get(
     "/game-rooms/create/:path/:gameMode",

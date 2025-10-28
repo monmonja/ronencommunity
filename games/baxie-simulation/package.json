@@ -6,6 +6,7 @@
   "visible": true,
   "dailyEnergy": 100,
   "gameRoomSlug": "bsim",
+  "checkAccessList": true,
   "changeLog": [
     {
       "date": 1755820800000,

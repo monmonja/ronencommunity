@@ -82,20 +82,26 @@ function isGameOver(currentRoom) {
       currentRoom.loserAddress = player.address;
     }
   });
+  currentRoom.winnerAddress = currentRoom.players.find(
+    (p) => p.address !== currentRoom.loserAddress
+  )?.address;
 
   if (gameOver) {
-    currentRoom.players.forEach((player) => {
-      if (player.ws) {
-        player.ws.send(JSON.stringify({
-          type: "gameOver",
-          youWin: player.address !== currentRoom.loserAddress,
-        }));
-      }
-    });
-    currentRoom.status = "Game Over";
-    currentRoom.gameOver = true;
-    RoomManager.cleanupRoom(currentRoom.roomId);
-    GameRoomsModel.updateRoom(currentRoom.roomId, currentRoom);
+    setTimeout(() => {
+      currentRoom.players.forEach((player) => {
+        if (player.ws) {
+          player.ws.send(JSON.stringify({
+            type: "gameOver",
+            winnerAddress: currentRoom.winnerAddress,
+            yourAddress: player.address,
+          }));
+        }
+      });
+      currentRoom.status = "Game Over";
+      currentRoom.gameOver = true;
+      GameRoomsModel.updateRoom(currentRoom.roomId, currentRoom);
+      RoomManager.cleanupRoom(currentRoom.roomId);
+    }, 2000);
   }
 
   return gameOver;
@@ -491,7 +497,7 @@ async function handleJoinRoom(ws, data) {
     }
 
     // start game when 2 players have joined
-    if (currentRoom.players.length === 2) {
+    if (currentRoom.players.filter((player) => !!player.ws).length === 2) {
       currentRoom.turnIndex = 0;
       // randomised player start
       const playerTurn  = currentRoom.players[Math.floor(Math.random() * currentRoom.players.length)];
@@ -522,10 +528,6 @@ async function handleJoinRoom(ws, data) {
             player: player.baxies?.map((baxie) => baxie.getGameInfo(true)),
             enemy: enemy.baxies?.map((baxie) => baxie.getGameInfo(true)),
             gameMode: currentRoom.gameMode,
-          }));
-          player.ws.send(JSON.stringify({
-            type: "DeductEnergy",
-            amount: 1,
           }));
         }
       });

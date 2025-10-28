@@ -6,6 +6,8 @@ import session from "express-session";
 import config from "../config/default.json" with { type: "json" };
 import geoip from "geoip-country";
 import {logError} from "./logger.mjs";
+import Games from "../models/games.mjs";
+import Admin from "../models/admin.mjs";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
@@ -16,6 +18,29 @@ export function requireWalletSession(req, res, next) {
   return res.status(401).render("games/required-login", {
     selectedNav: "games",
   });
+}
+
+// Middleware to check if wallet is in access list
+export async function accessListMiddleware(req, res, next) {
+  const game = Games.getGame(req.params.path);
+
+  if (game.checkAccessList) {
+    if (req.session.wallet && req.session.wallet.address) {
+      const settings = await Admin.getAllRecordsAsObject();
+      const walletAddress = req.session.wallet.address.toLowerCase();
+      const accessList = JSON.parse(settings.baxieAccessList || []);
+
+      if (accessList.includes(walletAddress)) {
+        return next(); // wallet is in access list
+      }
+    }
+
+    return res.status(403).render("games/access-denied", {
+      selectedNav: "games",
+    });
+  }
+
+  return next();
 }
 
 export function sessionMiddleWare() {

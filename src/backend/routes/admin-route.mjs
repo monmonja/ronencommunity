@@ -20,6 +20,9 @@ export function initAdminRoutes(app) {
     adminAccessMiddleware,
     body("energies")
       .trim()
+      .isJSON().withMessage("Invalid JSON"),
+    body("baxieAccessList")
+      .trim()
       .isJSON().withMessage("Invalid JSON"), // validator.js
     rateLimiterMiddleware,
     async (req, res) => {
@@ -30,15 +33,18 @@ export function initAdminRoutes(app) {
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const { energies } = req.body;
+      const { energies, baxieAccessList } = req.body;
 
       await Admin.addUpdateRecord({
         key: "energies",
         value: energies,
       });
+      await Admin.addUpdateRecord({
+        key: "baxieAccessList",
+        value: baxieAccessList.toLowerCase(),
+      });
 
       res.render("admin/index", {
-
         settings: await Admin.getAllRecordsAsObject()
       });
     });

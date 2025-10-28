@@ -1,5 +1,9 @@
 import { param, validationResult } from "express-validator";
-import {cookieCheckMiddleware, requireWalletSession} from "../components/middlewares.mjs";
+import {
+  accessListMiddleware,
+  cookieCheckMiddleware,
+  requireWalletSession,
+} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {
   getUtcNow,
@@ -55,6 +59,7 @@ export function initGamesRoutes(app) {
     rateLimiterMiddleware,
     cookieCheckMiddleware,
     requireWalletSession,
+    accessListMiddleware,
     async (req, res) => {
       // Handle validation errors
       const errors = validationResult(req);

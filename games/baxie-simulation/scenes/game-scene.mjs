@@ -155,6 +155,7 @@ export default class GameScene extends Phaser.Scene {
 
   showLoading() {
     this.loadingContainer = this.add.container(this.game.scale.width / 2, this.game.scale.height / 2);
+    this.loadingContainer.setDepth(200);
 
     const bg = this.add.graphics();
     bg.fillStyle(0x000000, 0.7);
@@ -218,7 +219,7 @@ export default class GameScene extends Phaser.Scene {
       if (data.type === 'gameOver') {
         setTimeout(() => {
           this.scene.start('EndGameScene', {
-            youWin: data.youWin,
+            youWin: data.winnerAddress === data.yourAddress,
             selectedBaxies: this.selectedBaxies,
           });
         }, 1000);

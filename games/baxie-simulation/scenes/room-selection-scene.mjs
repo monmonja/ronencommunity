@@ -151,45 +151,50 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
           if (energy.available >= 5) {
             try {
-              const response = await createGameRoom({
+              createGameRoom({
                 scene: this,
                 gameId: this.game.customConfig.gameId,
                 gameMode: 'autoBattler',
-              });
+              })
+                .then((response) => {
+                  inputText.text = response.roomId;
+                  inputText.setColor('#ffffff');
+                  startBtn.getByName('label').text = 'Waiting...';
 
-              inputText.text = response.roomId;
-              inputText.setColor('#ffffff');
-              startBtn.getByName('label').text = 'Waiting...';
+                  this.ws = new WebSocket(response.wsUrl);
 
-              this.ws = new WebSocket(response.wsUrl);
-
-              this.ws.addEventListener('open', () => {
-                this.ws.send(
-                  JSON.stringify({
-                    type: 'joinRoom',
-                    gameId: this.game.customConfig.gameId,
-                    roomId: response.roomId,
-                    selectedBaxies: this.selectedBaxies,
-                  })
-                );
-              });
-
-              this.ws.onmessage = (msg) => {
-                const data = JSON.parse(msg.data);
-                if (data.type === 'initGame') {
-                  this.scene.start('GameScene', {
-                    ws: this.ws,
-                    roomId: response.roomId,
-                    player: data.player,
-                    enemy: data.enemy,
-                    isYourTurn: data.isYourTurn,
-                    turnIndex: data.turnIndex,
-                    gameMode: data.gameMode,
-                    selectedBaxies: this.selectedBaxies,
+                  this.ws.addEventListener('open', () => {
+                    this.ws.send(
+                      JSON.stringify({
+                        type: 'joinRoom',
+                        gameId: this.game.customConfig.gameId,
+                        roomId: response.roomId,
+                        selectedBaxies: this.selectedBaxies,
+                      })
+                    );
                   });
+
+                  this.ws.onmessage = (msg) => {
+                    const data = JSON.parse(msg.data);
+                    if (data.type === 'initGame') {
+                      this.scene.start('GameScene', {
+                        ws: this.ws,
+                        roomId: response.roomId,
+                        player: data.player,
+                        enemy: data.enemy,
+                        isYourTurn: data.isYourTurn,
+                        turnIndex: data.turnIndex,
+                        gameMode: data.gameMode,
+                        selectedBaxies: this.selectedBaxies,
+                      });
+                      startBtn.clicked = false;
+                    }
+                  };
+                })
+                .catch((e) => {
                   startBtn.clicked = false;
-                }
-              };
+                  alert('Someone went wrong creating the room. Please try again.');
+                });
             } catch (e) {
               console.error('Error creating game room:', e);
             }
@@ -256,46 +261,54 @@ export default class RoomSelectionScene extends Phaser.Scene {
       bottomBgColor: 0x6A6AFF,
       innerBaseColor: 0x6A6AFF,
       borderColor: 0x6A6AFF,
-      onPointerDown: async () => {
+      onPointerDown: () => {
         if (!joinBtn.clicked) {
           const energy = this.registry.get(constants.registry.energy);
 
           if (energy.available >= 5) {
             joinBtn.clicked = true;
+
             joinGameRoom({
               scene: this,
               gameId: this.game.customConfig.gameId,
               roomId: inputText.text,
-            }).then((response) => {
-              this.ws = new WebSocket(response.wsUrl);
+            })
+              .then((response) => {
+                this.ws = new WebSocket(response.wsUrl);
 
-              this.ws.onopen = () => {
-                this.ws.send(JSON.stringify({
-                  type: 'joinRoom',
-                  gameId: this.game.customConfig.gameId,
-                  roomId: response.roomId,
-                  selectedBaxies: this.selectedBaxies,
-                }));
-              };
+                this.ws.onopen = () => {
+                  joinBtn.getByName('label').text = 'Waiting...';
 
-              this.ws.onmessage = (msg) => {
-                const data = JSON.parse(msg.data);
-
-                if (data.type === 'initGame') {
-                  this.scene.start('GameScene', {
-                    ws: this.ws,
+                  this.ws.send(JSON.stringify({
+                    type: 'joinRoom',
+                    gameId: this.game.customConfig.gameId,
                     roomId: response.roomId,
-                    player: data.player,
-                    enemy: data.enemy,
-                    isYourTurn: data.isYourTurn,
-                    turnIndex: data.turnIndex,
-                    gameMode: data.gameMode,
                     selectedBaxies: this.selectedBaxies,
-                  });
-                  joinBtn.clicked = false;
-                }
-              };
-            });
+                  }));
+                };
+
+                this.ws.onmessage = (msg) => {
+                  const data = JSON.parse(msg.data);
+
+                  if (data.type === 'initGame') {
+                    this.scene.start('GameScene', {
+                      ws: this.ws,
+                      roomId: response.roomId,
+                      player: data.player,
+                      enemy: data.enemy,
+                      isYourTurn: data.isYourTurn,
+                      turnIndex: data.turnIndex,
+                      gameMode: data.gameMode,
+                      selectedBaxies: this.selectedBaxies,
+                    });
+                    joinBtn.clicked = false;
+                  }
+                };
+              })
+              .catch((e) => {
+                joinBtn.clicked = false;
+                alert('Failed to join the room. Please check the Room ID and try again.');
+              });
           } else {
             this.scene.launch('EnergiesScene');
           }
