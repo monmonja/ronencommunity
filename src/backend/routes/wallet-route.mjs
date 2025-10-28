@@ -75,6 +75,8 @@ export function initWalletRoutes(app) {
             const baxie = makeBaxie(nfts[item.tokenId]);
 
             return baxie.attributes.status !== "Unhatched";
+          } else {
+            return true
           }
         });
 
@@ -86,6 +88,8 @@ export function initWalletRoutes(app) {
               ...nfts[item.tokenId],
               ...baxie.getGameInfo(true),
             };
+          } else {
+
           }
         });
 
