@@ -441,6 +441,9 @@ async function handleGameLoaded(ws, data) {
           }));
         });
 
+        currentRoom.status = 'playing';
+        await GameRoomsModel.updateRoom(currentRoom.roomId, currentRoom);
+
         if (currentRoom.gameMode === GameModes.autoBattler) {
           baxieAutoBattlerTurn(ws, data, currentRoom.baxieTurnOrder[currentRoom.baxieTurnIndex]);
         }
