@@ -22,8 +22,9 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const baxie = this.selectedBaxies[i];
       const key = `baxie-${baxie.tokenId}`;
       this.load.image(key, baxie.image);
-console.log(baxie)
+
       const maxSkill = Math.ceil(Number(baxie.purity.split('/')[0]) / 2);
+
       baxie.selectedSkills = baxie.skills.slice(0, maxSkill).map((skill) => skill.func);
     }
   }

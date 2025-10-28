@@ -92,18 +92,25 @@ export default class ToolSelection extends Phaser.Scene {
       imageKey: 'game-simulation',
       description: 'This is a simulation of the game that will be release in phase 1, it is based from our understanding of the whitepaper',
       onPointerDown: () => {
-        const selectedBaxies = localStorage.getItem('selectedBaxies');
+        let selectedBaxies = localStorage.getItem('selectedBaxies');
 
         if (selectedBaxies) {
-          // background task to fetch baxies
-          fetch('/list/baxies/false')
-            .then((res) => res.json())
-            .then((results) => {
-              this.registry.set(constants.registry.baxies, results);
+          try {
+            selectedBaxies = JSON.parse(selectedBaxies);
+            selectedBaxies = selectedBaxies.slice(0, 3);
+
+            // background task to fetch baxies
+            fetch('/list/baxies/false')
+              .then((res) => res.json())
+              .then((results) => {
+                this.registry.set(constants.registry.baxies, results);
+              });
+            this.scene.start("RoomSelectionScene", {
+              selectedBaxies: JSON.parse(selectedBaxies),
             });
-          this.scene.start("RoomSelectionScene", {
-            selectedBaxies: JSON.parse(selectedBaxies),
-          });
+          } catch (e) {
+            this.scene.start("SyncMenuScene");
+          }
         } else {
           this.scene.start("SyncMenuScene");
         }

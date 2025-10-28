@@ -57,7 +57,8 @@ export default class GameRoomManager {
       const room = GameRoomManager.rooms[existingRoomId];
 
       if (room && room.players.find(player => player.address === address)) {
-        GameRoomManager.rooms[existingRoomId] = null;
+        // join existing room instead of creating a new one
+        return room;
       }
     }
 
@@ -524,7 +525,9 @@ export default class GameRoomManager {
   static cleanupRoom(roomId) {
     const room = GameRoomManager.rooms[roomId];
 
-    if (!room) return;
+    if (!room) {
+      return;
+    }
 
     if (room.disconnectTimeout) {
       clearTimeout(room.disconnectTimeout);

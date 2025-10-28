@@ -20,7 +20,6 @@ export default class SelectionScene extends Phaser.Scene {
       this.selectedBaxiesId = data.selectedBaxiesId ?? [];
       this.selectedBaxies = data.selectedBaxies ?? [];
     }
-    console.log('this.selectedBaxiesId', this.selectedBaxiesId)
   }
 
   preload() {
@@ -110,7 +109,8 @@ export default class SelectionScene extends Phaser.Scene {
       text: 'Slots',
       onPointerDown: async () => {
         if (this.selectedBaxiesId.length === 3) {
-          const selectedBaxies = this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId));
+          let selectedBaxies = this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId));
+          selectedBaxies = selectedBaxies.slice(0, 3);
 
           localStorage.setItem('selectedBaxiesId', JSON.stringify(this.selectedBaxiesId));
           localStorage.setItem('selectedBaxies', JSON.stringify(selectedBaxies));

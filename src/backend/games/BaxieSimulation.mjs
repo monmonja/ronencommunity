@@ -8,6 +8,7 @@ import SkillManager from "./baxies/baxie-simulation/skill-manager.mjs";
 import {EFFECTS} from "./baxies/effects.mjs";
 import Energies from "../models/energies.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
+import RoomManager from "./game-room-manager.mjs";
 
 const turnTimeout = 3000;
 
@@ -91,7 +92,10 @@ function isGameOver(currentRoom) {
         }));
       }
     });
+    currentRoom.status = "Game Over";
     currentRoom.gameOver = true;
+    RoomManager.cleanupRoom(currentRoom.roomId);
+    GameRoomsModel.updateRoom(currentRoom.roomId, currentRoom);
   }
 
   return gameOver;
