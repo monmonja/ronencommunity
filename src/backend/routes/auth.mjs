@@ -12,7 +12,7 @@ export function initAuthRoutes(app) {
     "/auth/login",
     async (req, res) => {
       req.session.wallet = {
-        address: '0x52c241795798D0749Eb2bD0858a717B8c8Bedf0D',
+        address: '0x3D59D5679f04300Fd1a9C5406bC02E6724631454',
       };
       res.cookie("has-user", "true", {
         maxAge: 3 * 60 * 60 * 1000, // 3 hrs
