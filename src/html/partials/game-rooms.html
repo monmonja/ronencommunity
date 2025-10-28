@@ -4,6 +4,7 @@
     <thead>
     <tr>
       <th>Date Created</th>
+      <th>Room Id</th>
       <th>Player 1</th>
       <th>Baxie</th>
       <th>Player 2</th>
@@ -22,6 +23,7 @@
       %>
 
       <td><%= formatted %></td>
+      <td><%= gameRoom.roomId %></td>
       <td>
         <%= gameRoom.players[0].address.slice(0, 6) + '••' + gameRoom.players[0].address.slice(-4) %>
       </td>
