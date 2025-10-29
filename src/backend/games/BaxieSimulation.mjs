@@ -93,6 +93,7 @@ function isGameOver(currentRoom) {
             type: "gameOver",
             winnerAddress: currentRoom.winnerAddress,
             yourAddress: player.address,
+            isSpectator: player.isSpectator ?? false
           }));
         }
       });
@@ -269,7 +270,7 @@ function doPhysicalAttack({ roomId, playerWithSelectedBaxie, selectedBaxie } = {
  */
 function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
   const currentRoom = GameRoomManager.rooms[data.roomId];
-console.log('baxieAutoBattlerTurn')
+
   if (!currentRoom) {
     return;
   }
@@ -396,22 +397,22 @@ async function handleGameLoaded(ws, data) {
   if (currentRoom.vsCPU) {
     try {
       if (currentRoom.gameMode === GameModes.autoBattler) {
-        currentRoom.players.forEach((player) => {
-          if (!player.isCpu) {
-            Energies.useEnergy({
-              address: player.address,
-              gameId: data.gameId,
-              amount: 3,
-            });
-          }
+        await Energies.useEnergy({
+          address: userAddress,
+          gameId: data.gameId,
+          amount: 3,
+        });
 
-          player.ws.send(JSON.stringify({
-            type: "startBattle",
-            roomId: data.roomId,
-            baxieTurnOrder: currentRoom.baxieTurnOrder,
-            baxieTurnIndex: currentRoom.baxieTurnIndex,
-            turnIndex: currentRoom.turnIndex,
-          }));
+        GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
+          if (player.ws) {
+            player.ws.send(JSON.stringify({
+              type: "startBattle",
+              roomId: data.roomId,
+              baxieTurnOrder: currentRoom.baxieTurnOrder,
+              baxieTurnIndex: currentRoom.baxieTurnIndex,
+              turnIndex: currentRoom.turnIndex,
+            }));
+          }
         });
 
         currentRoom.status = 'playing';
@@ -450,21 +451,31 @@ async function handleGameLoaded(ws, data) {
     }
   } else {
     try {
+      const spectators = currentRoom.spectators ?? [];
       for (let i = 0; i < currentRoom.players.length; i++) {
         if (currentRoom.players[i].address === userAddress) {
           currentRoom.players[i].gameLoaded = true;
         }
       }
+      for (let i = 0; i < spectators?.length; i++) {
+        if (spectators[i].address === userAddress) {
+          spectators[i].gameLoaded = true;
+        }
+      }
+      const allPlayersLoaded = currentRoom.players.filter((i) => i.gameLoaded).length === currentRoom.players.length;
+      const allSpectatorLoaded = spectators.filter((i) => i.gameLoaded).length === spectators.length;
 
-      if (currentRoom.players.filter((i) => i.gameLoaded).length === currentRoom.players.length) {
-        currentRoom.players.forEach((player) => {
-          player.ws.send(JSON.stringify({
-            type: "startBattle",
-            roomId: data.roomId,
-            baxieTurnOrder: currentRoom.baxieTurnOrder,
-            baxieTurnIndex: currentRoom.baxieTurnIndex,
-            turnIndex: currentRoom.turnIndex,
-          }));
+      if (allPlayersLoaded && allSpectatorLoaded) {
+        GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
+          if (player.ws) {
+            player.ws.send(JSON.stringify({
+              type: "startBattle",
+              roomId: data.roomId,
+              baxieTurnOrder: currentRoom.baxieTurnOrder,
+              baxieTurnIndex: currentRoom.baxieTurnIndex,
+              turnIndex: currentRoom.turnIndex,
+            }));
+          }
         });
 
         currentRoom.status = 'playing';
@@ -484,6 +495,17 @@ async function handleGameLoaded(ws, data) {
       });
     }
   }
+}
+
+async function handleWatchRoom(ws, data) {
+  const currentRoom = GameRoomManager.rooms[data.roomId];
+  const userAddress = ws.session.wallet.address.toLowerCase();
+  currentRoom.spectators = currentRoom.spectators || [];
+  currentRoom.spectators.push({
+    ws: ws,
+    address: userAddress,
+    isSpectator: true,
+  });
 }
 
 async function handleJoinRoom(ws, data) {
@@ -507,7 +529,6 @@ async function handleJoinRoom(ws, data) {
           const baxieId = baxie.tokenId;
           GameRoomManager.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
             if (Number(playerBaxie.tokenId) === Number(baxieId)) {
-            console.log(`Setting position and skills for baxie ${baxieId} to ${JSON.stringify(baxie.selectedSkills)}`);
               playerBaxie.position = baxie.position;
               playerBaxie.populateSkills(baxie.selectedSkills);
             }
@@ -794,6 +815,8 @@ export function handleBaxieSimulationGameRoom(ws, data, request) {
   if (GameRoomManager.rooms[data.roomId]) {
     if (data.type === "joinRoom") {
       handleJoinRoom(ws, data);
+    } else if (data.type === "watchRoom") {
+      handleWatchRoom(ws, data);
     } else if (data.type === "useSkill") {
       if (checkActionValidity(ws, data)) {
         handleUseSkill(ws, data, request);

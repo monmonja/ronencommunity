@@ -395,7 +395,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     currentY += 70;
 
-    const spectatorBg = createButton({
+    const spectatorBtn = createButton({
       scene: this,
       x: (panelWidth - (panelWidth - 40)) / 2, // center horizontally
       y: currentY,
@@ -407,8 +407,6 @@ export default class RoomSelectionScene extends Phaser.Scene {
       innerBaseColor: 0x6A6AFF,
       borderColor: 0x6A6AFF,
       onPointerDown: async () => {
-        alert('Still in development.');
-        return;
         const current = prompt('Enter Room ID:');
         if (current) {
           watchGameRoom({
@@ -418,6 +416,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
             gameMode: 'autoBattler',
           }).then((response) => {
             this.ws = new WebSocket(response.wsUrl);
+            spectatorBtn.getByName('label').text = 'Waiting...';
 
             this.ws.addEventListener("open", (event) => {
               this.ws.send(JSON.stringify({
@@ -453,7 +452,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
         }
       },
     })
-    container.add(spectatorBg);
+    container.add(spectatorBtn);
 
     return container;
   }

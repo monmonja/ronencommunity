@@ -157,6 +157,12 @@ export default class GameRoomManager {
           ws: roomPlayer.ws,
         });
       });
+      (room.spectators ?? []).forEach((spectator) => {
+        sockets.push({
+          address: spectator.address,
+          ws: spectator.ws,
+        });
+      });
     }
 
     return sockets;

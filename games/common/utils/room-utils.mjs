@@ -9,7 +9,15 @@ export function createGameRoom({ gameId, gameMode } = {}) {
         "Content-Type": "application/json",
       }
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          // Create a rejection with the status (and possibly the message)
+          return res.json().then(err => {
+            throw err || new Error(`HTTP ${res.status}`);
+          });
+        }
+        return res.json();
+      })
       .then((result) => {
         resolve(result);
       })
@@ -32,7 +40,15 @@ export function createCpuGameRoom({ gameId, gameMode, characterIds } = {}) {
         characterIds,
       })
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          // Create a rejection with the status (and possibly the message)
+          return res.json().then(err => {
+            throw err || new Error(`HTTP ${res.status}`);
+          });
+        }
+        return res.json();
+      })
       .then((result) => {
         resolve(result);
       })
@@ -49,7 +65,15 @@ export function joinGameRoom({ gameId, roomId } = {}) {
         "Content-Type": "application/json",
       }
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          // Create a rejection with the status (and possibly the message)
+          return res.json().then(err => {
+            throw err || new Error(`HTTP ${res.status}`);
+          });
+        }
+        return res.json();
+      })
       .then((result) => {
         resolve(result);
       })

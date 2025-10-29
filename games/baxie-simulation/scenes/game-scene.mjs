@@ -228,6 +228,7 @@ export default class GameScene extends Phaser.Scene {
         setTimeout(() => {
           this.scene.start('EndGameScene', {
             youWin: data.winnerAddress === data.yourAddress,
+            isSpectator: data.isSpectator,
             abandonedBy: data.abandonedBy,
             winnerAddress: data.winnerAddress,
             selectedBaxies: this.selectedBaxies,

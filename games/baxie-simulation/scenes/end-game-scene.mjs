@@ -13,7 +13,9 @@ export default class EndGameScene extends Phaser.Scene {
   init(data) {
     this.youWin = data.youWin ?? false;
     this.abandonedBy = data.abandonedBy ?? false;
+    this.winnerAddress = data.winnerAddress ;
     this.selectedBaxies = data.selectedBaxies ?? {};
+    this.isSpectator = data.isSpectator ?? false;
   }
 
   preload() {
@@ -48,7 +50,14 @@ export default class EndGameScene extends Phaser.Scene {
 
     startY += 100;
 
-    const youWin = this.add.text(this.scale.width / 2, startY, this.youWin ? 'Congratulations, you win!': 'You lose, try again?', {
+    let message = '';
+    if (this.isSpectator) {
+      message = `Winner: ${this.winnerAddress}`;
+    } else {
+      message = this.youWin ? 'Congratulations, you win!': 'You lose, try again?';
+    }
+
+    const youWin = this.add.text(this.scale.width / 2, startY, message, {
       fontFamily: constants.fonts.Newsreader,
       fontSize: '42px',
       color: '#FFF'

@@ -284,4 +284,35 @@ export function initGameRoomsRoutes(app, server) {
       }
 
     });
+
+  app.get(
+    "/game-rooms/watch/:path/:roomId",
+    param("path")
+      .matches(/^[a-z0-9-]+$/)
+      .withMessage("Invalid game"),
+    param("roomId")
+      .matches(/^[a-zA-Z0-9-]+$/)
+      .withMessage("Invalid roomId"),
+    requireWalletSession,
+    cookieCheckMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      if (!handleValidation(req, res)) {
+        return;
+      }
+
+      const game = Games.getGame(req.params.path);
+
+      if (!game && !game.gameRoomSlug) {
+        return res.status(400).json({ success: false, errors: "No game" });
+      }
+
+      const roomId = req.params.roomId;
+      const address = req.session.wallet?.address.toLowerCase();
+
+      return res.json({
+        roomId,
+        wsUrl: config.wsUrl,
+      });
+    });
 }
