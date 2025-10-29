@@ -161,6 +161,7 @@ export default class GameRoomManager {
         sockets.push({
           address: spectator.address,
           ws: spectator.ws,
+          isSpectator: spectator.isSpectator,
         });
       });
     }
