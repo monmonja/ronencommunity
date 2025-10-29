@@ -275,7 +275,7 @@ export default class SelectionScene extends Phaser.Scene {
           container.add(statsContainer);
 
           statsContainer.add(this.makeStatItemContainer('HP', baxie.nft.hp, 0, 40));
-          statsContainer.add(this.makeStatItemContainer('SP', baxie.nft.sp, 40, 40));
+          statsContainer.add(this.makeStatItemContainer('SP', baxie.nft.maxSP, 40, 40));
 
           let statX = 80;
 

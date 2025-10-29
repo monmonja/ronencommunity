@@ -177,7 +177,7 @@ export function noCacheDevelopment(req, res, next) {
 
 export function disableStackTraceMiddleware(err, req, res, next) {
   if (err) {
-    const adminWallet = config.web3.adminWallet.toLowerCase();
+    const adminWallet = config.web3.mainAdminWallet.toLowerCase();
 
     // If using session wallet
     const userWallet = req.session.wallet?.address?.toLowerCase();
@@ -229,12 +229,13 @@ export function securityHeadersMiddleware(req, res, next) {
 }
 
 export function adminAccessMiddleware(req, res, next) {
-  const adminWallet = config.web3.adminWallet.toLowerCase();
+  const adminWallet = config.web3.mainAdminWallet.toLowerCase();
+  const otherAdminWallets = config.web3.otherAdminWallets ?? [];
 
   // If using session wallet
   const userWallet = req.session.wallet?.address?.toLowerCase();
 
-  if (!userWallet || userWallet !== adminWallet) {
+  if (!userWallet || ![adminWallet, ...otherAdminWallets].includes(userWallet)) {
     return res.status(403).json({ success: false, message: "Admin access required" });
   }
 
