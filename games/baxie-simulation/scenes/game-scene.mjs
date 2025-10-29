@@ -224,6 +224,15 @@ export default class GameScene extends Phaser.Scene {
             selectedBaxies: this.selectedBaxies,
           });
         }, 1000);
+      } else if (data.type === 'abandoned') {
+        setTimeout(() => {
+          this.scene.start('EndGameScene', {
+            youWin: data.winnerAddress === data.yourAddress,
+            abandonedBy: data.abandonedBy,
+            winnerAddress: data.winnerAddress,
+            selectedBaxies: this.selectedBaxies,
+          });
+        }, 1000);
       } else if (data.type === 'startBattle') {
         this.loadingContainer.visible = false;
         this.loggerScene.addLog('Start Battle');

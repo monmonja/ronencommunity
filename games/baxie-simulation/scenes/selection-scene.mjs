@@ -13,17 +13,24 @@ export default class SelectionScene extends Phaser.Scene {
   }
 
   init(data) {
-    if (localStorage.getItem('selectedBaxies')) {
-      this.selectedBaxiesId = JSON.parse(localStorage.getItem('selectedBaxiesId'));
+    this.selectedBaxiesId = [];
+    this.selectedBaxies = [];
+
+    if (data.selectedBaxies) {
+      this.selectedBaxies = data.selectedBaxies;
+    } else if (localStorage.getItem('selectedBaxies')) {
       this.selectedBaxies = JSON.parse(localStorage.getItem('selectedBaxies'));
-    } else {
-      this.selectedBaxiesId = data.selectedBaxiesId ?? [];
-      this.selectedBaxies = data.selectedBaxies ?? [];
     }
+
+    this.selectedBaxiesId = this.selectedBaxies.map((b) => b.tokenId);
   }
 
   preload() {
     this.load.image('reference', `{{config.cdnLink}}/game-assets/baxie-simulation/images/1270.png`);
+
+    for (const baxie of this.selectedBaxies) {
+      this.load.image(`baxie-${baxie.tokenId}`, baxie.data.image);
+    }
   }
 
   createSlots(recreate = false) {
@@ -109,15 +116,16 @@ export default class SelectionScene extends Phaser.Scene {
       text: 'Slots',
       onPointerDown: async () => {
         if (this.selectedBaxiesId.length === 3) {
-          let selectedBaxies = this.selectedBaxies.filter((b) => this.selectedBaxiesId.includes(b.tokenId));
+          let selectedBaxies = this.selectedBaxies
+            .filter((baxie, index, self) => index === self.findIndex((b) => b.tokenId === baxie.tokenId))
+            .filter((b) => this.selectedBaxiesId.includes(b.tokenId));
           selectedBaxies = selectedBaxies.slice(0, 3);
 
-          localStorage.setItem('selectedBaxiesId', JSON.stringify(this.selectedBaxiesId));
           localStorage.setItem('selectedBaxies', JSON.stringify(selectedBaxies));
 
           this.scene.start('PositionSlotsScene', {
             selectedBaxiesId: this.selectedBaxiesId,
-            selectedBaxies: selectedBaxies,
+            selectedBaxies,
           });
         } else {
           const warningText = this.add.text(this.scale.width - slotSize - 100 + 20, this.scale.height - 100, `Select 3 baxies to start`, {
@@ -139,6 +147,33 @@ export default class SelectionScene extends Phaser.Scene {
     }));
   }
 
+  makeStatItemContainer(statName, statValue, x, width) {
+    const container = this.add.container(x, 0);
+
+    const bg = this.add.rectangle(0, 0, width, 40, 0x000000, 0.5).setOrigin(0);
+    container.add(bg);
+
+    const nameText = this.add.text(width / 2, 5, statName, {
+      fontSize: "12px",
+      fontFamily: constants.fonts.Newsreader,
+      color: "#FFF",
+      fontStyle: "bold",
+    }).setOrigin(0.5, 0);
+    nameText.setShadow(2, 2, "#000", 4, true, true);
+    container.add(nameText);
+
+    const valueText = this.add.text(width / 2, 20, statValue, {
+      fontSize: "16px",
+      fontFamily: constants.fonts.Newsreader,
+      color: "#FFF",
+      fontStyle: "bold",
+    }).setOrigin(0.5, 0);
+    valueText.setShadow(2, 2, "#000", 4, true, true);
+    container.add(valueText);
+
+    return container;
+  }
+
   async loadBaxiesSequentially(baxies, width, height, gridSpacing, horizontalScrollContainer) {
     let index = 0;
 
@@ -153,6 +188,7 @@ export default class SelectionScene extends Phaser.Scene {
           this.createSlots();
         } else if (this.selectedBaxiesId.length < 3 && !this.selectedBaxiesId.includes(baxie)) {
           this.selectedBaxiesId.push(baxie.tokenId);
+          console.log(190)
           this.selectedBaxies.push(nftData);
           container.getByName("border").visible = true;
           this.createSlots();
@@ -162,9 +198,9 @@ export default class SelectionScene extends Phaser.Scene {
       // listen for this file only
       if (this.textures.exists(key)) {
         // Just reuse the existing texture
-        const sprite = this.add.image(width / 2, height / 2 + 10, key)
+        const sprite = this.add.image(width / 2, height / 2 - 10, key)
           .setOrigin(0.5)
-          .setScale(0.12);
+          .setScale(0.1);
         container.add(sprite);
 
         index++;
@@ -172,9 +208,9 @@ export default class SelectionScene extends Phaser.Scene {
       } else {
         this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (loadedKey) => {
           if (loadedKey === key) {
-            const sprite = this.add.image(width / 2, height / 2 + 10, key)
+            const sprite = this.add.image(width / 2, height / 2 - 10, key)
               .setOrigin(0.5)
-              .setScale(0.12);
+              .setScale(0.1);
             container.add(sprite);
 
             index++;       // move to next
@@ -186,7 +222,6 @@ export default class SelectionScene extends Phaser.Scene {
     }
 
     const loadNext = () => {
-      console.log(index, baxies.length)
       if (index >= baxies.length) return; // done
 
       try {
@@ -216,14 +251,49 @@ export default class SelectionScene extends Phaser.Scene {
           border.visible = true;
         }
 
-        const label = this.add.text(width / 2, 20, `#${baxie.tokenId}`, {
+        const label = this.add.text(20, 10, `#${baxie.tokenId}`, {
           fontSize: "20px",
-          fontFamily: constants.fonts.troika,
+          fontFamily: constants.fonts.Newsreader,
           color: "#FFF",
           fontStyle: "bold",
-        }).setOrigin(0.5, 0);
+        }).setOrigin(0, 0);
         label.setShadow(2, 2, "#000", 4, true, true);
         container.add(label);
+
+        if (baxie.nft) {
+          const purity = this.add.text(width - 20, 10, `${baxie.nft.purity}`, {
+            fontSize: "16px",
+            fontFamily: constants.fonts.Newsreader,
+            color: "#FFF",
+            fontStyle: "bold",
+          }).setOrigin(1, 0);
+          purity.setShadow(2, 2, "#000", 4, true, true);
+          container.add(purity);
+
+          const statsContainer = this.add.container(0, height - 40);
+          statsContainer.setName("stats-container");
+          container.add(statsContainer);
+
+          statsContainer.add(this.makeStatItemContainer('HP', baxie.nft.hp, 0, 40));
+          statsContainer.add(this.makeStatItemContainer('SP', baxie.nft.sp, 40, 40));
+
+          let statX = 80;
+
+          for (const attribute of baxie.nft.data.attributes) {
+            if (['attack', 'defense', 'stamina'].includes(attribute.trait_type.toLowerCase())) {
+              if (attribute.trait_type.toLowerCase() === 'attack') {
+                statsContainer.add(this.makeStatItemContainer('ATK', attribute.value, statX, 40));
+                statX += 40;
+              } else if (attribute.trait_type.toLowerCase() === 'defense') {
+                statsContainer.add(this.makeStatItemContainer('DEF', attribute.value, statX, 40));
+                statX += 40;
+              } else if (attribute.trait_type.toLowerCase() === 'stamina') {
+                statsContainer.add(this.makeStatItemContainer('STA', attribute.value, statX, 40));
+                statX += 40;
+              }
+            }
+          }
+        }
 
         horizontalScrollContainer.addItem(container, gridSpacing, xPos, yPos);
 

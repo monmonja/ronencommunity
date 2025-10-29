@@ -13,8 +13,9 @@ export default class PositionSlotsScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.selectedBaxiesId = data.selectedBaxiesId ?? localStorage.getItem('selectedBaxiesId');
-    this.selectedBaxies = data.selectedBaxies ?? localStorage.getItem('selectedBaxies');
+    this.selectedBaxiesId = data.selectedBaxiesId ?? [];
+    this.selectedBaxies = data.selectedBaxies ?? [];
+
   }
 
   preload() {
@@ -25,7 +26,9 @@ export default class PositionSlotsScene extends Phaser.Scene {
 
       const maxSkill = Math.ceil(Number(baxie.purity.split('/')[0]) / 2);
 
-      baxie.selectedSkills = baxie.skills.slice(0, maxSkill).map((skill) => skill.func);
+      if (!baxie.selectedSkills) {
+        baxie.selectedSkills = baxie.skills.slice(0, maxSkill).map((skill) => skill.func);
+      }
     }
   }
 
@@ -55,7 +58,7 @@ export default class PositionSlotsScene extends Phaser.Scene {
       const border = this.add.graphics()
       border.fillStyle(0xAC022F, 1);
       border.fillCircle(0, 0, radius + 2);
-      console.log('baxie.selectedSkills', baxie.selectedSkills, skill)
+
       if (!baxie.selectedSkills.includes(skill.func)) {
         border.visible = false;
       }
@@ -198,7 +201,6 @@ export default class PositionSlotsScene extends Phaser.Scene {
         .setScale(0.115);
       container.add(sprite);
 
-      baxie.position = 'center';
       container.add(this.createTogglePositionButtons(baxie, 53, 240));
       container.add(this.createSkills(baxie, width));
     }

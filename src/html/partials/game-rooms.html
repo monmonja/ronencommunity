@@ -23,6 +23,7 @@
       %>
 
       <td><%= formatted %></td>
+      <td><%= JSON.stringify(gameRoom) %></td>
       <td><%= gameRoom.roomId %></td>
       <td>
         <%= gameRoom.players[0].address.slice(0, 6) + '••' + gameRoom.players[0].address.slice(-4) %>

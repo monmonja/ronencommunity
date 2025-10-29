@@ -12,6 +12,7 @@ export default class EndGameScene extends Phaser.Scene {
 
   init(data) {
     this.youWin = data.youWin ?? false;
+    this.abandonedBy = data.abandonedBy ?? false;
     this.selectedBaxies = data.selectedBaxies ?? {};
   }
 
@@ -37,7 +38,7 @@ export default class EndGameScene extends Phaser.Scene {
     ).setOrigin(0);
 
     let startY = 80;
-    const gameOver = this.add.text(this.scale.width / 2, startY, 'Game Over', {
+    const gameOver = this.add.text(this.scale.width / 2, startY,  'Game Over', {
       fontFamily: constants.fonts.troika,
       fontSize: '60px',
       color: '#dda23e'
@@ -54,6 +55,17 @@ export default class EndGameScene extends Phaser.Scene {
     }).setOrigin(0.5, 0);
 
     youWin.setShadow(2, 2, '#000', 4, true, true);
+
+    if (this.abandonedBy) {
+      startY += 50;
+      const youWin = this.add.text(this.scale.width / 2, startY, `Abandoned by: ${this.abandonedBy}`, {
+        fontFamily: constants.fonts.Newsreader,
+        fontSize: '16px',
+        color: '#FFF'
+      }).setOrigin(0.5, 0);
+
+      youWin.setShadow(2, 2, '#000', 4, true, true);
+    }
     startY += 100;
 
     createButton({

@@ -392,10 +392,29 @@ export default class GameRoomManager {
     }
   }
 
-  static async abandonMatch(roomId) {
+  static async abandonMatch(roomId, playerAddress) {
+    const currentRoom = GameRoomManager.rooms[roomId];
+
+    currentRoom.winnerAddress = currentRoom.players.find(
+      (p) => p.address !== playerAddress
+    )?.address;
+
+    GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
+      if (player.ws) {
+        player.ws.send(JSON.stringify({
+          type: "abandoned",
+          abandonedBy: playerAddress,
+          winnerAddress: currentRoom.winnerAddress,
+          yourAddress: player.address,
+        }));
+      }
+    });
+
     await GameRoomsModel.updateRoom(roomId, {
       status: "abandoned",
       completedAt: getUtcNow(),
+      winnerAddress: currentRoom.winnerAddress,
+      abandonedBy: playerAddress,
     });
   }
 
@@ -424,7 +443,7 @@ export default class GameRoomManager {
     }
 
     if (!room.gameStarted) {
-      this.abandonMatch(roomId);
+      this.abandonMatch(roomId, playerAddress);
       delete GameRoomManager.rooms[roomId];
 
       console.log(`Room ${roomId} deleted - game never started`);
@@ -433,7 +452,7 @@ export default class GameRoomManager {
     }
 
     if (room.vsCPU) {
-      this.abandonMatch(roomId);
+      this.abandonMatch(roomId, playerAddress);
       delete GameRoomManager.rooms[roomId];
       console.log(`CPU game room ${roomId} deleted`);
 
@@ -452,7 +471,7 @@ export default class GameRoomManager {
         this.handlePlayerTimeout(roomId, playerAddress);
       }, RECONNECT_TIMEOUT);
     } else {
-      this.abandonMatch(roomId);
+      this.abandonMatch(roomId, playerAddress);
       delete GameRoomManager.rooms[roomId];
       console.log(`Room ${roomId} deleted - all players disconnected`);
     }

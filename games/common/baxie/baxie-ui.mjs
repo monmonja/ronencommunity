@@ -171,7 +171,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     const spacing = 20;
     const totalWidth = this.skills.length * skillWidth + (this.skills.length - 1) * spacing;
     const startX = -totalWidth / 2 + radius;
-
+console.log(this.skills)
     this.skills.forEach((skill, index) => {
       const x = startX + index * (skillWidth + spacing);
 
@@ -203,23 +203,17 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
           this.scene.input.manager.canvas.style.cursor = "default";
         })
         .on('pointerdown', () => {
-          if (this.gameMode === GameModes.skillCountdown) {
-            if (skillContainer.getByName('countdown')) {
-              return;
-            }
-
-            skillContainer.add(this.startSkillCountdown(0, 0, radius, 1000 * skill.cooldown));
+          if (this.gameMode !== GameModes.autoBattler) {
+            this.scene.ws.send(
+              JSON.stringify({
+                type: "useSkill",
+                selectedBaxieId: this.tokenId,
+                roomId: this.roomId,
+                selectedSkill: skill.func,
+                gameId: this.scene.game.customConfig.gameId,
+              })
+            );
           }
-
-          this.scene.ws.send(
-            JSON.stringify({
-              type: "useSkill",
-              selectedBaxieId: this.tokenId,
-              roomId: this.roomId,
-              selectedSkill: skill.func,
-              gameId: this.scene.game.customConfig.gameId,
-            })
-          );
         });
 
       const skillIndicator = this.drawSkillSPRequirement(0, 0, radius + 10, this.currentSP, skill.cost);

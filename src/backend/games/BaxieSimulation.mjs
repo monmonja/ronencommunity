@@ -8,7 +8,6 @@ import SkillManager from "./baxies/baxie-simulation/skill-manager.mjs";
 import {EFFECTS} from "./baxies/effects.mjs";
 import Energies from "../models/energies.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
-import RoomManager from "./game-room-manager.mjs";
 
 const turnTimeout = 3000;
 
@@ -88,7 +87,7 @@ function isGameOver(currentRoom) {
 
   if (gameOver) {
     setTimeout(() => {
-      RoomManager.getAllSockets(currentRoom).forEach((player) => {
+      GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
         if (player.ws) {
           player.ws.send(JSON.stringify({
             type: "gameOver",
@@ -99,8 +98,14 @@ function isGameOver(currentRoom) {
       });
       currentRoom.status = "Game Over";
       currentRoom.gameOver = true;
-      // GameRoomsModel.updateRoom(currentRoom.roomId, currentRoom);
-      RoomManager.cleanupRoom(currentRoom.roomId);
+
+      GameRoomsModel.updateRoom(currentRoom.roomId, {
+        status: currentRoom.status,
+        gameOver: currentRoom.gameOver,
+        winnerAddress: currentRoom.winnerAddress,
+      });
+
+      GameRoomManager.cleanupRoom(currentRoom.roomId);
     }, 2000);
   }
 
@@ -231,7 +236,7 @@ function doPhysicalAttack({ roomId, playerWithSelectedBaxie, selectedBaxie } = {
     };
   }
 
-  RoomManager.getAllSockets(currentRoom).forEach((roomPlayer) => {
+  GameRoomManager.getAllSockets(currentRoom).forEach((roomPlayer) => {
     if (roomPlayer.ws) {
       const rightPlayer = GameRoomManager.getOpponent(currentRoom.roomId, currentRoom.players[0].address);
       const leftPlayer = GameRoomManager.getOpponent(currentRoom.roomId, currentRoom.players[1].address);
@@ -502,9 +507,9 @@ async function handleJoinRoom(ws, data) {
           const baxieId = baxie.tokenId;
           GameRoomManager.rooms[data.roomId].players[i].baxies.forEach((playerBaxie) => {
             if (Number(playerBaxie.tokenId) === Number(baxieId)) {
-            console.log(`Setting position and skills for baxie ${baxieId} to ${JSON.stringify(baxie.skills)}`);
+            console.log(`Setting position and skills for baxie ${baxieId} to ${JSON.stringify(baxie.selectedSkills)}`);
               playerBaxie.position = baxie.position;
-              playerBaxie.populateSkills(baxie.skills);
+              playerBaxie.populateSkills(baxie.selectedSkills);
             }
           })
         });
@@ -530,7 +535,7 @@ async function handleJoinRoom(ws, data) {
         currentRoom.baxieTurnIndex = 0;
       }
 
-      RoomManager.getAllSockets(currentRoom).forEach((player) =>{
+      GameRoomManager.getAllSockets(currentRoom).forEach((player) =>{
         if (player.ws) {
           const rightPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[0].address);
           const leftPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[1].address);
@@ -605,7 +610,7 @@ function handleEndTurn(ws, data) {
         }));
       }
 
-      RoomManager.getAllSockets(currentRoom).forEach((player) => {
+      GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
         const rightPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[0].address);
         const leftPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[1].address);
 
@@ -691,7 +696,7 @@ function handleUseSkill(ws, data, request) {
       console.log("message", message)
       // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
 
-      RoomManager.getAllSockets(currentRoom).forEach((roomPlayer) => {
+      GameRoomManager.getAllSockets(currentRoom).forEach((roomPlayer) => {
         if (roomPlayer.ws) {
           const rightPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[0].address);
           const leftPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[1].address);

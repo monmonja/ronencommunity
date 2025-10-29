@@ -97,17 +97,29 @@ export default class ToolSelection extends Phaser.Scene {
         if (selectedBaxies) {
           try {
             selectedBaxies = JSON.parse(selectedBaxies);
-            selectedBaxies = selectedBaxies.slice(0, 3);
+            selectedBaxies = selectedBaxies
+              .filter((baxie, index, self) => index === self.findIndex((b) => b.tokenId === baxie.tokenId))
+              .slice(0, 3);
 
             // background task to fetch baxies
             fetch('/list/baxies/false')
               .then((res) => res.json())
               .then((results) => {
                 this.registry.set(constants.registry.baxies, results);
+
+                if (selectedBaxies.length !== 3) {
+                  this.scene.start("SelectionScene", {
+                    selectedBaxies,
+                  });
+                }
               });
-            this.scene.start("RoomSelectionScene", {
-              selectedBaxies,
-            });
+
+            if (selectedBaxies.length === 3) {
+              this.scene.start("RoomSelectionScene", {
+                selectedBaxies,
+              });
+            }
+
           } catch (e) {
             this.scene.start("SyncMenuScene");
           }
