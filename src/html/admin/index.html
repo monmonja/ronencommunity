@@ -11,9 +11,19 @@
 
   <div class="page-content">
     <a href="/game-rooms/make">Make Game room</a><br /><br />
-    <a href="/stats/rooms">Room Counter</a><br /><br />
     <a href="/stats">Stats</a><br /><br />
 
+    <h2>Room Counter</h2>
+    <table>
+      <tr>
+        <td>Current</td>
+        <td><%= roomCounter.current %></td>
+      </tr>
+      <tr>
+        <td>Max</td>
+        <td><%= roomCounter.max %></td>
+      </tr>
+    </table>
   </div>
   <%- include('../partials/footer.html') %>
   <%- include('../partials/overlay-disconnect.html') %>

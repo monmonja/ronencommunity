@@ -2,6 +2,7 @@ import {body, validationResult} from "express-validator";
 import {adminAccessMiddleware, mainAdminAccessMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Admin from "../models/admin.mjs";
+import GameRoomManager from "../games/game-room-manager.mjs";
 
 export function initAdminRoutes(app) {
 
@@ -11,6 +12,10 @@ export function initAdminRoutes(app) {
     rateLimiterMiddleware,
     async (req, res) => {
       res.render("admin/index", {
+        roomCounter: {
+          current: GameRoomManager.getGameRoomCounts('bsim'),
+          max: GameRoomManager.MAX_ROOMS['bsim'],
+        }
       });
     });
 
