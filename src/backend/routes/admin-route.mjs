@@ -1,5 +1,5 @@
 import {body, validationResult} from "express-validator";
-import {adminAccessMiddleware} from "../components/middlewares.mjs";
+import {adminAccessMiddleware, mainAdminAccessMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Admin from "../models/admin.mjs";
 
@@ -11,13 +11,22 @@ export function initAdminRoutes(app) {
     rateLimiterMiddleware,
     async (req, res) => {
       res.render("admin/index", {
+      });
+    });
+
+  app.get(
+    "/admin/main",
+    mainAdminAccessMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      res.render("admin/main", {
         settings: await Admin.getAllRecordsAsObject()
       });
     });
 
   app.post(
-    "/admin",
-    adminAccessMiddleware,
+    "/admin/main",
+    mainAdminAccessMiddleware,
     body("energies")
       .trim()
       .isJSON().withMessage("Invalid JSON"),

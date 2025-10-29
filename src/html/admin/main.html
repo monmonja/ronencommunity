@@ -10,9 +10,19 @@
 <body>
 
   <div class="page-content">
-    <a href="/game-rooms/make">Make Game room</a><br />
-    <a href="/stats">Stats</a><br />
-
+    <form action="/admin/main" method="post">
+      <div>
+        <label>Energies in JSON</label><br />
+        <textarea name="energies"><%= settings.energies ?? '' %></textarea>
+      </div>
+      <div>
+        <label>Baxie Access List</label><br />
+        <textarea name="baxieAccessList"><%= settings.baxieAccessList ?? '' %></textarea>
+      </div>
+      <div>
+        <button class="button">Submit</button>
+      </div>
+    </form>
   </div>
   <%- include('../partials/footer.html') %>
   <%- include('../partials/overlay-disconnect.html') %>

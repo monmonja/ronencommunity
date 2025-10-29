@@ -241,3 +241,16 @@ export function adminAccessMiddleware(req, res, next) {
 
   next();
 }
+
+export function mainAdminAccessMiddleware(req, res, next) {
+  const adminWallet = config.web3.mainAdminWallet.toLowerCase();
+
+  // If using session wallet
+  const userWallet = req.session.wallet?.address?.toLowerCase();
+
+  if (!userWallet || ![adminWallet].includes(userWallet)) {
+    return res.status(403).json({ success: false, message: "Admin access required" });
+  }
+
+  next();
+}
