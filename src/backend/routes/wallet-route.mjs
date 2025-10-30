@@ -88,6 +88,8 @@ export function initWalletRoutes(app) {
               ...nfts[item.tokenId],
               ...baxie.getGameInfo(true),
             };
+            item.tokenId = String(item.tokenId);
+            item.nft.nftId = String(item.nft.nftId);
           } else {
 
           }

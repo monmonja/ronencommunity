@@ -121,9 +121,13 @@ export default class SelectionScene extends Phaser.Scene {
       text: 'Slots',
       onPointerDown: async () => {
         if (this.selectedBaxiesId.length === 3) {
+          console.log(this.selectedBaxies)
+          console.log(this.selectedBaxies
+            .filter((baxie, index, self) => index === self.findIndex((b) => b.tokenId === baxie.tokenId)))
           let selectedBaxies = this.selectedBaxies
             .filter((baxie, index, self) => index === self.findIndex((b) => b.tokenId === baxie.tokenId))
             .filter((b) => this.selectedBaxiesId.includes(b.tokenId));
+          console.log(selectedBaxies)
           selectedBaxies = selectedBaxies.slice(0, 3);
 
           localStorage.setItem('selectedBaxies', JSON.stringify(selectedBaxies));
@@ -193,7 +197,8 @@ export default class SelectionScene extends Phaser.Scene {
           this.createSlots();
         } else if (this.selectedBaxiesId.length < 3 && !this.selectedBaxiesId.includes(baxie)) {
           this.selectedBaxiesId.push(baxie.tokenId);
-          console.log(190)
+          nftData.tokenId = String(nftData.tokenId);
+          console.log(190, nftData)
           this.selectedBaxies.push(nftData);
           container.getByName("border").visible = true;
           this.createSlots();
