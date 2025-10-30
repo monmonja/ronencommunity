@@ -43,7 +43,7 @@ export default class Baxie {
     }
 
     this.currentHP = this.getMaxHP();
-    this.currentStamina = this.getMaxStamina() * 0.4;
+    this.currentStamina = this.getMaxStamina() ;
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
   }
