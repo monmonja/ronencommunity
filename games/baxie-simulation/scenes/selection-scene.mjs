@@ -72,7 +72,12 @@ export default class SelectionScene extends Phaser.Scene {
         if (baxie && this.selectedBaxiesId.includes(baxie)) {
           this.selectedBaxiesId.splice(this.selectedBaxiesId.indexOf(baxie), 1);
 
-          this.horizontalScrollContainer.getByName("innerContainer").getByName(`container-baxie-${baxie}`).getByName("border").visible = false;
+          const baxieItem = this.horizontalScrollContainer.getByName("innerContainer").getByName(`container-baxie-${baxie}`);
+
+          if (baxieItem) {
+            baxieItem.getByName("border").visible = false;
+          }
+
           this.createSlots();
         }
       });

@@ -23,10 +23,10 @@ export default class DemonBaxie extends Baxie {
 
       const ignoreDefense = target.getCurrentDefense() * 0.2;
       const effectiveDefense = target.getCurrentDefense() - ignoreDefense;
-      const damage = this.calculateDamage(this.getCurrentAttack(), effectiveDefense);
+      const damage = this.calculateDamage(this.getSkillAttack(), effectiveDefense);
 
       // Apply damage
-      target.takeDamage(damage);
+      target.takeSkillDamage(damage);
       resultEnemies.push({ target: target.tokenId, damage });
 
       // Lifesteal 15%
@@ -57,10 +57,10 @@ export default class DemonBaxie extends Baxie {
        */
       const resultEnemies = [];
       const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
-      const damage = this.calculateDamage(this.getCurrentAttack() * 1.2, target.getCurrentDefense());
+      const damage = this.calculateDamage(this.getSkillAttack() * 1.2, target.getCurrentDefense());
 
       // Apply damage
-      target.takeDamage(damage);
+      target.takeSkillDamage(damage);
 
       // Reduce stamina
       const staminaReduction = Math.floor(target.getMaxStamina() * 0.2);
@@ -107,9 +107,9 @@ export default class DemonBaxie extends Baxie {
       let hasKilledAnEnemy = false;
 
       enemies.forEach((enemy) => {
-        const damage = this.calculateDamage(this.getCurrentAttack() * 0.5, enemy.getCurrentDefense());
+        const damage = this.calculateDamage(this.getSkillAttack() * 0.5, enemy.getCurrentDefense());
 
-        enemy.takeDamage(damage);
+        enemy.takeSkillDamage(damage);
 
         if (enemy.currentHP <= 0) {
           hasKilledAnEnemy = true;

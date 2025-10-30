@@ -13,13 +13,13 @@ export default class FireBaxie extends Baxie {
     const enemiesResults = [];
     const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
 
-    const damage = this.calculateDamage(this.getCurrentAttack() * 1.4, target.getCurrentDefense());
+    const damage = this.calculateDamage(this.getSkillAttack() * 1.4, target.getCurrentDefense());
 
-    target.takeDamage(damage);
+    target.takeSkillDamage(damage);
     enemiesResults.push({ target: target.tokenId, damage });
 
     if (Math.random() < 0.2) {
-      const burnedEffect = { type: EFFECTS.burn, turnsLeft: 2, value: Math.floor(this.getCurrentAttack() * 0.2) };
+      const burnedEffect = { type: EFFECTS.burn, turnsLeft: 2, value: Math.floor(this.getSkillAttack() * 0.2) };
 
       target.addEffect(burnedEffect);
       enemiesResults[0].effects = [burnedEffect];
@@ -35,10 +35,10 @@ export default class FireBaxie extends Baxie {
     const enemiesResult = [];
 
     enemies.forEach((target) => {
-      const damage = this.calculateDamage(this.getCurrentAttack() * 0.6, target.getCurrentDefense());
+      const damage = this.calculateDamage(this.getSkillAttack() * 0.6, target.getCurrentDefense());
       const hpBefore = target.currentHP;
 
-      target.takeDamage(damage);
+      target.takeSkillDamage(damage);
 
       let attackReduced = false;
 

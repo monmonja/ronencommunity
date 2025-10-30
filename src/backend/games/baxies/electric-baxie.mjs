@@ -24,9 +24,9 @@ export default class ElectricBaxie extends Baxie {
       const targets = SkillManager.getBaxieFromPosition(enemies, 2);
 
       targets.forEach((target) => {
-        const damage = this.calculateDamage(this.getCurrentAttack() * 0.75, target.getCurrentDefense());
+        const damage = this.calculateDamage(this.getSkillAttack() * 0.75, target.getCurrentDefense());
 
-        target.takeDamage(damage);
+        target.takeSkillDamage(damage);
         const enemyResult = { target: target.tokenId, damage };
 
         if (Math.random() < 0.2) {
@@ -87,9 +87,9 @@ export default class ElectricBaxie extends Baxie {
         multiplier += 0.2;
       }
 
-      const damage = this.calculateDamage(this.getCurrentAttack() * multiplier, target.getCurrentDefense());
+      const damage = this.calculateDamage(this.getSkillAttack() * multiplier, target.getCurrentDefense());
 
-      target.takeDamage(damage);
+      target.takeSkillDamage(damage);
 
       enemiesResult.push({ target: target.tokenId, damage });
     });

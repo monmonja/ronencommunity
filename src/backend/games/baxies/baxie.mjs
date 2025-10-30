@@ -204,15 +204,11 @@ export default class Baxie {
     return defense;
   }
 
-  getCurrentAttack () {
+  getSkillAttack () {
     let attack = this.currentAttack;
 
     for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.attackBoost && effect.turnsLeft > 0) {
-        attack += attack * effect.value;
-      }
-
-      if (effect.type === EFFECTS.skillDamageBoost && effect.turnsLeft > 0) {
         attack += attack * effect.value;
       }
     }
@@ -229,6 +225,18 @@ export default class Baxie {
   }
 
   takeDamage(damage) {
+    this.currentHP = Math.max(this.currentHP - damage, 0);
+
+    return this.currentHP;
+  }
+
+  takeSkillDamage(damage) {
+    for (const effect of this.getActiveEffect()) {
+      if (effect.type === EFFECTS.skillDamageBoost && effect.turnsLeft > 0) {
+        damage += damage * effect.value;
+      }
+    }
+
     this.currentHP = Math.max(this.currentHP - damage, 0);
 
     return this.currentHP;
@@ -299,14 +307,19 @@ export default class Baxie {
 
   addEffect(effect) {
     if (this.hasEffect(effect.type)) {
-      // refresh effect duration
-      const existingEffect = this.effects.find((e) => e.type === effect.type);
+      if ([EFFECTS.stunned, EFFECTS.silence, EFFECTS.shield, EFFECTS.reflect].includes(effect.type)) {
+        // refresh effect duration
+        const existingEffect = this.effects.find((e) => e.type === effect.type);
 
-      existingEffect.turnIndexAdded = this.gameTurnIndex;
-      existingEffect.turnsLeft = effect.turnsLeft;
+        existingEffect.turnIndexAdded = this.gameTurnIndex;
+        existingEffect.turnsLeft = effect.turnsLeft;
+      } else {
+        effect.turnIndexAdded = this.gameTurnIndex;
+
+        this.effects.push(effect);
+      }
     } else {
       effect.turnIndexAdded = this.gameTurnIndex;
-      effect.active = false;
 
       this.effects.push(effect);
     }

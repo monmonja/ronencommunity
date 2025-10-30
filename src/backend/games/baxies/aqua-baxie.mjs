@@ -47,9 +47,9 @@ export default class AquaBaxie extends Baxie {
      */
     const resultEnemies = [];
     const target = SkillManager.getBaxieFromPosition(enemies, 1)[0];
-    const damage = this.calculateDamage(this.getCurrentAttack(), target.getCurrentDefense());
+    const damage = this.calculateDamage(this.getSkillAttack(), target.getCurrentDefense());
 
-    target.takeDamage(damage);
+    target.takeSkillDamage(damage);
     resultEnemies.push({target: target.tokenId, damage });
 
     if (Math.random() < 0.2) {
