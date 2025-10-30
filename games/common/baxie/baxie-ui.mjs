@@ -134,7 +134,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
           const redraw = () => {
             this.skills.forEach((skill, index) => {
               if (item.name === `skill-${skill.func}`) {
-                console.log('Redrawing SP requirement for', skill.func);
+                console.log('Redrawing SP requirement for', skill.func, `current sp ${this.currentSP}`, `cost ${skill.cost}`);
                 const skillIndicator = this.drawSkillSPRequirement(0, 0, radius + 10, this.currentSP, skill.cost);
 
                 if (skillIndicator) {
