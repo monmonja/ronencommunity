@@ -65,7 +65,7 @@ export default class DemonBaxie extends Baxie {
       // Reduce stamina
       const staminaReduction = Math.floor(target.getMaxStamina() * 0.2);
 
-      target.currentStamina = Math.max(0, target.currentStamina - staminaReduction);
+      target.setStamina(Math.max(0, target.currentStamina - staminaReduction));
       resultEnemies.push({ target: target.tokenId, damage, staminaReduction, stamina: target.currentStamina });
 
       if (target.currentStamina === 0) {

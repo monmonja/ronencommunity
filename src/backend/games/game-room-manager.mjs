@@ -129,7 +129,6 @@ export default class GameRoomManager {
    */
   static canJoinRoom({ roomId, address } = {}) {
     if (GameRoomManager.rooms[roomId]) {
-      console.log(GameRoomManager.rooms[roomId].players, address, GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length)
       if (GameRoomManager.rooms[roomId].players.filter((p) => p.address === address).length > 0) {
         return true;
       }
@@ -610,7 +609,6 @@ export default class GameRoomManager {
     room.players.forEach(player => {
       if (player.ws && player.ws.close) {
         try {
-          console.log(player.ws)
           player.ws?.close();
         } catch (err) {
           console.error("Error closing WebSocket:", err);

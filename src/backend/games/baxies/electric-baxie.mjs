@@ -59,7 +59,7 @@ export default class ElectricBaxie extends Baxie {
     const alliesResults = [];
     const staminaGain = Math.floor(this.getMaxStamina() * 0.1);
 
-    this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
+    this.setStamina(Math.min(this.currentStamina + staminaGain, this.getMaxStamina()));
 
     const attackEffect = { type: EFFECTS.attackBoost, value: 0.1, turnsLeft: 1 };
 

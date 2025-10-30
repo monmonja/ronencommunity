@@ -80,7 +80,7 @@ export default class FairyBaxie extends Baxie {
     if (ally) {
       const staminaGain = Math.floor(ally.getMaxStamina() * 0.5);
 
-      ally.currentStamina = Math.min(ally.currentStamina + staminaGain, ally.getMaxStamina());
+      ally.setStamina(ally.currentStamina + staminaGain);
 
       /**
        * @type BaxieEffect

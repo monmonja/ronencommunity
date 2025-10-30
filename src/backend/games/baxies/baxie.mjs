@@ -243,9 +243,13 @@ export default class Baxie {
   }
 
   useStamina (stamina) {
-    this.currentStamina = Math.max(this.currentStamina - stamina, 0);
+    this.setStamina(Math.max(this.currentStamina - stamina, 0));
 
     return this.currentStamina;
+  }
+
+  setStamina (stamina) {
+    this.currentStamina = Math.min(stamina, this.getMaxStamina());
   }
 
   getGameInfo (full = false) {
@@ -286,6 +290,7 @@ export default class Baxie {
       throw new Error("Not enough stamina");
     }
 
+    console.log(`${this.tokenId} is using ${skillName}, current SP ${this.currentStamina}, cost: ${skill.cost}`);
     this.useStamina(skill.cost);
     this.skillsTimer[skillName] = Date.now();
 

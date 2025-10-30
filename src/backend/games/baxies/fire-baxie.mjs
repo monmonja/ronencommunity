@@ -63,7 +63,7 @@ export default class FireBaxie extends Baxie {
     // todo: this is wrong
     const staminaGain = Math.floor(this.getMaxStamina() * 0.15);
 
-    this.currentStamina = Math.min(this.currentStamina + staminaGain, this.getMaxStamina());
+    this.setStamina(this.currentStamina + staminaGain);
 
     this.addEffect({ type: EFFECTS.attackBoost, value: 0.5, turnsLeft: 1 });
 

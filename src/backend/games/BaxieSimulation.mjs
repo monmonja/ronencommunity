@@ -631,7 +631,7 @@ function handleEndTurn(ws, data) {
         const elapsedMs = currentTime - currentRoom.lastUpdateSP.getTime(); // milliseconds elapsed
         const elapsedSec = Math.floor(elapsedMs / 1000);
 
-        baxie.currentStamina = Math.max(baxie.getMaxStamina(), baxie.currentStamina + (elapsedSec / 2));
+        baxie.setStamina(baxie.currentStamina + (elapsedSec / 2));
       });
     });
     currentRoom.lastUpdateSP = new Date();

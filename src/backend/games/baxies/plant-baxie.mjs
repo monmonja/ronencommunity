@@ -19,7 +19,7 @@ export default class PlantBaxie extends Baxie {
         .forEach(ally => {
           const restoreAmount = Math.floor(ally.getMaxStamina() * 0.15);
 
-          ally.currentStamina = Math.min(ally.currentStamina + restoreAmount, ally.getMaxStamina());
+          ally.setStamina(ally.currentStamina + restoreAmount);
           restored.push({ target: ally.tokenId, restoreAmount });
         });
 
