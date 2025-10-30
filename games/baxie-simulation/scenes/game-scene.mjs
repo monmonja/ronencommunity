@@ -329,6 +329,23 @@ export default class GameScene extends Phaser.Scene {
             });
           }, 500);
         }
+      }  else if (data.type === 'endCannotAttack') {
+        /**
+         * @type {BaxieUi}
+         */
+        const baxieUI = this.children.getByName(`baxie-${data.baxieId}`);
+
+        if (baxieUI) {
+          this.loggerScene.addLog(data.message);
+          baxieUI.renderSkills(this.skillContainer);
+          this.highlightActiveBaxieTurnByIndex(data.baxieTurnIndex);
+
+          setTimeout(() => {
+            this.shakeBaxieIndicator({
+              baxieUI,
+            });
+          }, 500);
+        }
       } else if (data.type === 'yourTurn') {
         if (this.gameMode === GameModes.turnBasedSP) {
           this.yourTurnText.visible = true;

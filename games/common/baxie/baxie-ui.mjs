@@ -171,7 +171,7 @@ export default class BaxieUi extends Phaser.GameObjects.Container {
     const spacing = 20;
     const totalWidth = this.skills.length * skillWidth + (this.skills.length - 1) * spacing;
     const startX = -totalWidth / 2 + radius;
-console.log(this.skills)
+
     this.skills.forEach((skill, index) => {
       const x = startX + index * (skillWidth + spacing);
 
@@ -350,8 +350,8 @@ console.log(this.skills)
       y: 45,
       width: 60,
       height: 4,
-      max: this.maxHP,
-      current: this.maxHP,
+      max: this.maxSP,
+      current: this.maxSP,
       backgroundColor: 0x444444,
       barColor: 0x00ff00,
       borderColor: 0x000000

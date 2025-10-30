@@ -78,22 +78,6 @@ export default class Baxie {
     return this.getMaxDefense() * 1.5;
   }
 
-  reasonCannotAttack() {
-    if (!this.isAlive()) {
-      return "Not alive";
-    }
-
-    for (const effect of this.getActiveEffect()) {
-      if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
-        return `Cannot attack it is stunned for ${effect.turnsLeft} more turn(s).`;
-      }
-
-      if (effect.type === EFFECTS.silence && effect.turnsLeft > 0) {
-        return `Cannot attack it is silence for ${effect.turnsLeft} more turn(s).`;
-      }
-    }
-  }
-
   getPhysicalDamage(enemy) {
     let attack = this.currentAttack;
 
@@ -113,12 +97,28 @@ export default class Baxie {
 
     for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
+        console.log('Cannot attack, stunned');
         return false;
       }
     }
 
     return true;
   }
+
+  reasonCannotAttack() {
+    if (!this.isAlive()) {
+      return "Not alive";
+    }
+
+    for (const effect of this.getActiveEffect()) {
+      if (effect.type === EFFECTS.stunned && effect.turnsLeft > 0) {
+        return `#${this.tokenId} is stunned, skipping attack.`;
+      }
+    }
+
+    return 'Dont know';
+  }
+
 
   canUseSkill(skillName, gameMode) {
     const skill = this.skills.find(s => s.func === skillName);
@@ -282,7 +282,7 @@ export default class Baxie {
       throw new Error(`Skill ${skillName} not found`);
     }
 
-    if (gameMode === GameModes.turnBasedSP && this.currentStamina < skill.cost) {
+    if (this.currentStamina < skill.cost) {
       throw new Error("Not enough stamina");
     }
 

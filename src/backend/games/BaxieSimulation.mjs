@@ -208,10 +208,9 @@ function afterTurnEffectsHandler(baxie, currentRoom) {
     if (turnIndex !== effect.turnIndexAdded) {
       effect.turnsLeft -= 1;
 
-      console.log(`Baxie ${baxie.tokenId} effect ${effect.type} turn left: ${effect.turnsLeft}, ${turnIndex} `);
+      // console.log(`Baxie ${baxie.tokenId} effect ${effect.type} turn left: ${effect.turnsLeft}, ${turnIndex} `);
 
       if (effect.turnsLeft <= 0) {
-        console.log("Removing effect:", effect.type);
         baxie.effects.splice(i, 1); // remove effect at index i
       }
     }
@@ -312,7 +311,7 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
           });
         });
 
-        currentRoom.players.forEach((player) => {
+        GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
           if (player.ws) {
             player.ws.send(JSON.stringify({
               type: "newTurn",
@@ -386,6 +385,24 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
       console.log("auto battler not enough stamina", selectedBaxie.currentStamina, skill.cost);
     }
   } else {
+    const rightPlayer = GameRoomManager.getOpponent(data.roomId, currentRoom.players[0].address);
+    GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
+      if (player.ws) {
+        player.ws.send(JSON.stringify({
+          type: "endCannotAttack",
+          baxieId: selectedBaxie.tokenId,
+          message: selectedBaxie.reasonCannotAttack(),
+          isYourTurn: currentRoom.playerTurn === rightPlayer.playerTurn,
+          baxieTurnIndex: currentRoom.baxieTurnIndex,
+          roomId: currentRoom.roomId,
+        }));
+        player.ws.send(JSON.stringify({
+          type: "updateStats",
+          player: player.baxies?.map((baxie) => baxie.getGameInfo()),
+          enemy: (currentRoom.players.filter((p) => p.address !== player.address)[0])?.baxies?.map((baxie) => baxie.getGameInfo()),
+        }));
+      }
+    });
     afterTurnEffectsHandler(selectedBaxie, currentRoom);
     console.log("Baxie cannot attack", selectedBaxie.reasonCannotAttack());
     nextBaxie();
@@ -716,7 +733,7 @@ function handleUseSkill(ws, data, request) {
         gameMode: currentRoom.gameMode,
         turnIndex: currentRoom.turnIndex,
       });
-      console.log("message", message)
+      // console.log("message", message)
       // currentRoom.usedBaxies.push(selectedBaxie.tokenId);
 
       GameRoomManager.getAllSockets(currentRoom).forEach((roomPlayer) => {
