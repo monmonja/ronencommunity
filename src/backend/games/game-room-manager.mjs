@@ -608,7 +608,7 @@ export default class GameRoomManager {
     }
 
     room.players.forEach(player => {
-      if (player.ws) {
+      if (player.ws && player.ws.close) {
         try {
           console.log(player.ws)
           player.ws?.close();
