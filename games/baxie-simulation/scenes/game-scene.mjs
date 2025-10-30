@@ -343,7 +343,7 @@ export default class GameScene extends Phaser.Scene {
           const updatedBaxie = data.player.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
-            baxie.renderEffectsUI(this.playerContainer, updatedBaxie, 53, (i * 90) + 48);
+            baxie.renderEffectsUI(this.playerContainer, updatedBaxie, 53, (i * 110) + 62);
 
             if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
               if (!baxie.logDeadStatus) {
@@ -357,7 +357,7 @@ export default class GameScene extends Phaser.Scene {
           const updatedBaxie = data.enemy.filter((b) => b.tokenId === baxie.tokenId)[0];
           if (updatedBaxie) {
             baxie.updateStats(updatedBaxie);
-            baxie.renderEffectsUI(this.enemyContainer, updatedBaxie, 53, (i * 90) + 48);
+            baxie.renderEffectsUI(this.enemyContainer, updatedBaxie, 53, (i * 110) + 62);
 
             if (updatedBaxie.hp === 0 || updatedBaxie.hp === null) {
               if (!baxie.logDeadStatus) {
@@ -542,11 +542,11 @@ export default class GameScene extends Phaser.Scene {
     this.playerContainer = this.add.container(50, 50);
     this.enemyContainer = this.add.container(740, 50);
     this.playerTeam.forEach((baxie, i) => {
-      this.playerContainer.add(baxie.renderHPSP(i * 90));
+      this.playerContainer.add(baxie.renderHPSP(i * 110));
       baxie.renderCharacter(this.skillContainer, true);
     });
     this.enemyTeam.forEach((baxie, i) => {
-      this.enemyContainer.add(baxie.renderHPSP(i * 90, true));
+      this.enemyContainer.add(baxie.renderHPSP(i * 110, true));
       baxie.renderCharacter(this.skillContainer);
     });
 

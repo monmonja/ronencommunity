@@ -24,9 +24,11 @@ export async function createCPUPlayer(roomId, characterIds) {
   characterIds = characterIds || [];
   if (characterIds.length !== 3) {
     const teams = [
-      [[1, "back"], [3, "center"], [4, "front"]],
-      [[868, "center"], [870, "back"], [867, "back"]],
-      [[3729, "center"], [879, "back"], [3494, "back"]],
+      [[1277, "back"], [1267, "center"], [1264, "back"]],
+      [[1279, "center"], [1278, "back"], [1285, "back"]],
+      [[1251, "center"], [1288, "back"], [1256, "back"]],
+      [[1264, "back"], [1291, "center"], [1278, "front"]],
+      [[1280, "back"], [1282, "center"], [1286, "front"]],
     ];
     characterIds = teams[Math.floor(Math.random() * teams.length)].map(([tokenId, position]) => ({ tokenId, position }));
   }

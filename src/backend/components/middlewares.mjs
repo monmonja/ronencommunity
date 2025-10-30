@@ -177,6 +177,7 @@ export function noCacheDevelopment(req, res, next) {
 
 export function disableStackTraceMiddleware(err, req, res, next) {
   if (err) {
+    console.log(config.web3)
     const adminWallet = config.web3.mainAdminWallet.toLowerCase();
 
     // If using session wallet

@@ -610,6 +610,7 @@ export default class GameRoomManager {
     room.players.forEach(player => {
       if (player.ws) {
         try {
+          console.log(player.ws)
           player.ws?.close();
         } catch (err) {
           console.error("Error closing WebSocket:", err);

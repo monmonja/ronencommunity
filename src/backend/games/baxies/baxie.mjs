@@ -43,7 +43,7 @@ export default class Baxie {
     }
 
     this.currentHP = this.getMaxHP();
-    this.currentStamina = this.getMaxStamina() * 0.3;
+    this.currentStamina = this.getMaxStamina() * 0.4;
     this.currentAttack = this.getMaxAttack();
     this.currentDefense = this.getMaxDefense();
   }
@@ -154,16 +154,23 @@ export default class Baxie {
 
   calculateDamage(attack, defense, allowCrit = false) {
     const critChance = 0.1; // 10% chance
-    const critMultiplier = 0.2; // 50% more damage
+    const critMultiplier = 1.5; // 50% more damage (use 1.5x instead of 0.2x)
 
-    let baseDamage = attack * (attack / (attack + defense));
+    // ✅ Base damage starts as the raw attack value
+    let baseDamage = attack;
+
+    const damageReduction = Math.min(defense * 0.007, 0.7);
+
+    baseDamage *= (1 - damageReduction);
+
     const minDamage = attack * 0.1;
 
-    // Critical hit check
+    // ✅ Critical hit check
     if (allowCrit && Math.random() < critChance) {
       baseDamage *= critMultiplier;
     }
 
+    // ✅ Apply active effects
     for (const effect of this.getActiveEffect()) {
       if (effect.type === EFFECTS.extraDamageTaken && effect.turnsLeft > 0) {
         baseDamage += baseDamage * effect.value;

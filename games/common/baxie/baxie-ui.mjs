@@ -272,7 +272,7 @@ console.log(this.skills)
 
     // Just a simple circle as a placeholder body
     const graphics = this.scene.add.graphics();
-    const radius = 40;
+    const radius = 44;
     const x = isEnemy ? 210 : radius / 2;
     const y = radius / 2;
 
@@ -292,21 +292,21 @@ console.log(this.skills)
     graphics.strokeCircle(x, y, radius - 4 - 6);
 
     const image = this.scene.make.image({
-      x: isEnemy ? 210: 18,
+      x: isEnemy ? 210: 22,
       y: -15,
       key: `image-${this.tokenId}`,
       add: false,
     });
-    image.setScale(0.035);
+    image.setScale(0.037);
     image.setOrigin(0.5, 0);
 
-    const startHpBarX = 55;
+    const startHpBarX = isEnemy ? 55 : 58;
 
     const hpBackgroundRect = new BackgroundRect(this.scene, {
       x: startHpBarX,
-      y: -2,
+      y: [GameModes.skillCountdown].includes(this.gameMode) ? -2 : -14,
       width: 120,
-      height: [GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode) ? 45 : 90,
+      height: [GameModes.skillCountdown].includes(this.gameMode) ? 45 : 74,
       // height: [GameModes.skillCountdown].includes(this.gameMode) ? 45 : 90,
       // height: 90,
       radius: 0,
@@ -320,9 +320,9 @@ console.log(this.skills)
 
     this.hpBar = new ProgressBar(this.scene, {
       x: 44,
-      y: 18,
+      y: 15,
       width: 60,
-      height: 5,
+      height: 4,
       max: this.maxHP,
       current: this.maxHP,
       backgroundColor: 0x444444,
@@ -331,7 +331,7 @@ console.log(this.skills)
     });
     hpBackgroundRect.add(this.hpBar);
 
-    this.hpText = this.scene.add.text(72, 27, `${this.currentHP}/${this.maxHP}`, {
+    this.hpText = this.scene.add.text(72, 23, `${this.currentHP}/${this.maxHP}`, {
       fontSize: "14px",
       fontFamily: constants.fonts.troika,
       color: "#ffffff",
@@ -339,7 +339,7 @@ console.log(this.skills)
     hpBackgroundRect.add(this.hpText);
 
     const hpLabel = this.scene.add.text(12, 10, 'HP', {
-      fontSize: "20px",
+      fontSize: "16px",
       fontFamily: constants.fonts.troika,
       color: "#ffffff",
     }).setOrigin(0);
@@ -347,9 +347,9 @@ console.log(this.skills)
 
     this.spBar = new ProgressBar(this.scene, {
       x: 44,
-      y: 58,
+      y: 45,
       width: 60,
-      height: 5,
+      height: 4,
       max: this.maxHP,
       current: this.maxHP,
       backgroundColor: 0x444444,
@@ -358,22 +358,22 @@ console.log(this.skills)
     });
     hpBackgroundRect.add(this.spBar);
 
-    this.spText = this.scene.add.text(72, 67, `${this.currentSP}/${this.maxSP}`, {
+    this.spText = this.scene.add.text(72, 54, `${this.currentSP}/${this.maxSP}`, {
       fontSize: "14px",
       fontFamily: constants.fonts.troika,
       color: "#ffffff",
     }).setOrigin(0.5, 0);
     hpBackgroundRect.add(this.spText);
 
-    const spLabel = this.scene.add.text(12, 50, 'SP', {
-      fontSize: "20px",
+    const spLabel = this.scene.add.text(12, 40, 'SP', {
+      fontSize: "16px",
       fontFamily: constants.fonts.troika,
       color: "#ffffff",
     }).setOrigin(0);
     hpBackgroundRect.add(spLabel);
 
-    if ([GameModes.skillCountdown, GameModes.autoBattler].includes(this.gameMode)) {
-    // if ([GameModes.skillCountdown].includes(this.gameMode)) {
+
+    if ([GameModes.skillCountdown].includes(this.gameMode)) {
       this.spBar.visible = false;
       this.spText.visible = false;
       spLabel.visible = false;

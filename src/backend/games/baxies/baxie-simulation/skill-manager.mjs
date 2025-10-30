@@ -36,7 +36,7 @@ export default class SkillManager {
     { func: "celestialHarmony", cost: 40, cooldown: 15, image: "fairy-celestial-harmony",
       description: "Restores 50% of one ally’s Stamina and increases their skill damage by 15% for 2 turns.",
     },
-    { func: "blazingBurst", cost: 50, cooldown: 15, image: "fire-blazing-burst",
+    { func: "blazingBurst", cost: 55, cooldown: 15, image: "fire-blazing-burst",
       description: "140% single-target damage. 20% chance to burn (damage over 2 turns)."
     },
     { func: "infernoWave", cost: 35, cooldown: 15, image: "fire-inferno-wave",
