@@ -1,8 +1,9 @@
-import {body, validationResult} from "express-validator";
+import {body, param, validationResult} from "express-validator";
 import {adminAccessMiddleware, mainAdminAccessMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Admin from "../models/admin.mjs";
 import GameRoomManager from "../games/game-room-manager.mjs";
+import {handleValidation} from "../utils/validations.mjs";
 
 export function initAdminRoutes(app) {
 
@@ -15,7 +16,31 @@ export function initAdminRoutes(app) {
         roomCounter: {
           current: GameRoomManager.getGameRoomCounts('bsim'),
           max: GameRoomManager.MAX_ROOMS['bsim'],
-        }
+        },
+        rooms: GameRoomManager.rooms,
+      });
+    });
+
+  app.get(
+    "/admin/delete-room/:roomId",
+    adminAccessMiddleware,
+    rateLimiterMiddleware,
+    param("roomId")
+      .matches(/^[a-zA-Z0-9-]+$/)
+      .withMessage("Invalid roomId"),
+    async (req, res) => {
+      if (!handleValidation(req, res)) {
+        return;
+      }
+
+      GameRoomManager.cleanupRoom(req.params.roomId);
+
+      res.render("admin/index", {
+        roomCounter: {
+          current: GameRoomManager.getGameRoomCounts('bsim'),
+          max: GameRoomManager.MAX_ROOMS['bsim'],
+        },
+        rooms: GameRoomManager.rooms,
       });
     });
 

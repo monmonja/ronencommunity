@@ -24,6 +24,34 @@
         <td><%= roomCounter.max %></td>
       </tr>
     </table>
+    <br />
+    <section id="rooms" style="color:white">
+      <h2>Rooms</h2>
+      <div class="rooms-wrapper">
+        <% for (const key in rooms) { %>
+        <table >
+          <tr><td colspan="2"><%= rooms[key].roomId %></td> </tr>
+          <tr>
+            <td>Player 1</td>
+            <td><%= rooms[key].players[0]?.address %></td>
+          </tr>
+          <tr>
+            <td>Player 2</td>
+            <td><%= rooms[key].players[1]?.address %></td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td><%= rooms[key].status %></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <a href="/admin/delete-room/<%= rooms[key].roomId %>">Delete Room</a>
+            </td>
+          </tr>
+        </table>
+        <% } %>
+      </div>
+    </section>
   </div>
   <%- include('../partials/footer.html') %>
   <%- include('../partials/overlay-disconnect.html') %>

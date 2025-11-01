@@ -236,7 +236,7 @@ export function adminAccessMiddleware(req, res, next) {
   // If using session wallet
   const userWallet = req.session.wallet?.address?.toLowerCase();
 
-  if (!userWallet || ![adminWallet, ...otherAdminWallets].includes(userWallet)) {
+  if (!userWallet || ![adminWallet, ...otherAdminWallets].map((i) => i.toLowerCase()).includes(userWallet)) {
     return res.status(403).json({ success: false, message: "Admin access required" });
   }
 

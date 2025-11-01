@@ -595,6 +595,25 @@ export default class GameRoomManager {
     }
   }
 
+  static async deleteRoom(roomId) {
+    const currentRoom = GameRoomManager.rooms[roomId];
+
+    await GameRoomsModel.updateRoom(roomId, {
+      status: "deleted",
+      completedAt: getUtcNow()
+    });
+
+    GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
+      if (player.ws) {
+        player.ws.send(JSON.stringify({
+          type: "deletedRoom",
+        }));
+      }
+    });
+
+    this.cleanupRoom(roomId);
+  }
+
   static cleanupRoom(roomId) {
     const room = GameRoomManager.rooms[roomId];
 
