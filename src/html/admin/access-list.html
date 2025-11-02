@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page - Ronen Community</title>
+  <link rel="stylesheet" href="/css/admin-<%= config.distVersion %>.css">
+  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+</head>
+<body>
+
+  <div class="page-content">
+    <h2><%= message %></h2>
+    <form method="post">
+      <label>Add address:</label>
+      <input type="text" name="address" />
+      <button>Add</button>
+    </form>
+<br /><br />
+    <h2>List</h2>
+    <section id="auth-list" style="color:white">
+      <ol>
+        <% for (const key in accessList) { %>
+        <li><%= accessList[key] %></li>
+        <% } %>
+
+      </ol>
+
+    </section>
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/app-<%= config.distVersion %>.js"></script>
+</body>
+</html>

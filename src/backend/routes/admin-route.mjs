@@ -18,6 +18,48 @@ export function initAdminRoutes(app) {
           max: GameRoomManager.MAX_ROOMS['bsim'],
         },
         rooms: GameRoomManager.rooms,
+        settings: await Admin.getAllRecordsAsObject()
+      });
+    });
+  app.get(
+    "/admin/access-list",
+    adminAccessMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      const settings = await Admin.getAllRecordsAsObject()
+      res.render("admin/access-list", {
+        message: '',
+        accessList: JSON.parse(settings.baxieAccessList),
+      });
+    });
+
+  app.post(
+    "/admin/access-list",
+    adminAccessMiddleware,
+    rateLimiterMiddleware,
+    body("address")
+      .trim()
+      .isEthereumAddress().withMessage("Invalid Address"),
+    async (req, res) => {
+      // Handle validation errors
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const settings = await Admin.getAllRecordsAsObject();
+      const accessList = JSON.parse(settings.baxieAccessList);
+      accessList.push(req.body.address);
+
+      await Admin.addUpdateRecord({
+        key: "baxieAccessList",
+        value: JSON.stringify(accessList).toLowerCase(),
+      });
+
+      res.render("admin/access-list", {
+        accessList: accessList,
+        message: 'Added',
       });
     });
 
