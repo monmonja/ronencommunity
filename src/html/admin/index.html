@@ -1,61 +1,504 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Page - Ronen Community</title>
-  <link rel="stylesheet" href="/css/admin-<%= config.distVersion %>.css">
-  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+  <meta charset="utf-8" />
+  <title>Elemental Clash - Phaser</title>
+  <style>
+    body { margin: 0; background: #0b0b0f; color: #fff; font-family: sans-serif; }
+    #game { display:flex; justify-content:center; align-items:center; height:100vh; }
+  </style>
 </head>
 <body>
+<div id="game"></div>
 
-  <div class="page-content">
-    <a href="/game-rooms/make">Make Game room</a><br /><br />
-    <a href="/stats">Stats</a><br /><br />
+<!-- Phaser 3 (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 
-    <h2>Room Counter</h2>
-    <table>
-      <tr>
-        <td>Current</td>
-        <td><%= roomCounter.current %></td>
-      </tr>
-      <tr>
-        <td>Max</td>
-        <td><%= roomCounter.max %></td>
-      </tr>
-    </table>
-    <br />
-    <section id="rooms" style="color:white">
-      <h2>Rooms</h2>
-      <div class="rooms-wrapper">
-        <% for (const key in rooms) { %>
-        <table >
-          <tr><td colspan="2"><%= rooms[key].roomId %></td> </tr>
-          <tr>
-            <td>Player 1</td>
-            <td><%= rooms[key].players[0]?.address %></td>
-          </tr>
-          <tr>
-            <td>Player 2</td>
-            <td><%= rooms[key].players[1]?.address %></td>
-          </tr>
-          <tr>
-            <td>Status</td>
-            <td><%= rooms[key].status %></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <a href="/admin/delete-room/<%= rooms[key].roomId %>">Delete Room</a>
-            </td>
-          </tr>
-        </table>
-        <% } %>
-      </div>
-    </section>
-  </div>
-  <%- include('../partials/footer.html') %>
-  <%- include('../partials/overlay-disconnect.html') %>
-  <%- include('../partials/overlay-login.html') %>
-  <script src="/js/app-<%= config.distVersion %>.js"></script>
+<script nonce="8cdce4cee2e07bbfbe09b474e886cace">
+  // Elemental Clash - single-file Phaser 3 game
+  const WIDTH = 900;
+  const HEIGHT = 640;
+
+  const ATTACKS = [
+    { id: 'water', label: 'Water Strike', cost: 1 },
+    { id: 'fire',  label: 'Fire Burst',  cost: 3 },
+    { id: 'wind',  label: 'Wind Storm',  cost: 5 }
+  ];
+
+  const DEFENSES = [
+    { id: 'aqua', label: 'Aqua Shield', blocks: 'water' },
+    { id: 'flame',label: 'Flame Guard', blocks: 'fire' },
+    { id: 'tempest', label: 'Tempest Barrier', blocks: 'wind' }
+  ];
+
+  const ACTIONS = [
+    ...ATTACKS.map(a => ({ type: 'attack', id: a.id, label: a.label, cost: a.cost })),
+    ...DEFENSES.map(d => ({ type: 'defend', id: d.id, label: d.label, blocks: d.blocks })),
+    { type: 'gain', id: 'gain', label: 'Gain Energy' }
+  ];
+
+  class ElementalClash extends Phaser.Scene {
+    constructor() {
+      super({ key: 'ElementalClash' });
+    }
+
+    preload() {
+      // no external assets - we'll draw cards & characters with graphics & text
+    }
+
+    create() {
+      this.centerX = WIDTH / 2;
+      this.centerY = HEIGHT / 2;
+      this.playerEnergy = 2;
+      this.cpuEnergy = 2;
+      this.awaitingChoice = true;
+      this.round = 1;
+      this.lastPlayerAction = null;
+
+      // Background / headings
+      this.add.rectangle(this.centerX, 30, WIDTH, 60, 0x16161b);
+      this.add.text(this.centerX, 30, '🌊🔥🌪 Elemental Clash', {fontSize: '26px', color: '#ffffff'}).setOrigin(0.5);
+
+      // Energy & round
+      this.playerEnergyText = this.add.text(22, 22, '', { fontSize: '18px' });
+      this.cpuEnergyText    = this.add.text(WIDTH - 220, 22, '', { fontSize: '18px' });
+      this.roundText = this.add.text(this.centerX, 62, '', { fontSize: '18px' }).setOrigin(0.5);
+      this.updateEnergyDisplay();
+
+      // Characters (simple circles)
+      this.cpuChar = this.add.container(this.centerX + 180, this.centerY - 50);
+      this.playerChar = this.add.container(this.centerX - 180, this.centerY + 50);
+
+      this.drawCharacter(this.cpuChar, 0x9966ff, 'CPU');
+      this.drawCharacter(this.playerChar, 0x66ddff, 'YOU');
+
+      // Card rack: CPU (top, hidden) and Player (bottom, visible)
+      this.cpuCardRack = this.makeCardRack(true);
+      this.playerCardRack = this.makeCardRack(false);
+
+      // Info & center UI
+      this.countdownText = this.add.text(this.centerX, this.centerY - 10, '', { fontSize: '60px' }).setOrigin(0.5);
+      this.resultText = this.add.text(this.centerX, this.centerY + 120, '', { fontSize: '26px', color: '#fffb' }).setOrigin(0.5);
+
+      // container for active moving cards
+      this.activeGroup = this.add.group();
+
+      // for demo: show allowed action labels under player's card rack
+      this.helpText = this.add.text(this.centerX, HEIGHT - 22, 'Click a card to play it. Bottom card moves to LEFT-CENTER. Top card moves to RIGHT-CENTER.', { fontSize: '14px', color: '#aaaaaa' }).setOrigin(0.5);
+
+      // keep references for resolving
+      this.currentRound = null;
+    }
+
+    drawCharacter(container, color, label) {
+      const circle = this.add.circle(0, 0, 36, color);
+      const face = this.add.circle(-10, -6, 6, 0xffffff);
+      const eyeR = this.add.circle(10, -6, 6, 0xffffff);
+      const name = this.add.text(0, 52, label, { fontSize: '14px' }).setOrigin(0.5);
+      container.add([circle, face, eyeR, name]);
+    }
+
+    makeCardRack(isTop) {
+      // creates clickable card objects visually (Graphics inside Containers)
+      // For CPU: we'll draw same visuals but set interactive = false (CPU chooses)
+      // returns array of objects with x,y and action
+      const rack = [];
+      const count = ACTIONS.length;
+      // layout horizontally centered
+      const margin = 12;
+      const cardW = 110;
+      const rackW = count * cardW + (count - 1) * margin;
+      const startX = this.centerX - rackW/2 + cardW/2;
+      const y = isTop ? 110 : (HEIGHT - 110);
+
+      for (let i = 0; i < count; i++) {
+        const act = ACTIONS[i];
+        const x = startX + i*(cardW + margin);
+
+        // draw a card container with rectangle + label
+        const c = this.add.container(x, y);
+        const rect = this.add.rectangle(0, 0, cardW, 64, 0x151722).setStrokeStyle(2, 0x33384a);
+        const lbl = this.add.text(0, 0, act.label, { fontSize: '13px', color: '#fff', wordWrap: { width: cardW - 12 } }).setOrigin(0.5);
+        c.add([rect, lbl]);
+        c.action = act; // attach action metadata
+        c.isTop = isTop;
+
+        if (!isTop) {
+          // player interactive
+          rect.setInteractive({ useHandCursor: true });
+          rect.on('pointerdown', () => this.onPlayerCardClicked(c));
+          // small energy cost display for attacks
+          if (act.type === 'attack') {
+            const costText = this.add.text(cardW/2 - 18, -22, String(act.cost), { fontSize: '12px', color: '#ffd' }).setOrigin(1,0);
+            c.add(costText);
+          }
+        } else {
+          // CPU cards appear dim/hidden to start (we'll keep label but we can fade)
+          c.list[0].alpha = 0.4;
+          c.list[1].alpha = 0.4;
+        }
+
+        rack.push(c);
+      }
+      return rack;
+    }
+
+    onPlayerCardClicked(cardContainer) {
+      if (!this.awaitingChoice) return;
+      const action = cardContainer.action;
+
+      // Validate attack energy
+      if (action.type === 'attack' && this.playerEnergy < action.cost) {
+        this.showResult('Not enough energy for that attack.');
+        return;
+      }
+
+      // Lock input
+      this.awaitingChoice = false;
+      this.resultText.setText('');
+      this.lastPlayerAction = action;
+
+      // pick CPU action
+      const cpuAction = this.cpuDecide();
+      // begin round
+      this.startRound(action, cpuAction);
+    }
+
+    cpuDecide() {
+      // CPU chooses from ACTIONS with energy constraints
+      // Simple weighted logic:
+      // - if CPU has enough energy for a strong attack and random chance -> attack
+      // - sometimes defend
+      // - otherwise gain
+      const options = [];
+
+      ACTIONS.forEach(a => {
+        if (a.type === 'attack') {
+          if (this.cpuEnergy >= (a.cost || 0)) options.push(a);
+        } else {
+          // defense or gain always possible
+          options.push(a);
+        }
+      });
+
+      // Slightly smarter: if lastPlayerAction was an attack and CPU has matching defense, more likely to pick that defense
+      if (this.lastPlayerAction && this.lastPlayerAction.type === 'attack') {
+        const wantedDefense = DEFENSES.find(d => d.blocks === this.lastPlayerAction.id);
+        if (wantedDefense && this.cpuEnergy >= 0) {
+          // add extra weight
+          for (let i=0;i<3;i++) options.push({ type:'defend', id: wantedDefense.id, label: wantedDefense.label, blocks: wantedDefense.blocks });
+        }
+      }
+
+      // Random pick
+      return Phaser.Utils.Array.GetRandom(options);
+    }
+
+    startRound(playerAction, cpuAction) {
+      this.currentRound = { playerAction, cpuAction };
+
+      // Create moving card copies (visuals)
+      const playerCard = this.duplicateCardVisual(playerAction, this.centerX, HEIGHT - 110);
+      const cpuCard    = this.duplicateCardVisual(cpuAction, this.centerX, 110);
+
+      // target positions: player to left-center, cpu to right-center
+      const leftCenter  = { x: this.centerX - 120, y: this.centerY + 30 };
+      const rightCenter = { x: this.centerX + 120, y: this.centerY - 30 };
+
+      // animate move
+      this.tweens.add({
+        targets: playerCard,
+        x: leftCenter.x,
+        y: leftCenter.y,
+        duration: 700,
+        ease: 'Power2'
+      });
+
+      this.tweens.add({
+        targets: cpuCard,
+        x: rightCenter.x,
+        y: rightCenter.y,
+        duration: 700,
+        ease: 'Power2'
+      });
+
+      // store references
+      this.currentRound.playerCardSprite = playerCard;
+      this.currentRound.cpuCardSprite = cpuCard;
+
+      // start countdown after move finishes
+      this.time.delayedCall(750, () => {
+        this.countdown(3, () => this.revealAndAnimate());
+      });
+    }
+
+    duplicateCardVisual(action, x, y) {
+      const cardW = 140, cardH = 74;
+      const container = this.add.container(x, y);
+      const rect = this.add.rectangle(0, 0, cardW, cardH, 0x1c2130).setStrokeStyle(2, 0x2e3440);
+      const label = this.add.text(0, 0, action.label, { fontSize: '14px', color: '#fff', align: 'center', wordWrap: { width: cardW-12 } }).setOrigin(0.5);
+      container.add([rect, label]);
+      this.activeGroup.add(container);
+      // small tag for action metadata
+      container.action = action;
+      return container;
+    }
+
+    countdown(num, cb) {
+      this.countdownText.setText(String(num));
+      if (num <= 0) {
+        this.countdownText.setText('');
+        cb();
+        return;
+      }
+      this.time.delayedCall(1000, () => {
+        this.countdown(num - 1, cb);
+      });
+    }
+
+    revealAndAnimate() {
+      const round = this.currentRound;
+      const pAct = round.playerAction;
+      const cAct = round.cpuAction;
+
+      // Spend energy for attacks immediately (so costs are reflected)
+      if (pAct.type === 'attack') this.playerEnergy -= (pAct.cost || 0);
+      if (cAct.type === 'attack') this.cpuEnergy -= (cAct.cost || 0);
+      if (pAct.type === 'gain') this.playerEnergy++;
+      if (cAct.type === 'gain') this.cpuEnergy++;
+
+      this.updateEnergyDisplay();
+
+      // visually "flip" by briefly tween scaling y and change tint
+      this.flipCard(round.playerCardSprite);
+      this.flipCard(round.cpuCardSprite);
+
+      // play animations based on actions
+      // draw shields if defenses; spawn projectile if attack
+      // shields should appear in front of the corresponding character
+      const effects = [];
+
+      // CPU shield?
+      if (cAct.type === 'defend') {
+        effects.push({ who:'cpu', kind:'shield', blocks: cAct.blocks });
+        this.spawnShield(this.cpuChar);
+      }
+      // Player shield?
+      if (pAct.type === 'defend') {
+        effects.push({ who:'player', kind:'shield', blocks: pAct.blocks });
+        this.spawnShield(this.playerChar);
+      }
+
+      // Player attack => projectile from playerChar to cpuChar
+      if (pAct.type === 'attack') {
+        effects.push({ who:'player', kind:'attack', id: pAct.id });
+        this.spawnProjectile(this.playerChar, this.cpuChar, pAct.id);
+      }
+      // CPU attack
+      if (cAct.type === 'attack') {
+        effects.push({ who:'cpu', kind:'attack', id: cAct.id });
+        this.spawnProjectile(this.cpuChar, this.playerChar, cAct.id);
+      }
+
+      // after animations settle, resolve outcome
+      this.time.delayedCall(1100, () => {
+        this.resolveRound();
+      });
+    }
+
+    flipCard(cardContainer) {
+      // small fake flip animation
+      this.tweens.add({
+        targets: cardContainer.list[0],
+        scaleY: 0.1,
+        duration: 140,
+        yoyo: true,
+        onStart: ()=>{ cardContainer.list[0].setStrokeStyle(2, 0x88a); },
+        onComplete: ()=>{ cardContainer.list[0].setStrokeStyle(2, 0x2e3440); }
+      });
+    }
+
+    spawnShield(charContainer) {
+      const shield = this.add.circle(charContainer.x, charContainer.y, 48, 0xffffff, 0.14);
+      shield.setStrokeStyle(4, 0xffffaa, 0.6);
+      this.tweens.add({
+        targets: shield,
+        alpha: 0,
+        scale: 1.2,
+        duration: 800,
+        onComplete: ()=> shield.destroy()
+      });
+    }
+
+    spawnProjectile(fromChar, toChar, id) {
+      // id: 'fire' | 'water' | 'wind' -> color & shape mapping
+      let proj;
+      const sx = fromChar.x, sy = fromChar.y;
+      const tx = toChar.x, ty = toChar.y;
+
+      if (id === 'fire') {
+        proj = this.add.circle(sx, sy - 10, 12, 0xff8a33);
+      } else if (id === 'water') {
+        proj = this.add.ellipse(sx, sy - 6, 18, 10, 0x33bfff);
+      } else { // wind
+        proj = this.add.rectangle(sx, sy - 6, 22, 12, 0xd0d0d0).setAlpha(0.95);
+      }
+
+      // arc/tween to target
+      this.tweens.add({
+        targets: proj,
+        x: tx,
+        y: ty,
+        duration: 700,
+        ease: 'Cubic.easeInOut',
+        onComplete: () => {
+          // small hit flash
+          const flash = this.add.circle(tx, ty, 26, 0xffffff, 0.18);
+          this.tweens.add({ targets: flash, alpha: 0, duration: 300, onComplete: ()=> flash.destroy() });
+          proj.destroy();
+        }
+      });
+    }
+
+    resolveRound() {
+      const round = this.currentRound;
+      const p = round.playerAction;
+      const c = round.cpuAction;
+
+      const attackCostsMap = { water:1, fire:3, wind:5 };
+      const defenseMap = { aqua:'water', flame:'fire', tempest:'wind' };
+
+      // Determine booleans
+      const pAttack = p.type === 'attack';
+      const cAttack = c.type === 'attack';
+      const pDefend = p.type === 'defend';
+      const cDefend = c.type === 'defend';
+
+      // Helper to check if defense matches attack
+      const defenseBlocks = (defObj, attackId) => defObj && defObj.blocks === attackId;
+
+      let winner = null;
+      let message = '';
+
+      // If player attacks:
+      if (pAttack) {
+        // If CPU defended:
+        if (cDefend) {
+          // correct defense?
+          if (c.blocks === p.id) {
+            // blocked -> round continues (no win)
+            message = 'CPU blocked your attack! Round continues.';
+            this.postRoundContinue(message);
+            return;
+          } else {
+            // wrong defense by CPU => CPU loses instantly (player wins)
+            winner = 'player';
+            message = 'CPU used wrong defense — you win!';
+          }
+        } else if (!cAttack) {
+          // CPU didn't attack or defend -> hit lands
+          winner = 'player';
+          message = 'Your attack landed — you win!';
+        }
+      }
+
+      // If CPU attacks and no existing winner
+      if (cAttack && !winner) {
+        if (pDefend) {
+          if (p.blocks === c.id) {
+            // player correctly blocked -> continue
+            message = 'You blocked the CPU\'s attack! Round continues.';
+            this.postRoundContinue(message);
+            return;
+          } else {
+            // player used wrong defense => player loses instantly
+            winner = 'cpu';
+            message = 'You used the wrong defense — CPU wins!';
+          }
+        } else if (!pAttack) {
+          // player didn't attack or defend -> CPU hits
+          winner = 'cpu';
+          message = 'CPU attack landed — CPU wins!';
+        }
+      }
+
+      // Both attacked simultaneously (and neither blocked)
+      if (pAttack && cAttack && !winner) {
+        // If both attack and neither defended: both attacks land => draw/DOUBLE KO
+        // We'll call it a draw (no winner) and continue next round.
+        message = 'Both attacked! Double hit — no winner this round.';
+        this.postRoundContinue(message);
+        return;
+      }
+
+      // If neither attack (both defended / both gain) -> continue
+      if (!pAttack && !cAttack) {
+        message = 'No attacks this round. Round continues.';
+        this.postRoundContinue(message);
+        return;
+      }
+
+      // If we have a winner
+      if (winner) {
+        this.announceWinner(winner, message);
+        return;
+      }
+
+      // Fallback: continue
+      this.postRoundContinue('No decisive result — round continues.');
+    }
+
+    postRoundContinue(message) {
+      this.resultText.setText(message);
+      // clean active cards/objects & prepare next round
+      this.cleanupActive();
+      this.round++;
+      this.updateEnergyDisplay();
+      this.awaitingChoice = true;
+      // small delay before next round
+      this.time.delayedCall(900, ()=> this.resultText.setText(''));
+    }
+
+    announceWinner(winner, message) {
+      this.resultText.setText(message);
+      this.cleanupActive();
+      this.awaitingChoice = false;
+      if (winner === 'player') {
+        this.add.text(this.centerX, this.centerY + 160, '💥 YOU WIN!', { fontSize: '36px', color: '#b9ffb9' }).setOrigin(0.5).setDepth(20);
+      } else {
+        this.add.text(this.centerX, this.centerY + 160, '💀 CPU WINS', { fontSize: '36px', color: '#ffb9b9' }).setOrigin(0.5).setDepth(20);
+      }
+    }
+
+    cleanupActive() {
+      // destroy active moving card sprites
+      this.activeGroup.getChildren().forEach(ch => ch.destroy());
+      this.activeGroup.clear(true);
+      this.currentRound = null;
+    }
+
+    updateEnergyDisplay() {
+      this.playerEnergyText.setText(`You: ${this.playerEnergy} ⚡`);
+      this.cpuEnergyText.setText(`CPU: ${this.cpuEnergy} ⚡`);
+      this.roundText.setText(`Round ${this.round}`);
+    }
+
+    showResult(msg) {
+      this.resultText.setText(msg);
+      this.time.delayedCall(1200, () => { if (this.resultText.text === msg) this.resultText.setText(''); });
+    }
+  }
+
+  const config = {
+    type: Phaser.AUTO,
+    width: WIDTH,
+    height: HEIGHT,
+    parent: 'game',
+    backgroundColor: 0x0b0b0f,
+    scene: [ElementalClash]
+  };
+
+  new Phaser.Game(config);
+</script>
 </body>
 </html>
