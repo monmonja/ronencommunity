@@ -181,7 +181,7 @@ export function disableStackTraceMiddleware(err, req, res, next) {
     const adminWallet = config.web3.mainAdminWallet.toLowerCase();
 
     // If using session wallet
-    const userWallet = req.session.wallet?.address?.toLowerCase();
+    const userWallet = req.session?.wallet?.address?.toLowerCase();
 
     if (config.isProd && adminWallet !== userWallet) {
       res.status(500).send("Internal Server Error. Disabled stack trace in production.");
