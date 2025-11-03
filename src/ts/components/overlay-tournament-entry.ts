@@ -2,11 +2,12 @@ import { sendToken } from "./ronin-send";
 import {detectNetwork} from "./ronin-detect-network";
 import {getCookie} from "./cookies";
 
-export function initOverlayRaffle (): void {
-  const overlay = document.getElementById("overlay-raffle");
-  const raffleAmount: HTMLInputElement| null = document.getElementById("raffle-amount") as HTMLInputElement | null;
+export function initOverlayTournamentEntry (): void {
+  const overlay = document.getElementById("overlay-tournament-entry");
+  const tournamentEntryAmount: HTMLInputElement| null = document.getElementById("tournament-entry-amount") as HTMLInputElement | null;
+  const discordUsernameAmount: HTMLInputElement| null = document.getElementById("discord-username") as HTMLInputElement | null;
 
-  if (overlay && raffleAmount) {
+  if (overlay && tournamentEntryAmount && discordUsernameAmount) {
     const joinBtn = overlay.querySelector(".join-button") as HTMLElement | null;
     const reloadBtn = overlay.querySelector(".reload-button") as HTMLElement | null;
     const overlayBody = overlay.querySelector(".overlay-body")!;
@@ -34,15 +35,15 @@ export function initOverlayRaffle (): void {
       }
 
       try {
-        const amount = raffleAmount.value;
-        const result = await sendToken("RON","{{config.web3.raffleAddress}}", amount);
+        const amount = tournamentEntryAmount.value;
+        const result = await sendToken("RON","{{config.web3.tournamentAddress}}", amount);
 
         if (result) {
           const { txHash } = result;
-          const { nonce } = await fetch("/raffle/nonce", { credentials: "include" }).then(r => r.json());
+          const { nonce } = await fetch("/tournament-entry/nonce", { credentials: "include" }).then(r => r.json());
 
-          const joinRafflePost = async function () {
-            const response = await fetch("/join-raffle", {
+          const joinTournamentEntryPost = async function () {
+            const response = await fetch("/tournament-entry/join", {
               method: "POST",
               // @ts-expect-error Custom header
               headers: {
@@ -51,6 +52,7 @@ export function initOverlayRaffle (): void {
               },
               body: JSON.stringify({
                 txHash, amount, nonce,
+                discord: discordUsernameAmount.value,
               })
             });
 
@@ -59,16 +61,13 @@ export function initOverlayRaffle (): void {
             }
 
             const result = await response.json();
-
+console.log(result)
             if (result.status === "pending") {
-              setTimeout(joinRafflePost, 1000);
+              setTimeout(joinTournamentEntryPost, 1000);
             } else if (result.status === "success") {
-              if (overlay.getAttribute("data-slug")) {
-                location.href = `/game/${overlay.getAttribute("data-slug")}`;
-              } else {
-                overlay.querySelector(".start-block")?.classList.add("hide");
-                overlay.querySelector(".thank-you-block")?.classList.add("show");
-              }
+
+              overlay.querySelector(".start-block")?.classList.add("hide");
+              overlay.querySelector(".thank-you-block")?.classList.add("show");
             } else if (result.status === "failed") {
               alert(result.message);
             }
@@ -79,7 +78,7 @@ export function initOverlayRaffle (): void {
             joinBtn.innerHTML = "Verifying Transaction...";
           }
 
-          await joinRafflePost();
+          await joinTournamentEntryPost();
         }
       } catch (err) {
         console.error("Error sending or verifying tx:", err);

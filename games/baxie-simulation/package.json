@@ -4,7 +4,7 @@
   "description": "Baxie Simulation",
   "lastUpdate": 1757033476000,
   "visible": true,
-  "dailyEnergy": 200,
+  "dailyEnergy": 25,
   "gameRoomSlug": "bsim",
   "checkAccessList": true,
   "changeLog": [

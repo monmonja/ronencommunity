@@ -322,8 +322,8 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
             }));
             player.ws.send(JSON.stringify({
               type: "updateStats",
-              player: rightPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
-              enemy: leftPlayer.baxies?.map((baxie) => baxie.getGameInfo()),
+              player: rightPlayer?.baxies?.map((baxie) => baxie.getGameInfo()),
+              enemy: leftPlayer?.baxies?.map((baxie) => baxie.getGameInfo()),
             }));
           }
         });
@@ -420,13 +420,13 @@ async function handleGameLoaded(ws, data) {
 
   if (currentRoom.vsCPU) {
     try {
-      if (currentRoom.gameMode === GameModes.autoBattler) {
-        await Energies.useEnergy({
-          address: userAddress,
-          gameId: data.gameId,
-          amount: 3,
-        });
+      await Energies.useEnergy({
+        address: userAddress,
+        gameId: data.gameId,
+        amount: 3,
+      });
 
+      if (currentRoom.gameMode === GameModes.autoBattler) {
         GameRoomManager.getAllSockets(currentRoom).forEach((player) => {
           if (player.ws) {
             player.ws.send(JSON.stringify({
@@ -476,16 +476,28 @@ async function handleGameLoaded(ws, data) {
   } else {
     try {
       const spectators = currentRoom.spectators ?? [];
+      let isPlayer = false;
       for (let i = 0; i < currentRoom.players.length; i++) {
         if (currentRoom.players[i].address === userAddress) {
           currentRoom.players[i].gameLoaded = true;
+          isPlayer = true;
         }
       }
+
       for (let i = 0; i < spectators?.length; i++) {
         if (spectators[i].address === userAddress) {
           spectators[i].gameLoaded = true;
         }
       }
+
+      if (isPlayer) {
+        await Energies.useEnergy({
+          address: userAddress,
+          gameId: data.gameId,
+          amount: 5,
+        });
+      }
+
       const allPlayersLoaded = currentRoom.players.filter((i) => i.gameLoaded).length === currentRoom.players.length;
       const allSpectatorLoaded = spectators.filter((i) => i.gameLoaded).length === spectators.length;
 

@@ -139,8 +139,8 @@ export function affiliateMiddleware(req, res, next) {
   const promos = [
     'Please donate to support the website: <a id="top-banner-address" href="https://app.roninchain.com/address/0xf84810C321Fe1d9baB045b67893C61Be756FE6c6">0xf84810C321Fe1d9baB045b67893C61Be756FE6c6</a>',
     // End Date:Oct 05, 2025 at 11:59 PM PDT
-    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3IzeLZU">Getting into the Game: A Web3 and Crypto Buying Guide for Newbies</a>`,
-    `<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3Vsrb8Q">Gaming Socks Do Not Disturb I"m Novelty Boys for Men Women Gamer Youth</a>`,
+    //`<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3IzeLZU">Getting into the Game: A Web3 and Crypto Buying Guide for Newbies</a>`,
+    //`<p>Amazon Affiliate ads:</p><a target="_blank" href="https://amzn.to/3Vsrb8Q">Gaming Socks Do Not Disturb I"m Novelty Boys for Men Women Gamer Youth</a>`,
 
   ];
 

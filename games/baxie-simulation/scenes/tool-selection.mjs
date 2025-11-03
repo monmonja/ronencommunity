@@ -1,8 +1,4 @@
 import Phaser from 'phaser';
-import {createButton, createCircleButton} from "../../common/buttons.mjs";
-import InputText from 'phaser3-rex-plugins/plugins/inputtext.js';
-import {createGameRoom, joinGameRoom} from "../../common/scene/rooms-scene.mjs";
-import { SimpleTextBox } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import constants from "../../common/constants.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 import {addBgMusic} from "../../common/settings.mjs";

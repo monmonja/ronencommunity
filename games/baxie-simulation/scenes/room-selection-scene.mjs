@@ -79,7 +79,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     container.add(this.createPanelBg(panelWidth, panelHeight));
 
-    let currentY = 30; // padding from the top
+    let currentY = 40; // padding from the top
 
 
     // === Input Field ===
@@ -87,6 +87,17 @@ export default class RoomSelectionScene extends Phaser.Scene {
     const inputHeight = 50;
 
     container.add(this.createInputBg(panelWidth, currentY, inputWidth, inputHeight));
+
+    container.add(this.add.text(
+      panelWidth - 20,
+      20,
+      'Uses 5 energy',
+      {
+        fontFamily: constants.fonts.Newsreader,
+        fontSize: '12px',
+        color: '#ffffff',
+      }
+    ).setOrigin(1, 0.5));
 
     const roomId = ''; // initially empty
     const inputText = this.add.text(
@@ -130,7 +141,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
     copyButton.on('pointerover', () => copyButton.setFillStyle(0x444488));
     copyButton.on('pointerout', () => copyButton.setFillStyle(0x111827));
 
-    currentY += inputHeight + 20;
+    currentY += inputHeight + 15;
 
     // === Start Game Button ===
     const startBtn = createButton({
@@ -214,7 +225,18 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     container.add(this.createPanelBg(panelWidth, panelHeight));
 
-    let currentY = 30; // start with some padding from the top
+    let currentY = 40; // start with some padding from the top
+
+    container.add(this.add.text(
+      panelWidth - 20,
+      20,
+      'Uses 5 energy',
+      {
+        fontFamily: constants.fonts.Newsreader,
+        fontSize: '12px',
+        color: '#ffffff',
+      }
+    ).setOrigin(1, 0.5));
 
     // === Input Field ===
     const inputWidth = panelWidth - 40;
@@ -246,7 +268,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
     });
     container.add(inputText);
 
-    currentY += inputHeight + 20;
+    currentY += inputHeight + 15;
 
     // === Join Button ===
     const joinBtn = createButton({
@@ -325,8 +347,18 @@ export default class RoomSelectionScene extends Phaser.Scene {
 
     container.add(this.createPanelBg(panelWidth, panelHeight));
 
-    let currentY = 30; // Start padding top
+    let currentY = 40; // Start padding top
 
+    container.add(this.add.text(
+      panelWidth - 20,
+      20,
+      'Uses 3 energy',
+      {
+        fontFamily: constants.fonts.Newsreader,
+        fontSize: '12px',
+        color: '#ffffff',
+      }
+    ).setOrigin(1, 0.5));
 
     // === Button ===
     const btnBg = createButton({
@@ -393,7 +425,7 @@ export default class RoomSelectionScene extends Phaser.Scene {
     })
     container.add(btnBg);
 
-    currentY += 70;
+    currentY += 65;
 
     const spectatorBtn = createButton({
       scene: this,

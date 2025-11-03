@@ -127,18 +127,19 @@ body:has(.overlay.show) {
   }
 }
 
-#overlay-raffle {
+#overlay-raffle,
+#overlay-tournament-entry {
   h2 {
     margin-bottom: 12px;
   }
 
-  .start-raffle {
+  .start-block {
     &.hide {
       display: none;
     }
   }
 
-  .thank-you-raffle {
+  .thank-you-block {
     display: none;
 
     &.show {

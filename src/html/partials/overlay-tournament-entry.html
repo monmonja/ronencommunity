@@ -1,0 +1,38 @@
+<div id="overlay-tournament-entry" class="overlay">
+  <div class="overlay-body">
+    <h2>Tournament entry</h2>
+    <div class="start-block">
+      <div>Fund Allocation:</div>
+      <table>
+        <tr>
+          <td>90%</td>
+          <td>Added directly to the prize pool</td>
+        </tr>
+        <tr>
+          <td>10%</td>
+          <td>Server/development costs</td>
+        </tr>
+      </table>
+      <Br />
+      <label>Discord Username</label>
+      <input
+        type="text"
+        id="discord-username"
+        value=""
+      />
+      <input
+        type="hidden"
+        id="tournament-entry-amount"
+        value="<%= tournamentEntry.amount %>"
+
+      />
+      <Br />
+      <div class="button join-button">Buy entry</div>
+    </div>
+    <div class="thank-you-block">
+      Thank you for being a part of the raffle.
+      <div class="button reload-button">Reload page</div>
+    </div>
+
+  </div>
+</div>

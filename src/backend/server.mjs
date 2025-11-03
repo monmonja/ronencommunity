@@ -36,6 +36,7 @@ import {initGameProfilesRoutes} from "./routes/game-profiles.mjs";
 import {initWalletRoutes} from "./routes/wallet-route.mjs";
 import {initGameRoomsRoutes} from "./routes/game-rooms-route.mjs";
 import { initAdminRoutes } from "./routes/admin-route.mjs";
+import {initTournamentEntryRoutes} from "./routes/tournament-entry-route.mjs";
 
 const port = config.port;
 // Fix __dirname in ES Modules
@@ -78,6 +79,7 @@ initGameProfilesRoutes(app);
 initWalletRoutes(app);
 initGameRoomsRoutes(app, server);
 initAdminRoutes(app, server);
+initTournamentEntryRoutes(app, server);
 
 app.get(
   "/",

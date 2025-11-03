@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raffle - Ronen Community</title>
+  <link rel="stylesheet" href="/css/raffle-<%= config.distVersion %>.css">
+  <%- include('../partials/analytics.html') %>
+</head>
+<body>
+<%- include('../partials/top-menu.html') %>
+<%- include('../partials/ads-top-banner.html') %>
+<div class="page-content">
+  <%- include('../partials/tournament-entry-card.html') %>
+  <% if (tournamentEntry) { %>
+    <section>
+      <h2 class="header-title">
+        Entries for <%= tournamentEntry.id %>
+      </h2>
+      <% if (entries.length > 0) { %>
+        <table>
+          <tr>
+            <th>Username</th>
+            <th>Address</th>
+            <th>Date</th>
+            <th>TX</th>
+          </tr>
+          <% for (i in entries) { %>
+            <tr>
+
+              <td>
+                  <%= entries[i].discord %>
+              </td>
+              <td>
+                <a href="https://app.roninchain.com/address/<%= entries[i].from %>"  target="_blank" rel="nofollow">
+                  <%= entries[i].from?.slice(0, 4) + '••' + entries[i].from?.slice(-4) %>
+                </a>
+              </td>
+              <td>
+                <div>
+                  <%
+                  const date = new Date(entries[i].timestamp);
+                  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                  const formatted = `${months[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2,"0")} ${String(date.getUTCHours()).padStart(2,"0")}:${String(date.getUTCMinutes()).padStart(2,"0")}:${String(date.getUTCSeconds()).padStart(2,"0")}`;
+                  %>
+                  <%= formatted %>
+
+                </div>
+              </td>
+              <td>
+                <a href="https://app.roninchain.com/tx/<%= entries[i].txHash %>" target="_blank" rel="nofollow">
+                  <%= entries[i].txHash.slice(0, 6) %>
+                </a>
+              </td>
+            </tr>
+          <% } %>
+        </table>
+      <% } else { %>
+        <div class="no-entry">No entry yet.</div>
+      <% } %>
+    </section>
+  <% } else { %>
+    <section>
+      <div class="no-entry">No active raffle.</div>
+    </section>
+  <% } %>
+
+</div>
+<%- include('../partials/footer.html') %>
+<%- include('../partials/overlay-disconnect.html') %>
+<%- include('../partials/overlay-tournament-entry.html') %>
+<%- include('../partials/overlay-login.html') %>
+<script src="/js/tournament-entry-<%= config.distVersion %>.js"></script>
+</body>
+</html>
