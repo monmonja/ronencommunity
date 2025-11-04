@@ -2,7 +2,12 @@ import crypto from "crypto";
 import {body, param, validationResult} from "express-validator";
 import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
-import {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import {
+  adminAccessMiddleware,
+  cookieCheckMiddleware,
+  requireWalletSession,
+  validateCsrfMiddleware
+} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import { getUtcNow } from "../utils/date-utils.mjs";
 import { raffleEndingIn, raffleEndsInDHM } from "../utils/raffle-utils.mjs";
@@ -11,6 +16,7 @@ import {
 } from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
 import Raffles from "../models/raffles.mjs";
+import evmModule from "../../common/evm-config.mjs";
 
 export function initRafflesRoutes(app) {
   app.get(
@@ -117,6 +123,7 @@ export function initRafflesRoutes(app) {
       .withMessage("Invalid nonce"),
     cookieCheckMiddleware,
     validateCsrfMiddleware,
+    requireWalletSession,
     rateLimiterMiddleware,
     async (req, res) => {
       // Handle validation errors
@@ -156,10 +163,8 @@ export function initRafflesRoutes(app) {
       }
 
       try {
-        const provider = new JsonRpcProvider(config.web3.rpcUrl, {
-          name: config.web3.chainName,
-          chainId: config.web3.chainId
-        });
+        const chainConfig = evmModule.getEvmConfig(req.session.wallet.network);
+        const provider = new JsonRpcProvider(chainConfig.rpcUrl);
 
         const receipt = await provider.getTransactionReceipt(txHash);
 
@@ -219,7 +224,8 @@ export function initRafflesRoutes(app) {
             amount: formatEther(tx.value),
             to: receipt.to,
             from: receipt.from,
-            status: "verified"
+            status: "verified",
+            network: req.session.wallet.network
           });
 
           delete req.session.raffleNonce;

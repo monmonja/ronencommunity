@@ -3,11 +3,10 @@ import {getUtcNow} from "../utils/date-utils.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {getConnection} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
-
-const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
+import evmModule from "../../common/evm-config.mjs";
 
 export default class NftModel {
-  static async addRecord({ nftTokenId, nftId, data, address } = {}) {
+  static async addRecord({ nftTokenId, nftId, data, address, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     await mongoDbConnection.db().collection(config.mongo.table.nfts).updateOne(
@@ -16,6 +15,7 @@ export default class NftModel {
         $setOnInsert: {
           address,
           data,
+          network,
           createdAt: getUtcNow()
         }
       },
@@ -23,12 +23,12 @@ export default class NftModel {
     );
   }
 
-  static async findById({ nftTokenId, nftId, address } = {}) {
+  static async findById({ nftTokenId, nftId, address, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     const findQuery = {
       nftTokenId,
-      network: "ronin",
+      network,
       nftId
     };
 
@@ -46,125 +46,127 @@ export default class NftModel {
     return null;
   }
 
-  /**
-   * Query all NFTs a wallet owns from a specific contract.
-   *
-   * @param contractAddress NFT contract address
-   * @param contractABI ABI array for the contract
-   * @param address Wallet address to query
-   * @returns Array of { tokenId, uri }
-   */
-  static async getUserNFTs(nftTokenId, contractAddress, contractABI, address) {
-    try {
-      const provider = new ethers.JsonRpcProvider(RONIN_RPC_URL);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
-      const tokens = [];
 
-      if (contract.tokenOfOwnerByIndex) {
-        const balance = await contract.balanceOf(address);
-        const indices = Array.from({length: Number(balance)}, (_, i) => i);
+  static async getNftTokens({ nftTokenId, network, address } = {}) {
+    const contractABI = [
+      "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+      "function balanceOf(address owner) view returns (uint256)",
+      "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+      "function tokenURI(uint256 tokenId) view returns (string)",
+      "function ownerOf(uint256 tokenId) view returns (address)",
+      "function supportsInterface(bytes4 interfaceID) view returns (bool)"
+    ];
 
-        // helper to process in chunks
-        async function processInBatches(items, batchSize, handler) {
-          for (let i = 0; i < items.length; i += batchSize) {
-            const batch = items.slice(i, i + batchSize);
+    const ERC721Enumerable = "0x780e9d63";
+    const chainConfig = evmModule.getEvmConfig(network);
+    const contractAddress = nftTokenId === 'baxies' ? chainConfig.baxieContract : '';
+    const provider = new ethers.JsonRpcProvider(chainConfig.rpcUrl);
+    const contract = new ethers.Contract(contractAddress, contractABI, provider);
+    let tokens = [];
 
-            await Promise.all(batch.map(handler)); // wait for all in batch
-          }
+    const supportsEnumerable = await contract.supportsInterface(ERC721Enumerable).catch(() => false);
+
+    if (supportsEnumerable) {
+      const balance = await contract.balanceOf(address);
+
+      const indices = [0]//Array.from({length: Number(balance)}, (_, i) => i);
+
+      // helper to process in chunks
+      async function processInBatches(items, batchSize, handler) {
+        for (let i = 0; i < items.length; i += batchSize) {
+          const batch = items.slice(i, i + batchSize);
+
+          await Promise.all(batch.map(handler)); // wait for all in batch
         }
-
-        await processInBatches(indices, 2, async (i) => {
-          try {
-            const tokenId = await contract.tokenOfOwnerByIndex(address, i);
-            const uri = await contract.tokenURI(tokenId);
-
-            tokens.push({tokenId: tokenId.toString(), uri});
-          } catch (e) {
-            logError({
-              message: "Error on Wallet.getUserNFTs",
-              auditData: e
-            });
-          }
-        });
-
-        const mongoDbConnection = await getConnection();
-
-        await mongoDbConnection.db().collection(config.mongo.table.wallets)
-          .updateOne(
-            {address: address.toLowerCase().trim()}, // match criteria
-            {
-              $set: {
-                nfts: {
-                  tokenId: nftTokenId,
-                  items: tokens,
-                  updatedAt: new Date(),
-                }
-              },
-            },
-            {upsert: true}
-          );
-
-        return tokens;
       }
-    } catch (e) {
-      logError({
-        message: "Error on Wallet.getUserNFTs",
-        auditData: e
+
+      await processInBatches(indices, 1, async (i) => {
+        try {
+          const tokenId = await contract.tokenOfOwnerByIndex(address, i);
+          const uri = await contract.tokenURI(tokenId);
+
+          tokens.push({tokenId: tokenId.toString(), uri});
+        } catch (e) {
+          logError({
+            message: "Error on Wallet.getUserNFTs",
+            auditData: e
+          });
+        }
       });
-      return [];
+    } else {
+      // Scan all Transfer events to this owner
+      const filter = contract.filters.Transfer(null, address);
+      const events = await contract.queryFilter(filter, 0, "latest");
+
+      // Extract token IDs
+      const tokenIds = events
+        .map(e => e.args?.tokenId?.toString())
+        .filter(Boolean);
+
+      // Optionally fetch tokenURI
+        tokens = await Promise.all(
+          tokenIds.map(async (id) => {
+            try {
+              const uri = await contract.tokenURI(id);
+              return { tokenId: id, tokenURI: uri };
+            } catch {
+              return { tokenId: id, tokenURI: null };
+            }
+          })
+        );
     }
+
+    return tokens;
   }
 
-  static async hasNftSyncToday(nftTokenId, address) {
-    const mongoDbConnection = await getConnection();
-
-    // Get the start of today (midnight)
-    const startOfDay = new Date();
-
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const wallet = await mongoDbConnection
-      .db()
-      .collection(config.mongo.table.wallets)
-      .findOne({
-        address,
-        "nfts.tokenId": nftTokenId,
-        "nfts.updatedAt": { $gte: startOfDay }
-      });
-
-    return wallet !== null;
-  }
-
-  static async getNftItems(nftTokenId) {
+  static async getNftItems({ nftTokenId, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     const nftsArray = await mongoDbConnection
       .db()
       .collection(config.mongo.table.nfts)
       .find(
-        { nftTokenId },
+        { nftTokenId, network },
       )
       .toArray();
 
-    const nfts = nftsArray.reduce((acc, nft) => {
+    return nftsArray.reduce((acc, nft) => {
       acc[nft.nftId] = nft;
       return acc;
     }, {});
-
-    return nfts;
   }
 
-  static async getNFTMetadata({ nftTokenId, tokenURI, nftId, address } = {}) {
-    let url = tokenURI;
+  static async getMetadataUrl({ nftTokenId = 'baxies' } = {}) {
+    const abi = [
+      "function tokenURI(uint256 tokenId) view returns (string)",
+      "function ownerOf(uint256 tokenId) view returns (address)"
+    ];
+
+    const chainConfig = evmModule.getEvmConfig('abstract');
+    const contractAddress = nftTokenId === 'baxies' ? chainConfig.baxieContract : '';
+    const provider = new ethers.JsonRpcProvider(chainConfig.rpcUrl);
+
+    const contract = new ethers.Contract(contractAddress, abi, provider);
+    const tokenId = 1211; // example
+    const uri = await contract.tokenURI(tokenId);
 
     // eslint-disable-next-line no-console
-    console.log("get new info for", nftTokenId, nftId, tokenURI, address);
+    console.log("Token URI:", uri);
+  }
 
-    if (url.startsWith("ipfs://")) {
-      url = `https://ipfs.io/ipfs/${url.replace("ipfs://", "")}`;
+  static async getNFTMetadata({ nftTokenId, nftId, address, network } = {}) {
+    const chainConfig = evmModule.getEvmConfig(network);
+    let tokenURI = nftTokenId === 'baxies' ? `${chainConfig.tokenMetadataBaseUrl}${nftId}` : '';
+
+
+    // eslint-disable-next-line no-console
+    console.log("get new info for", nftId, network);
+
+    if (tokenURI.startsWith("ipfs://")) {
+      tokenURI = `https://ipfs.io/ipfs/${tokenURI.replace("ipfs://", "")}`;
     }
 
-    const res = await fetch(url);
+    const res = await fetch(tokenURI);
 
     if (!res.ok) {
       throw new Error(`Failed to fetch metadata: ${res.status}`);
@@ -172,7 +174,7 @@ export default class NftModel {
 
     const data = await res.json();
 
-    await NftModel.addRecord({ nftTokenId, nftId, data, address });
+    await NftModel.addRecord({ nftTokenId, nftId, data, address, network });
 
     return { nftTokenId, nftId, data, address };
   }

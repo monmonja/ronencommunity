@@ -9,17 +9,21 @@ import WalletsModel from "../models/wallets-model.mjs";
 
 export function initAuthRoutes(app) {
   app.get(
-    "/auth/login/:address",
+    "/auth/login/:address/:network",
     adminAccessMiddleware,
     noCacheMiddleware,
     param("address")
       .trim()
       .isEthereumAddress()
       .withMessage("Invalid Ethereum address"),
+    param("network")
+      .trim()
+      .matches(/^[a-z\-]+$/).withMessage("Invalid network"),
     async (req, res) => {
-      const { address } = req.params;
+      const { address, network } = req.params;
       req.session.wallet = {
         address: address,
+        network: network,
       };
       res.cookie("has-user", "true", {
         maxAge: 3 * 60 * 60 * 1000, // 3 hrs
@@ -32,7 +36,7 @@ export function initAuthRoutes(app) {
     });
 
   app.post(
-    "/login",
+    "/auth/login",
     body("address")
       .trim()
       .isEthereumAddress().withMessage("Invalid Ethereum address"), // validator.js
@@ -42,6 +46,9 @@ export function initAuthRoutes(app) {
     body("signature")
       .trim()
       .matches(/^0x[0-9a-fA-F]+$/).withMessage("Invalid signature format"),
+    body("network")
+      .trim()
+      .matches(/^[a-z\-]+$/).withMessage("Invalid network"),
     validateCsrfMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
@@ -52,7 +59,7 @@ export function initAuthRoutes(app) {
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      let { address, message, signature } = req.body;
+      let { address, message, signature, network } = req.body;
 
       try {
         // Verify nonce
@@ -84,11 +91,13 @@ export function initAuthRoutes(app) {
             // Save wallet
             await WalletsModel.addRecord({
               address,
+              network,
             });
 
             // save to session
             req.session.wallet = {
               address: address.toLowerCase(),
+              network: network.toLowerCase(),
             };
 
             res.cookie("has-user", "true", {
@@ -132,7 +141,7 @@ export function initAuthRoutes(app) {
     });
 
   app.get(
-    "/nonce/:address",
+    "/auth/nonce/:address",
     rateLimiterMiddleware,
     noCacheMiddleware,
     param("address")

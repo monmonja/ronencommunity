@@ -1,6 +1,6 @@
 import {initOverlayDisconnect} from "./overlay-disconnect";
 import { initOverlayLogin } from "./overlay-login";
-import {loginWithRoninWallet} from "./ronin-login";
+import {loginWithEvmWallet} from "./evm-login";
 
 interface RoninWindow extends Window {
   // eslint-disable-next-line
@@ -15,7 +15,7 @@ function listenToWalletChange() {
   if (provider) {
     provider.on("accountsChanged", async (accounts: string[]) => {
       if (accounts.length > 0) {
-        await loginWithRoninWallet();
+        await loginWithEvmWallet();
       }
     });
   }

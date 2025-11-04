@@ -4,20 +4,19 @@ import config from "../config/default.json" with { type: "json" };
 import {getConnection} from "../components/db.mjs";
 import {logError} from "../components/logger.mjs";
 
-const RONIN_RPC_URL = "https://api.roninchain.com/rpc";
-
 export default class WalletsModel {
   constructor(address) {
     this.address = address;
   }
 
-  static async addRecord({ address } = {}) {
+  static async addRecord({ address, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
       { address: address.toLowerCase(), network: "ronin" }, // match criteria
       {
         $setOnInsert: {
+          network,
           createdAt: getUtcNow()
         }
       },
@@ -34,64 +33,31 @@ export default class WalletsModel {
 
   /**
    * Query all NFTs a wallet owns from a specific contract.
-   *
-   * @param contractAddress NFT contract address
-   * @param contractABI ABI array for the contract
-   * @param address Wallet address to query
+   * @param {string} nftTokenId - The NFT contract address.
+   * @param {Array} tokens - Array of { tokenId, uri }.
+   * @param {string} address - User wallet address.
    * @returns Array of { tokenId, uri }
    */
-  static async getUserNFTs(nftTokenId, contractAddress, contractABI, address) {
+  static async getUserNFTs(nftTokenId, tokens, address) {
     try {
-      const provider = new ethers.JsonRpcProvider(RONIN_RPC_URL);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
-      const tokens = [];
+      const mongoDbConnection = await getConnection();
 
-      if (contract.tokenOfOwnerByIndex) {
-        const balance = await contract.balanceOf(address);
-        const indices = Array.from({length: Number(balance)}, (_, i) => i);
-
-        // helper to process in chunks
-        async function processInBatches(items, batchSize, handler) {
-          for (let i = 0; i < items.length; i += batchSize) {
-            const batch = items.slice(i, i + batchSize);
-
-            await Promise.all(batch.map(handler)); // wait for all in batch
-          }
-        }
-
-        await processInBatches(indices, 2, async (i) => {
-          try {
-            const tokenId = await contract.tokenOfOwnerByIndex(address, i);
-            const uri = await contract.tokenURI(tokenId);
-
-            tokens.push({tokenId: tokenId.toString(), uri});
-          } catch (e) {
-            logError({
-              message: "Error on Wallet.getUserNFTs",
-              auditData: e
-            });
-          }
-        });
-console.log(tokens)
-        const mongoDbConnection = await getConnection();
-
-        await mongoDbConnection.db().collection(config.mongo.table.wallets)
-          .updateOne(
-            {address: address.toLowerCase().trim()}, // match criteria
-            {
-              $set: {
-                nfts: {
-                  tokenId: nftTokenId,
-                  items: tokens,
-                  updatedAt: new Date(),
-                }
-              },
+      await mongoDbConnection.db().collection(config.mongo.table.wallets)
+        .updateOne(
+          {address: address.toLowerCase().trim()}, // match criteria
+          {
+            $set: {
+              nfts: {
+                tokenId: nftTokenId,
+                items: tokens,
+                updatedAt: new Date(),
+              }
             },
-            {upsert: true}
-          );
+          },
+          {upsert: true}
+        );
 
-        return tokens;
-      }
+      return tokens;
     } catch (e) {
       logError({
         message: "Error on Wallet.getUserNFTs",

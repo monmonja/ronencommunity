@@ -1,22 +1,31 @@
-import {loginWithRoninWallet} from "./ronin-login";
+import {loginWithEvmWallet} from "./evm-login";
 
 export function initOverlayLogin(): void {
   const overlay = document.getElementById("overlay-login");
 
   if (overlay) {
     const overlayBody = overlay.querySelector(".overlay-body")!;
-    const loginBtn = overlay.querySelector(".button");
+    const roninLoginBtn = overlay.querySelector(".ronin-button");
+    const abstractLoginBtn = overlay.querySelector(".abstract-button");
 
     overlay.addEventListener("click", (e) => {
       e.stopPropagation();
       overlay.classList.remove("show");
     });
 
-    if (loginBtn) {
-      loginBtn.addEventListener("click", async () => {
-        loginBtn.classList.add("add-pulse");
-        loginBtn.innerHTML = "Logging in...";
-        await loginWithRoninWallet();
+    if (roninLoginBtn) {
+      roninLoginBtn.addEventListener("click", async () => {
+        roninLoginBtn.classList.add("add-pulse");
+        roninLoginBtn.innerHTML = "Logging in...";
+        await loginWithEvmWallet();
+      });
+    }
+
+    if (abstractLoginBtn) {
+      abstractLoginBtn.addEventListener("click", async () => {
+        abstractLoginBtn.classList.add("add-pulse");
+        abstractLoginBtn.innerHTML = "Logging in...";
+        await loginWithEvmWallet('abstract');
       });
     }
 

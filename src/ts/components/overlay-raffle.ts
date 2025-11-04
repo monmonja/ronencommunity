@@ -1,5 +1,5 @@
 import { sendToken } from "./ronin-send";
-import {detectNetwork} from "./ronin-detect-network";
+import {detectNetwork} from "./evm-detect-network";
 import {getCookie} from "./cookies";
 
 export function initOverlayRaffle (): void {

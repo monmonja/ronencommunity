@@ -17,7 +17,7 @@ export default class Raffles {
 
     return null;
   }
-  static async addRecord({ amount, txHash, to, from, status } = {}) {
+  static async addRecord({ amount, txHash, to, from, status, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     const now = getUtcNow();
@@ -29,7 +29,7 @@ export default class Raffles {
         {
           $setOnInsert: {
             raffleId: raffle.id,
-            network: config.web3.chainName,
+            network,
             amount: parseFloat(amount),
             token: "RON",
             from: from.toLowerCase(),

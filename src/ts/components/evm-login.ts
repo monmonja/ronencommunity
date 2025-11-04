@@ -1,5 +1,6 @@
-import {detectNetwork} from "./ronin-detect-network";
+import {detectNetwork} from "./evm-detect-network";
 import {getCookie} from "./cookies";
+import {getProvider} from "./utils";
 
 interface RoninWindow extends Window {
   // eslint-disable-next-line
@@ -8,15 +9,15 @@ interface RoninWindow extends Window {
 }
 declare const window: RoninWindow;
 
-export async function loginWithRoninWallet() {
-  const provider = window.ronin?.provider || window.ethereum;
+export async function loginWithEvmWallet(network:string = 'ronin') {
+  let provider = await getProvider(network);
 
   if (!provider) {
-    alert("Ronin Wallet or compatible Ethereum wallet not found.");
+    alert(`${network} wallet or compatible Ethereum wallet not found.`);
     return;
   }
 
-  if (!await detectNetwork()) {
+  if (!await detectNetwork(network)) {
     return;
   }
 
@@ -31,7 +32,7 @@ export async function loginWithRoninWallet() {
 
     const address = accounts[0];
 
-    const nonceResponse = await fetch(`/nonce/${address}`, { credentials: "include" });
+    const nonceResponse = await fetch(`/auth/nonce/${address}`, { credentials: "include" });
     const { nonce } = await nonceResponse.json();
 
     const timestamp = Math.floor(Date.now() / 1000);
@@ -42,14 +43,14 @@ export async function loginWithRoninWallet() {
       params: [message, address],
     });
 
-    const res = await fetch("/login", {
+    const res = await fetch("/auth/login", {
       method: "POST",
       // @ts-expect-error Custom header
       headers: {
         "Content-Type": "application/json",
         "X-CSRF-TOKEN": getCookie("XSRF-TOKEN"),
       },
-      body: JSON.stringify({ address, signature, message }),
+      body: JSON.stringify({ address, signature, message, network }),
     });
 
     const result = await res.json();

@@ -2,10 +2,16 @@ import crypto from "crypto";
 import {body, param, validationResult} from "express-validator";
 import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
-import noCacheMiddleware, {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {
+  adminAccessMiddleware,
+  cookieCheckMiddleware,
+  requireWalletSession,
+  validateCsrfMiddleware
+} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {logError} from "../components/logger.mjs";
 import TournamentEntryModel from "../models/tournament-entry-model.mjs";
+import evmModule from "../../common/evm-config.mjs";
 
 const FirstTournament = {
   id: 1,
@@ -69,12 +75,13 @@ export function initTournamentEntryRoutes(app) {
       .trim()
       .matches(/^(?:(?!.*[_.]{2})[a-z0-9](?:[a-z0-9._]{0,30}[a-z0-9])?|.{2,32}#[0-9]{4})$/)
       .withMessage("Invalid Discord username"),
-  body("nonce")
+    body("nonce")
       .trim()
       .matches(/^[a-f0-9]{32}$/) // match 16 bytes hex string
       .withMessage("Invalid nonce"),
     cookieCheckMiddleware,
     validateCsrfMiddleware,
+    requireWalletSession,
     rateLimiterMiddleware,
     async (req, res) => {
       // Handle validation errors
@@ -115,10 +122,8 @@ export function initTournamentEntryRoutes(app) {
       }
 
       try {
-        const provider = new JsonRpcProvider(config.web3.rpcUrl, {
-          name: config.web3.chainName,
-          chainId: config.web3.chainId
-        });
+        const chainConfig = evmModule.getEvmConfig(req.session.wallet.network);
+        const provider = new JsonRpcProvider(chainConfig.rpcUrl);
 
         const receipt = await provider.getTransactionReceipt(txHash);
 
@@ -181,6 +186,7 @@ export function initTournamentEntryRoutes(app) {
             status: "verified",
             discord,
             tournamentId: FirstTournament.id,
+            network: req.session.wallet.network,
           });
 
           delete req.session.tournamentNonce;

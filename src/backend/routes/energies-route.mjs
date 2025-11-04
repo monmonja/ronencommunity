@@ -10,6 +10,7 @@ import {Contract, formatEther, Interface, JsonRpcProvider, parseUnits} from "eth
 import {handleValidation} from "../utils/validations.mjs";
 import PurchasedEnergies from "../models/purchased-energies.mjs";
 import Admin from "../models/admin.mjs";
+import evmModule from "../../common/evm-config.mjs";
 
 export function initEnergyRoutes(app) {
   app.get(
@@ -160,10 +161,8 @@ export function initEnergyRoutes(app) {
       }
 
       try {
-        const provider = new JsonRpcProvider(config.web3.rpcUrl, {
-          name: config.web3.chainName,
-          chainId: config.web3.chainId
-        });
+        const chainConfig = evmModule.getEvmConfig(req.session.wallet.network);
+        const provider = new JsonRpcProvider(chainConfig.rpcUrl);
 
         const receipt = await provider.getTransactionReceipt(txHash);
 

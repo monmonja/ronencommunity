@@ -30,7 +30,7 @@ export default class TournamentEntryModel {
   }
 
 
-  static async addRecord({ amount, txHash, to, from, status, tournamentId, discord } = {}) {
+  static async addRecord({ amount, txHash, to, from, status, tournamentId, discord, network } = {}) {
     const mongoDbConnection = await getConnection();
 
     const now = getUtcNow();
@@ -41,7 +41,7 @@ export default class TournamentEntryModel {
         {
           $setOnInsert: {
             tournamentId,
-            network: config.web3.chainName,
+            network,
             amount: parseFloat(amount),
             token: "RON",
             from: from.toLowerCase(),

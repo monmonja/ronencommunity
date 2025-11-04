@@ -18,17 +18,21 @@ export function initWalletRoutes(app) {
     noCacheMiddleware,
     async (req, res) => {
       const nftTokenId = "baxies";
+      const address = req.session.wallet.address.toLowerCase();
+      const network = req.session.wallet.network;
+
       let nftItem = await NftModel.findById({
         nftTokenId,
         nftId: req.params.tokenId,
-        address: req.session.wallet.address.toLowerCase(),
+        address,
+        network,
       });
 
       if (!nftItem) {
         nftItem = await NftModel.getNFTMetadata({
           address: req.session.wallet.address.toLowerCase(),
           nftTokenId,
-          tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${req.params.tokenId}`,
+          network,
           nftId: req.params.tokenId,
         });
       }
@@ -52,25 +56,24 @@ export function initWalletRoutes(app) {
     cookieCheckMiddleware,
     async (req, res) => {
       try {
-        const nftTokeId = "baxies";
+        const nftTokenId = "baxies";
         /// get from query string
-        const userWallet = req.session.wallet.address;
+        const address = req.session.wallet.address.toLowerCase();
+        const network = req.session.wallet.network;
 
-        let walletNft = await WalletsModel.getNftItems(nftTokeId, userWallet);
+        let walletNft = await WalletsModel.getNftItems(nftTokenId, address);
 
         if (req.params.sync === "true" || walletNft.length === 0) {
-          const contractAddress = "0xb79f49ac669108426a69a26a6ca075a10c0cfe28";
-          const abi = [
-            "function balanceOf(address owner) view returns (uint256)",
-            "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-            "function tokenURI(uint256 tokenId) view returns (string)",
-            "function ownerOf(uint256 tokenId) view returns (address)"
-          ];
+          const tokens = await NftModel.getNftTokens({
+            nftTokenId,
+            network,
+            address,
+          });
 
-          walletNft = await WalletsModel.getUserNFTs("baxies", contractAddress, abi, userWallet);
+          walletNft = await WalletsModel.getUserNFTs("baxies", tokens, address);
         }
 
-        const nfts = await NftModel.getNftItems(nftTokeId, userWallet);
+        const nfts = await NftModel.getNftItems({ nftTokenId, network });
 
         walletNft = walletNft.filter((item) => {
           if (nfts[item.tokenId]) {
