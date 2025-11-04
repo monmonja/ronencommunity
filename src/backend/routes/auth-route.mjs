@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { verifyMessage } from "ethers";
 import { body, param, validationResult } from "express-validator";
-import {adminAccessMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {adminAccessMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {logError} from "../components/logger.mjs";
@@ -11,6 +11,7 @@ export function initAuthRoutes(app) {
   app.get(
     "/auth/login/:address",
     adminAccessMiddleware,
+    noCacheMiddleware,
     param("address")
       .trim()
       .isEthereumAddress()
@@ -133,6 +134,7 @@ export function initAuthRoutes(app) {
   app.get(
     "/nonce/:address",
     rateLimiterMiddleware,
+    noCacheMiddleware,
     param("address")
       .trim()
       .isEthereumAddress()

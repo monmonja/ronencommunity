@@ -1,5 +1,5 @@
 import {body, param, validationResult} from "express-validator";
-import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Games from "../models/games.mjs";
 import Energies from "../models/energies.mjs";
@@ -18,6 +18,7 @@ export function initEnergyRoutes(app) {
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
     requireWalletSession,
+    noCacheMiddleware,
     cookieCheckMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
@@ -50,6 +51,7 @@ export function initEnergyRoutes(app) {
     param("path")
       .matches(/^[a-z0-9-]+$/)
       .withMessage("Invalid game"),
+    noCacheMiddleware,
     rateLimiterMiddleware,
     cookieCheckMiddleware,
     requireWalletSession,
@@ -92,6 +94,7 @@ export function initEnergyRoutes(app) {
 
   app.get(
     "/energy/nonce",
+    noCacheMiddleware,
     rateLimiterMiddleware,
     (req, res) => {
       if (!req.session.wallet?.address) {
@@ -118,6 +121,7 @@ export function initEnergyRoutes(app) {
     cookieCheckMiddleware,
     validateCsrfMiddleware,
     rateLimiterMiddleware,
+    noCacheMiddleware,
     async (req, res) => {
       // Handle validation errors
       const errors = validationResult(req);

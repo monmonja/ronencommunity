@@ -1,5 +1,5 @@
 import {body, param, validationResult} from "express-validator";
-import {adminAccessMiddleware, mainAdminAccessMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {adminAccessMiddleware, mainAdminAccessMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Admin from "../models/admin.mjs";
 import GameRoomManager from "../games/game-room-manager.mjs";
@@ -10,6 +10,7 @@ export function initAdminRoutes(app) {
   app.get(
     "/admin",
     adminAccessMiddleware,
+    noCacheMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
       res.render("admin/index", {
@@ -21,9 +22,11 @@ export function initAdminRoutes(app) {
         settings: await Admin.getAllRecordsAsObject()
       });
     });
+
   app.get(
     "/admin/access-list",
     adminAccessMiddleware,
+    noCacheMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
       const settings = await Admin.getAllRecordsAsObject()
@@ -36,6 +39,7 @@ export function initAdminRoutes(app) {
   app.post(
     "/admin/access-list",
     adminAccessMiddleware,
+    noCacheMiddleware,
     rateLimiterMiddleware,
     body("address")
       .trim()
@@ -66,6 +70,7 @@ export function initAdminRoutes(app) {
   app.get(
     "/admin/delete-room/:roomId",
     adminAccessMiddleware,
+    noCacheMiddleware,
     rateLimiterMiddleware,
     param("roomId")
       .matches(/^[a-zA-Z0-9-]+$/)
@@ -88,6 +93,7 @@ export function initAdminRoutes(app) {
 
   app.get(
     "/admin/main",
+    noCacheMiddleware,
     mainAdminAccessMiddleware,
     rateLimiterMiddleware,
     async (req, res) => {
@@ -98,6 +104,7 @@ export function initAdminRoutes(app) {
 
   app.post(
     "/admin/main",
+    noCacheMiddleware,
     mainAdminAccessMiddleware,
     body("energies")
       .trim()

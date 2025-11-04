@@ -1,5 +1,5 @@
 import { param } from "express-validator";
-import {cookieCheckMiddleware, requireWalletSession} from "../components/middlewares.mjs";
+import noCacheMiddleware, {cookieCheckMiddleware, requireWalletSession} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
 import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
@@ -15,6 +15,7 @@ export function initWalletRoutes(app) {
     requireWalletSession,
     cookieCheckMiddleware,
     rateLimiterMiddleware,
+    noCacheMiddleware,
     async (req, res) => {
       const nftTokenId = "baxies";
       let nftItem = await NftModel.findById({
@@ -47,6 +48,7 @@ export function initWalletRoutes(app) {
       .withMessage("Invalid force"),
     rateLimiterMiddleware,
     requireWalletSession,
+    noCacheMiddleware,
     cookieCheckMiddleware,
     async (req, res) => {
       try {

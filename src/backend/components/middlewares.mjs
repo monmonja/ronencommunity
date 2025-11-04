@@ -175,6 +175,19 @@ export function noCacheDevelopment(req, res, next) {
   next();
 }
 
+export default function noCacheMiddleware(req, res, next) {
+  res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  // Cloudflare-specific header (bypass cache)
+  res.setHeader('CF-Cache-Status', 'BYPASS');
+  res.setHeader('Cache-Tag', 'nocache');
+
+  next();
+}
+
+
 export function disableStackTraceMiddleware(err, req, res, next) {
   if (err) {
     console.log(config.web3)

@@ -1,5 +1,5 @@
 import {body, param} from "express-validator";
-import {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {cookieCheckMiddleware, requireWalletSession, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Games from "../models/games.mjs";
 import {handleValidation} from "../utils/validations.mjs";
@@ -14,6 +14,7 @@ export function initGameProfilesRoutes(app) {
     requireWalletSession,
     cookieCheckMiddleware,
     rateLimiterMiddleware,
+    noCacheMiddleware,
     async (req, res) => {
       if (!handleValidation(req, res)) {
         return;
@@ -38,6 +39,7 @@ export function initGameProfilesRoutes(app) {
     cookieCheckMiddleware,
     validateCsrfMiddleware,
     rateLimiterMiddleware,
+    noCacheMiddleware,
     [
       body("gameId")
         .matches(/^[a-z0-9-]+$/).withMessage("gameId must be a string")

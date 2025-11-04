@@ -2,7 +2,7 @@ import crypto from "crypto";
 import {body, param, validationResult} from "express-validator";
 import { JsonRpcProvider, formatEther } from "ethers";
 import config from "../config/default.json" with { type: "json" };
-import {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
+import noCacheMiddleware, {adminAccessMiddleware, cookieCheckMiddleware, validateCsrfMiddleware} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import {logError} from "../components/logger.mjs";
 import TournamentEntryModel from "../models/tournament-entry-model.mjs";
@@ -45,6 +45,7 @@ export function initTournamentEntryRoutes(app) {
 
   app.get(
     "/tournament-entry/nonce",
+    noCacheMiddleware,
     rateLimiterMiddleware,
     (req, res) => {
       if (!req.session.wallet?.address) {

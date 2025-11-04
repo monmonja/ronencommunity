@@ -1,4 +1,4 @@
-import {requireWalletSession} from "../components/middlewares.mjs";
+import noCacheMiddleware, {requireWalletSession} from "../components/middlewares.mjs";
 import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import Purchases from "../models/purchases.mjs";
 import Consumes from "../models/consumes.mjs";
@@ -8,6 +8,7 @@ export function initProfileRoutes(app) {
   app.get(
     "/profile",
     rateLimiterMiddleware,
+    noCacheMiddleware,
     requireWalletSession,
     async (req, res) => {
       const address = req.session.wallet.address;
