@@ -24,7 +24,10 @@ export default function (source) {
     const value = flatConfig[key];
     const regex = new RegExp(`{{config.${key}}}`, 'g');
 
-    replacedSource = replacedSource.replace(regex, value);
+    if (regex.test(replacedSource)) {
+      console.log(`Found match for ${key}, replacing with:`, value);
+      replacedSource = replacedSource.replace(regex, value);
+    }
   });
 
   return replacedSource;

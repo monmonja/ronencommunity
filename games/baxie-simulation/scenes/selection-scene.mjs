@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import constants from "../../common/constants.mjs";
-import {HorizontalScrollContainer} from "../../common/ui/horizontal-scroll-container.ts";
+import {HorizontalScrollContainer} from "../../common/ui/horizontal-scroll-container.mjs";
 import {interactiveBoundsChecker} from "../../common/rotate-utils.mjs";
 import {createButton} from "../../common/buttons.mjs";
 

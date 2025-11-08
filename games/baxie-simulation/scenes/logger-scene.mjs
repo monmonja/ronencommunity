@@ -1,4 +1,4 @@
-import {VerticalScrollContainer} from "../../common/ui/vertical-scroll-container.ts";
+import {VerticalScrollContainer} from "../../common/ui/vertical-scroll-container.mjs";
 import constants from "../../common/constants.mjs";
 
 export default class LoggerScene extends Phaser.Scene {

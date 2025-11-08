@@ -35,7 +35,7 @@ export default class EnergiesScene extends Phaser.Scene {
     this.panel.add(header);
   }
 
-  createItem({ x, y, energy, ronen, adjustX = 0, ron, item, selected }) {
+  createItem({ x, y, item, selected, network }) {
     const itemContainer = this.add.container(x, y);
     const radius = 6;
     const bg = this.add.graphics();
@@ -55,26 +55,38 @@ export default class EnergiesScene extends Phaser.Scene {
     });
     itemContainer.add(strip);
 
-    const ronTxt = this.add.text(40,  this.buttonHeight - stripSize + 32, `${ron}\nRON`, {
-      fontSize: "22px",
-      align: "center",
-      fontFamily: constants.fonts.Newsreader,
-      color: "#1f4213",
-      fontStyle: "bold"
-    }).setOrigin(0.5, 0.5);
-    const ronenTxt = this.add.text(130,  this.buttonHeight - stripSize + 32, `${ronen}\nRONEN`, {
-      fontSize: "22px",
-      align: "center",
-      fontFamily: constants.fonts.Newsreader,
-      color: "#1f4213",
-      fontStyle: "bold"
-    }).setOrigin(0.5, 0.5);
+    if (network === 'ronin') {
+      const ronTxt = this.add.text(40, this.buttonHeight - stripSize + 32, `${item.ron}\nRON`, {
+        fontSize: "22px",
+        align: "center",
+        fontFamily: constants.fonts.Newsreader,
+        color: "#1f4213",
+        fontStyle: "bold"
+      }).setOrigin(0.5, 0.5);
+      const ronenTxt = this.add.text(130, this.buttonHeight - stripSize + 32, `${item.ronen}\nRONEN`, {
+        fontSize: "22px",
+        align: "center",
+        fontFamily: constants.fonts.Newsreader,
+        color: "#1f4213",
+        fontStyle: "bold"
+      }).setOrigin(0.5, 0.5);
 
-    itemContainer.add(ronTxt);
-    itemContainer.add(ronenTxt);
+      itemContainer.add(ronTxt);
+      itemContainer.add(ronenTxt);
+    } else {
+      const ethTxt = this.add.text(90, this.buttonHeight - (stripSize / 2) , `${item.eth} ETH`, {
+        fontSize: "24px",
+        align: "center",
+        fontFamily: constants.fonts.Newsreader,
+        color: "#1f4213",
+        fontStyle: "bold"
+      }).setOrigin(0.5, 0.5);
+
+      itemContainer.add(ethTxt);
+    }
 
     const energyContainer = this.add.container((this.buttonWidth / 2), 40);
-    const energyTxt = this.add.text(-15, 0, energy, {
+    const energyTxt = this.add.text(-15, 0, item.energy, {
       fontFamily: constants.fonts.troika,
       fontSize: "40px",
       color: "#FFF"
@@ -84,7 +96,7 @@ export default class EnergiesScene extends Phaser.Scene {
     energyTxt.setDepth(30);
     energyContainer.add(energyTxt);
 
-    const image = this.add.image(42 + ((energy.toString().length - 2) * 10) - 15, -1, "energy-icon")
+    const image = this.add.image(42 + ((item.energy.toString().length - 2) * 10) - 15, -1, "energy-icon")
       .setOrigin(0.5, 0.5);
 
     energyContainer.add(image);
@@ -130,7 +142,7 @@ export default class EnergiesScene extends Phaser.Scene {
     return itemContainer;
   }
 
-  createTokenButton({ x, y, token, label, width, height }) {
+  createTokenButton({ x, y, token, label, width, height, network }) {
     const tokenContainer = this.add.container(x, y);
     const radius = 6;
     const bg = this.add.graphics();
@@ -163,18 +175,21 @@ export default class EnergiesScene extends Phaser.Scene {
       this.input.manager.canvas.style.cursor = "default";
     });
     tokenContainer.on("pointerdown", () => {
-      let amount = this.selectedItem.ronen.toString();
+      let amount = this.selectedItem.ronen?.toString();
 
       if (token === "RON") {
         amount = this.selectedItem.ron.toString();
       }
+      if (token === "ETH") {
+        amount = this.selectedItem.eth.toString();
+      }
 
-      window.purchaseEnergy(amount, token)
+      window.purchaseEnergy(amount, token, network, this.game.customConfig.gameId)
         .then((result) => {
           if (result?.txHash?.length > 0) {
             this.verifyOverlay.visible = true;
             window.verifyEnergyTx(result?.txHash)
-              .then((verifyResult) => {
+              .then(() => {
                 this.verifyTxt.setText("Purchase complete. Thank you for supporting us.");
                 fetchEnergy(this, false)
                   .then(() => {
@@ -272,9 +287,9 @@ export default class EnergiesScene extends Phaser.Scene {
         x: startX + ((i % half) * (this.buttonWidth + 10)),
         y: startY + (Math.floor(i / half) * (this.buttonHeight + 10)),
         item,
-        ...item,
         adjustX: item.energy.toString().length >= 3 ? -12: 0,
         selected: i === 0,
+        network: energy.network,
       }));
     }
 
@@ -288,22 +303,36 @@ export default class EnergiesScene extends Phaser.Scene {
     buyWith.setDepth(30);
     this.panel.add(buyWith);
 
-    this.panel.add(this.createTokenButton({
-      x: startX + 100,
-      y: startY + (this.buttonHeight * 2) + 50,
-      label: "RONEN",
-      token: "RONEN",
-      width: 110,
-      height: 50
-    }))
-    this.panel.add(this.createTokenButton({
-      x: startX + 220,
-      y: startY + (this.buttonHeight * 2) + 50,
-      label: "RON",
-      token: "RON",
-      width: 110,
-      height: 50
-    }))
+    if (energy.network === 'ronin') {
+      this.panel.add(this.createTokenButton({
+        x: startX + 100,
+        y: startY + (this.buttonHeight * 2) + 50,
+        label: "RONEN",
+        token: "RONEN",
+        width: 110,
+        height: 50,
+        network: energy.network,
+      }))
+      this.panel.add(this.createTokenButton({
+        x: startX + 220,
+        y: startY + (this.buttonHeight * 2) + 50,
+        label: "RON",
+        token: "RON",
+        width: 110,
+        height: 50,
+        network: energy.network,
+      }))
+    } else {
+      this.panel.add(this.createTokenButton({
+        x: startX + 100,
+        y: startY + (this.buttonHeight * 2) + 50,
+        label: "ETH",
+        token: "ETH",
+        width: 110,
+        height: 50,
+        network: energy.network,
+      }))
+    }
 
     this.panel.add(createCloseButton({
       scene: this,

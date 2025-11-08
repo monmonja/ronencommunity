@@ -16,14 +16,10 @@ export async function detectNetwork(network: string = 'ronin'): Promise<boolean>
     const evmConfig = evmModule.getEvmConfig(network);
     const chainIdHex = await provider.request({ method: "eth_chainId" });
 
-    if (chainIdHex.toLowerCase() !== evmConfig.chainId.toLowerCase()) {
-      console.log(chainIdHex,{
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: evmConfig.chainId }]
-      })
+    if (parseInt(chainIdHex, 16) !== evmConfig.chainId) {
       await provider.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: evmConfig.chainId }]
+        params: [{ chainId: "0x" + parseInt(evmConfig.chainId, 10).toString(16) }]
       });
 
       return false;

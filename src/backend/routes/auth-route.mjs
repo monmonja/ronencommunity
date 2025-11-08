@@ -6,8 +6,69 @@ import { rateLimiterMiddleware } from "../components/rate-limiter.mjs";
 import config from "../config/default.json" with { type: "json" };
 import {logError} from "../components/logger.mjs";
 import WalletsModel from "../models/wallets-model.mjs";
+import { createPublicClient, http, hashMessage } from 'viem';
+import { abstract } from 'viem/chains';
+import Admin from "../models/admin.mjs";
+
+
+async function verifySmartWalletSignature(walletAddress, message, signature) {
+  const publicClient = createPublicClient({
+    chain: abstract,
+    transport: http('https://api.mainnet.abs.xyz'), // or mainnet
+  });
+
+  const EIP1271_MAGIC_VALUE = '0x1626ba7e';
+
+
+  try {
+    // Hash the message using EIP-191 format
+    const messageHash = hashMessage(message);
+
+    // Call isValidSignature on the smart wallet
+    const result = await publicClient.readContract({
+      address: walletAddress,
+      abi: [{
+        name: 'isValidSignature',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [
+          { name: '_hash', type: 'bytes32' },
+          { name: '_signature', type: 'bytes' }
+        ],
+        outputs: [{ name: 'magicValue', type: 'bytes4' }]
+      }],
+      functionName: 'isValidSignature',
+      args: [messageHash, signature],
+    });
+
+    return result.toLowerCase() === EIP1271_MAGIC_VALUE.toLowerCase();
+  } catch (error) {
+    console.error('Signature verification failed:', error);
+    return false;
+  }
+}
 
 export function initAuthRoutes(app) {
+  app.get("/auth/status",
+    noCacheMiddleware,
+    rateLimiterMiddleware,
+    (req, res) => {
+      if (req.session && req.session.userAddress) {
+        res.json({ loggedIn: true, address: req.session.userAddress });
+      } else {
+        res.json({ loggedIn: false });
+      }
+    });
+
+  app.get("/auth/abstract-login",
+    noCacheMiddleware,
+    rateLimiterMiddleware,
+    (req, res) => {
+      res.render("auth/abstract-login", {
+        selectedNav: ''
+      });
+    });
+
   app.get(
     "/auth/login/:address/:network",
     adminAccessMiddleware,
@@ -71,8 +132,17 @@ export function initAuthRoutes(app) {
           return res.status(401).json({ success: false, message: "Invalid nonce" });
         }
 
-        // Verify signature
-        const recoveredAddress = verifyMessage(message, signature);
+        let recoveredAddress;
+        if (network === 'abstract') {
+          if (await verifySmartWalletSignature(address, message, signature)) {
+            recoveredAddress = address;
+          }
+        } else {
+          // Verify signature
+          recoveredAddress = verifyMessage(message, signature);
+        }
+
+        console.log('recoveredAddress', recoveredAddress)
 
         if (recoveredAddress.toLowerCase() === address.toLowerCase()) {
           // Regenerate session to avoid session fixation

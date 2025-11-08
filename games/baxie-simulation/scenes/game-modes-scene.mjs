@@ -1,7 +1,7 @@
 import {addBgMusic} from "../../common/settings.mjs";
 import {fetchEnergy, useEnergy} from "../../common/energies.mjs";
 import {createProgressBar} from "../../common/progres.mjs";
-import {HorizontalScrollContainer} from "../../common/ui/horizontal-scroll-container.ts";
+import {HorizontalScrollContainer} from "../../common/ui/horizontal-scroll-container.mjs";
 import constants from "../../common/constants.mjs";
 
 export default class GameModesScene extends Phaser.Scene {

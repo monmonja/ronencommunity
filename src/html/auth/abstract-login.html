@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page - Ronen Community</title>
+  <link rel="stylesheet" href="/css/admin-<%= config.distVersion %>.css">
+  <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
+</head>
+<body>
+
+  <%- include('../partials/top-menu.html') %>
+  <div class="page-content">
+    <div id="abstract-login"></div>
+  </div>
+  <%- include('../partials/footer.html') %>
+  <%- include('../partials/overlay-disconnect.html') %>
+  <%- include('../partials/overlay-login.html') %>
+  <script src="/js/app-<%= config.distVersion %>.js"></script>
+  <script src="/js/abstract-login-<%= config.distVersion %>.js"></script>
+</body>
+</html>

@@ -4,16 +4,20 @@ import {getCookie} from "./cookies";
 
 export function initEnergy (): void {
   // @ts-expect-error Will call from game
-  window.purchaseEnergy = async (price:string, token:"RON" | "RONEN") => {
-    if (!await detectNetwork()) {
-      return;
+  window.purchaseEnergy = async (price:string, token:"RON" | "RONEN", network: string, gameId: string) => {
+    if (network === 'abstract') {
+      location.href = `/energy/abstract-purchase/${gameId}/${price}/${token.toLowerCase()}`;
+    } else {
+      if (!await detectNetwork()) {
+        return;
+      }
+
+      return new Promise(async (resolve) => {
+        const result = await sendToken(token, "{{config.web3.purchaseAddress}}", price);
+
+        resolve(result);
+      });
     }
-
-    return new Promise(async (resolve) => {
-      const result = await sendToken(token,"{{config.web3.purchaseAddress}}", price);
-
-      resolve(result);
-    });
   };
 
   // @ts-expect-error Will call from game

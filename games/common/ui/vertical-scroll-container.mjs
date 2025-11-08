@@ -1,19 +1,17 @@
 import Phaser from 'phaser';
 
 export class VerticalScrollContainer extends Phaser.GameObjects.Container {
-  private visibleHeight: number;
-  private widthValue: number;
-  private readonly innerContainer: Phaser.GameObjects.Container;
-  private isDragging: boolean = false;
-  private startOY: number;
-  private innerHeight: number;
-  private items: Array<Phaser.GameObjects.Container>;
-  private dragStartY: number;
-  private dragThreshold: number;
-  private maybeClick: boolean;
-  private currentPointer: Phaser.Input.Pointer | null | undefined;
+  visibleHeight;
+  widthValue;
+  readonly;
+  isDragging = false;
+  startOY;
+  dragStartY;
+  dragThreshold;
+  maybeClick;
+  currentPointer;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
+  constructor(scene, x, y, width, height) {
     super(scene, x, y);
     this.scene = scene;
     this.visibleHeight = height;
@@ -47,7 +45,7 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
     this.items = [];
   }
 
-    private initDraggingEvents(scene:Phaser.Scene, width: number, height: number) {
+    initDraggingEvents(scene, width, height) {
     // Drag variables
     this.isDragging = false;
     this.dragStartY = 0;
@@ -58,7 +56,7 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
       .setInteractive({ useHandCursor: true });
     this.add(dragZone);
 
-    dragZone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+    dragZone.on('pointerdown', (pointer) => {
       this.isDragging = true;
       this.dragStartY = pointer.y;
       this.startOY = this.innerContainer.y;
@@ -67,7 +65,7 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
       this.currentPointer = pointer;
     });
 
-    dragZone.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+    dragZone.on('pointermove', (pointer) => {
       if (!this.currentPointer) {
         return;
       }
@@ -93,15 +91,13 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
       }
     });
 
-    dragZone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+    dragZone.on('pointerup', (pointer) => {
       if (this.maybeClick) {
         // Iterate over children to see if pointer is inside any of them
         for (const child of this.innerContainer.list) {
           // Only consider children that are interactive and visible
           if ('getBounds' in child && child.input && child.input.enabled) {
-            const bounds = (child as Phaser.GameObjects.GameObject & {
-              getBounds(): Phaser.Geom.Rectangle
-            }).getBounds();
+            const bounds = child.getBounds();
 
             if (bounds.contains(pointer.worldX, pointer.worldY)) {
               child.emit('pointerdown', pointer);
@@ -127,7 +123,7 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
     });
   }
 
-  addItem(item: Phaser.GameObjects.Container, spacing: number = 10, x: number|null) {
+  addItem(item, spacing = 10, x) {
     // Position item at the end of innerContainer
     item.y = this.innerHeight;
     item.x = x ?? this.widthValue / 2 - item.width / 2;
@@ -140,7 +136,7 @@ export class VerticalScrollContainer extends Phaser.GameObjects.Container {
     this.innerContainer.height = this.innerHeight;
   }
 
-  prependItem(item: Phaser.GameObjects.Container, spacing: number = 10, x: number | null) {
+  prependItem(item, spacing = 10, x) {
     // Position item at the TOP
     item.y = 0;
     item.x = x ?? this.widthValue / 2 - item.width / 2;

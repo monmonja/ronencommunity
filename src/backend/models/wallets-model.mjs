@@ -12,6 +12,14 @@ export default class WalletsModel {
   static async addRecord({ address, network } = {}) {
     const mongoDbConnection = await getConnection();
 
+    const existing = await mongoDbConnection.db()
+      .collection(config.mongo.table.wallets)
+      .findOne({ address: address.toLowerCase(), network });
+
+    if (existing) {
+      return; // Already exists, do nothing
+    }
+
     await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
       { address: address.toLowerCase(), network: "ronin" }, // match criteria
       {

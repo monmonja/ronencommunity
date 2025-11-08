@@ -220,8 +220,8 @@ export function securityHeadersMiddleware(req, res, next) {
   res.setHeader("Referrer-Policy", "no-referrer");
 
   // Cross-Origin policies
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
 
   // Strict CSP
@@ -229,13 +229,12 @@ export function securityHeadersMiddleware(req, res, next) {
     "Content-Security-Policy",
     "default-src 'self'; " +
     "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com;" +
-    // eslint-disable-next-line quotes
-    `script-src 'self' 'nonce-${res.locals.nonce}' https://*.googletagmanager.com https://cdn.jsdelivr.net ${config.isProd ? '' : "'unsafe-eval'"};` +
+    `script-src 'self' 'nonce-${res.locals.nonce}' https://*.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com ${config.isProd ? '' : "'unsafe-eval'"};` +
     "style-src 'self' 'unsafe-inline'; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.ronencommunity.com; " +
-    "frame-src 'self' https://*.google.com; " +
-    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cdn.ronencommunity.com https://metadata.ronen.network; " +
-    "frame-ancestors 'none'; " +
+    "frame-src 'self' https://*.google.com https://privy.abs.xyz https://auth.privy.io; " +
+    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cdn.ronencommunity.com https://metadata.ronen.network https://privy.abs.xyz https://auth.privy.io https://api.mainnet.abs.xyz; " + // ✅ add mainnet API
+    "frame-ancestors 'self'; " +
     "object-src 'none'"
   );
 

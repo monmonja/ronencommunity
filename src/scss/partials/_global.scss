@@ -26,7 +26,7 @@
 }
 
 body {
-  background: oklch(0.2101 0.0318 264.66);
+  background: oklch(0.178 0.022 263.756);
   font-family: 'Newsreader', serif;
   font-optical-sizing: auto;
   font-weight: 400;
@@ -135,4 +135,77 @@ table {
     border-bottom: 1px solid $border-color;
     padding: 8px 12px;
   }
+
+  h2 {
+    margin-bottom: 0;
+    padding: 0;
+  }
+}
+
+.rounded-table {
+  border: 0;
+
+  td,
+  th {
+    border: 1px solid rgb(204, 204, 204);
+    padding: 16px 24px;
+  }
+
+  th {
+    background: rgba(255,255,255,.05) !important;
+  }
+
+  td,
+  th {
+    &:first-child {
+      border-left: 1px solid rgb(204, 204, 204);
+    }
+
+    &:last-child {
+      border-right: 1px solid rgb(204, 204, 204);
+    }
+  }
+
+  tr {
+    &:first-child {
+      td,
+      th {
+        &:first-child {
+          border-top-left-radius: 12px;
+        }
+
+        &:last-child {
+          border-top-right-radius: 12px;
+        }
+      }
+    }
+
+    &:last-child {
+      td,
+      th {
+        &:first-child {
+          border-bottom-left-radius: 12px;
+        }
+
+        &:last-child {
+          border-bottom-right-radius: 12px;
+        }
+      }
+    }
+  }
+}
+
+.login-btn {
+  background-image:
+    linear-gradient(
+        oklch(0.22 0.07 263.8 / 0.88),
+        oklch(0.18 0.06 263.8 / 0.56)
+    ),
+    linear-gradient(oklch(0 0 0), oklch(0 0 0));
+  color: white;
+
+  display: inline-flex;
+  min-height: 40px;
+  padding: 0 16px;
+  align-items: center;
 }

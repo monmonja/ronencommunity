@@ -132,7 +132,7 @@ export function initAdminRoutes(app) {
         value: baxieAccessList.toLowerCase(),
       });
 
-      res.render("admin/index", {
+      res.render("admin/main", {
         settings: await Admin.getAllRecordsAsObject()
       });
     });

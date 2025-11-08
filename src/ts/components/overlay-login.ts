@@ -1,4 +1,6 @@
 import {loginWithEvmWallet} from "./evm-login";
+import { createStore } from 'mipd'
+
 
 export function initOverlayLogin(): void {
   const overlay = document.getElementById("overlay-login");
@@ -22,11 +24,12 @@ export function initOverlayLogin(): void {
     }
 
     if (abstractLoginBtn) {
-      abstractLoginBtn.addEventListener("click", async () => {
-        abstractLoginBtn.classList.add("add-pulse");
-        abstractLoginBtn.innerHTML = "Logging in...";
-        await loginWithEvmWallet('abstract');
-      });
+      abstractLoginBtn.setAttribute('href', abstractLoginBtn.getAttribute('href') + '?redirect=' + encodeURIComponent(window.location.href));
+      // abstractLoginBtn.addEventListener("click", async () => {
+      //   abstractLoginBtn.classList.add("add-pulse");
+      //   abstractLoginBtn.innerHTML = "Logging in...";
+      //   //await loginWithEvmWallet('abstract');
+      // });
     }
 
     overlayBody?.addEventListener("click", (e) => {

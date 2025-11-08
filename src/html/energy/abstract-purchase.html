@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abstract purchase - Ronen Community</title>
+  <link rel="stylesheet" href="/css/raffle-<%= config.distVersion %>.css">
+  <%- include('../partials/analytics.html') %>
+</head>
+<body>
+<%- include('../partials/top-menu.html') %>
+<%- include('../partials/ads-top-banner.html') %>
+<div class="page-content">
+  <textarea style="display: none" id="energy-config"><%- JSON.stringify(selected[0]) %></textarea>
+  <div id="purchase-energy" ></div>
+
+</div>
+<%- include('../partials/footer.html') %>
+<%- include('../partials/overlay-disconnect.html') %>
+<%- include('../partials/overlay-login.html') %>
+<script src="/js/raffle-<%= config.distVersion %>.js"></script>
+<script src="/js/purchase-energy-<%= config.distVersion %>.js"></script>
+</body>
+</html>

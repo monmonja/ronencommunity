@@ -39,12 +39,56 @@ export function initEnergyRoutes(app) {
       });
 
       const adminSettings = await Admin.getAllRecordsAsObject();
+      const network = req.session.wallet.network ?? 'ronin';
 
-      game.config = JSON.parse(adminSettings.energies);
+      game.config = JSON.parse(adminSettings.energies)[network];
+      game.network = network;
 
       delete game.changeLog;
 
       return res.json(game);
+    });
+
+  app.get(
+    "/energy/abstract-purchase/:path/:price/:token",
+    param("path")
+      .matches(/^[a-z0-9-]+$/)
+      .withMessage("Invalid game"),
+    param("price")
+      .matches(/^[0-9.]+$/)
+      .withMessage("Invalid Price"),
+    param("token")
+      .matches(/^[a-z]+$/)
+      .withMessage("Invalid token"),
+    requireWalletSession,
+    noCacheMiddleware,
+    cookieCheckMiddleware,
+    rateLimiterMiddleware,
+    async (req, res) => {
+      if (!handleValidation(req, res)) {
+        return;
+      }
+
+      const game = Games.getGame(req.params.path);
+
+      if (!game) {
+        return res.status(400).json({ success: false, errors: "No game" });
+      }
+
+      const adminSettings = await Admin.getAllRecordsAsObject();
+      const network = req.session.wallet.network;
+
+      const config = JSON.parse(adminSettings.energies)[network];
+      const selected = config.filter((i) => i[req.params.token.toLowerCase()]?.toString() === req.params.price.toString());
+
+      if (selected.length === 0) {
+        return res.status(400).json({ success: false, errors: "No energy package found" });
+      }
+
+      res.render("energy/abstract-purchase", {
+        selected,
+        selectedNav: 'games'
+      });
     });
 
   app.get(

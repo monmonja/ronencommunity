@@ -281,15 +281,7 @@ function baxieAutoBattlerTurn(ws, data, selectedBaxie) {
   }
 
   const playerWithSelectedBaxie = currentRoom.players.filter((p) => p.baxieIds.map((b => b.tokenId)).includes(selectedBaxie.tokenId))[0];
-  const highestSkill = selectedBaxie.skills.reduce((max, skill) =>
-    skill.cost > max.cost ? skill : max
-  );
-  let selectedSkill;
-  if (playerWithSelectedBaxie.currentSP >= highestSkill.cost) {
-    selectedSkill = highestSkill;
-  } else {
-    selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
-  }
+  let selectedSkill = selectedBaxie.skills[Math.floor(Math.random() * selectedBaxie.skills.length)].func;
 
   const nextBaxie = (timeout = turnTimeout) => {
     if (currentRoom.gameOver) {
