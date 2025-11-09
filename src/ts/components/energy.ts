@@ -21,7 +21,7 @@ export function initEnergy (): void {
   };
 
   // @ts-expect-error Will call from game
-  window.verifyEnergyTx = async (txHash:string) => {
+  window.verifyEnergyTx = async (txHash:string, network:string = 'ronin') => {
     if (!await detectNetwork()) {
       return;
     }
@@ -30,7 +30,7 @@ export function initEnergy (): void {
       const { nonce } = await fetch("/energy/nonce", { credentials: "include" }).then(r => r.json());
 
       const buyEnergyPost = async function () {
-        const response = await fetch("/energy/buy", {
+        const response = await fetch(`/energy/buy/${network}`, {
           method: "POST",
           // @ts-expect-error Custom header
           headers: {

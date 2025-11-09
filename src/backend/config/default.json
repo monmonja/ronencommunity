@@ -7,6 +7,11 @@
   "session": {
     "secret": "localhost"
   },
+  "sendGrid": {
+    "apiKey": "",
+    "to": "",
+    "from": ""
+  },
   "mongo" : {
     "connectionString": "mongodb://localhost:27017/ronen_community_main_prod",
     "table": {
@@ -28,12 +33,14 @@
     "raffleAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
     "tournamentAddress": "0x0c81959a3EEa0881935fd1A311559Fda83AE0BF0",
     "purchaseAddress": "0x42e119e6911b0C293cef4Ce237F7dDe6364A73fD",
+    "purchaseAbstractAddress": "0x8D1F5F48955aA23D3A376E7e26eD60F8745a3220",
     "defaultAmount": 1,
     "mainAdminWallet": "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
     "otherAdminWallets": [
       "0xCE5ECbcbb1f1a3A58836b81133FFA356204F8C21",
       "0x8DE86536cbD3923B5D24d907580d098A93a1C7c3",
-      "0x8d1f5f48955aa23d3a376e7e26ed60f8745a3220"
+      "0x8d1f5f48955aa23d3a376e7e26ed60f8745a3220",
+      "0x9E7F6A67A49B9bBC90B9C80aD6Be5d1c3f971Ae4"
     ],
     "rollbar": "6339738d5a7348f0866c726e50648a49",
     "ronenContract": "0x279e8e892edbd7bf3d7b9eedc2f482d88e4cc9ef"

@@ -16,7 +16,7 @@ export default class PurchasedEnergies {
     return wallet?.purchasedEnergy || 0;
   }
 
-  static async addEnergy({ txHash, address, amount = 0, token = "RON", price }) {
+  static async addEnergy({ txHash, address, amount = 0, token = "RON", price, network }) {
     if (amount <= 0) {
       throw new Error("Amount must be positive");
     }
@@ -25,6 +25,13 @@ export default class PurchasedEnergies {
 
     const purchasesCol = mongoDbConnection.db().collection(config.mongo.table.purchases);
     const walletsCol = mongoDbConnection.db().collection(config.mongo.table.wallets);
+
+    // Step 0: Prevent duplicates
+    const existing = await purchasesCol.findOne({ txHash });
+    if (existing) {
+      console.log(`[INFO] Skipping duplicate purchase: ${txHash}`);
+      return null;
+    }
 
     try {
       // eslint-disable-next-line no-console
@@ -46,6 +53,7 @@ export default class PurchasedEnergies {
         price,
         type: "energy",
         token,
+        network,
         createdAt: getUtcNow()
       });
 

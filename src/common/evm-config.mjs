@@ -17,11 +17,16 @@ const evmConfig = {
   },
   testnet: {
     ronin: {
-      chainName: "Ronin Saigon Testnet",
-      chainId: 0x7E5,                            // 2021 in hex
-      rpcUrl: "https://saigon-testnet.roninchain.com/rpc",
+      chainName: "Ronin Mainnet",
+      chainId: 0x07e4,                            // 2020 in hex
+      rpcUrl: "https://api.roninchain.com/rpc",
       baxieContract: "0xb79f49ac669108426a69a26a6ca075a10c0cfe28",
       tokenMetadataBaseUrl: "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/",
+      // chainName: "Ronin Saigon Testnet",
+      // chainId: 0x7E5,                            // 2021 in hex
+      // rpcUrl: "https://saigon-testnet.roninchain.com/rpc",
+      // baxieContract: "0xb79f49ac669108426a69a26a6ca075a10c0cfe28",
+      // tokenMetadataBaseUrl: "https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/",
     },
     abstract: {
       chainName: "Abstract Mainnet",

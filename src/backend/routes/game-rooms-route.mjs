@@ -54,6 +54,7 @@ export function initGameRoomsRoutes(app, server) {
 
         wss.handleUpgrade(request, socket, head, (ws) => {
           ws.session = request.session; // attach session
+          console.log('ws.session', ws.session)
           wss.emit("connection", ws, request);
         });
       });

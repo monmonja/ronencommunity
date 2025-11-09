@@ -37,12 +37,13 @@ export async function createCPUPlayer(roomId, characterIds) {
   for (let i = 0; i < characterIds.length; i += 1) {
     let data = await NftModel.findById({
       nftTokenId: "baxies",
+      network: 'ronin',
       nftId: characterIds[i].tokenId });
 
     if (!data) {
       data = await NftModel.getNFTMetadata({
         nftTokenId: "baxies",
-        tokenURI: `https://metadata.ronen.network/0xb79f49ac669108426a69a26a6ca075a10c0cfe28/${characterIds[i].tokenId}`,
+        network: 'ronin',
         nftId: characterIds[i].tokenId,
       });
     }
@@ -548,10 +549,15 @@ async function handleJoinRoom(ws, data) {
 
         const nftDocs = await Promise.all(
           data.selectedBaxies.map((baxie) =>
-            NftModel.findById({ nftTokenId: "baxies", nftId: baxie.tokenId })
+            NftModel.findById({
+              nftTokenId: "baxies",
+              network: ws.session.wallet.network,
+              nftId: baxie.tokenId ?? baxie.nftId,
+            })
           )
         );
-
+console.log('data.selectedBaxies', data.selectedBaxies)
+console.log('nftDocs', nftDocs)
         GameRoomManager.rooms[data.roomId].players[i].baxies = nftDocs.map((nftData) => makeBaxie(nftData));
         data.selectedBaxies.forEach((baxie) => {
           const baxieId = baxie.tokenId;

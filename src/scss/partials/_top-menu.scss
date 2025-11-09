@@ -2,13 +2,13 @@
 @use './variables' as *;
 
 #top-menu {
-  font-family: 'Press Start 2P', serif;
+  font-family: 'Mulish', serif;
   justify-content: space-between;
-  background-color: color-mix(in oklab, white 1%, transparent);
+  background-color: oklch(0.23 0.022 253.8);
   border-color: color-mix(in oklab, oklch(27.8% .033 256.848) 20%, transparent);
+  box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.24);
   padding: 8px $padding-side;
   align-items: center;
-  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   width: 100%;
@@ -30,7 +30,7 @@
 
   a {
     color: oklch(70.7% .022 261.325);
-    font-size: 14px;
+    font-size: 16px;
   }
 
   #logo {
@@ -86,6 +86,8 @@
 
     @include min-768 {
       display: flex;
+      justify-content: flex-start;
+      padding-left: 70px;
     }
 
     li {

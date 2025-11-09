@@ -36,6 +36,12 @@ export default class NftModel {
       findQuery.address = address;
     }
 
+    console.log({
+      nftTokenId,
+      network,
+      nftId
+    })
+
     const data = await mongoDbConnection.db().collection(config.mongo.table.nfts)
       .findOne(findQuery);
 
@@ -69,7 +75,7 @@ export default class NftModel {
     if (supportsEnumerable) {
       const balance = await contract.balanceOf(address);
 
-      const indices = [0]//Array.from({length: Number(balance)}, (_, i) => i);
+      const indices = Array.from({length: Number(balance)}, (_, i) => i);
 
       // helper to process in chunks
       async function processInBatches(items, batchSize, handler) {
