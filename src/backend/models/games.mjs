@@ -66,6 +66,8 @@ export default class Games {
       }
     }
 
+    Games.games = Games.games.sort((a, b) => (a.order ?? 0) > (b.order ?? 0) ? -1 : 1);
+
     return Games.games;
   }
 

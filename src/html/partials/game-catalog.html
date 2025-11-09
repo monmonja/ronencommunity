@@ -1,22 +1,24 @@
 <ul class="game-list">
   <% for (i in games) { %>
     <% if (games[i].visible) { %>
-    <li class="card game-card">
-      <a href="/game/<%= games[i].slug %>">
-        <picture>
-          <img src="/game-assets/<%= games[i].parentFolder ?? '' %><%= games[i].slug %>/banner.png" />
-        </picture>
-        <div class="blur"></div>
-        <div class="information">
-          <h3><%= games[i].name %></h3>
-          <p class="description"><%= games[i].description %></p>
-          <p class="last-updated">Updated: <%= new Date(games[i].lastUpdate).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric"
-            })  %></p>
-        </div>
-      </a>
+    <li class="<% if (games[i].featured) { %> featured <% } %>">
+      <div class="card game-card">
+        <a href="/game/<%= games[i].slug %>">
+          <picture>
+            <img src="/game-assets/<%= games[i].parentFolder ?? '' %><%= games[i].slug %>/banner.png" />
+          </picture>
+          <div class="blur"></div>
+          <div class="information">
+            <h3><%= games[i].name %></h3>
+            <p class="description"><%= games[i].description %></p>
+            <p class="last-updated">Updated: <%= new Date(games[i].lastUpdate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric"
+              })  %></p>
+          </div>
+        </a>
+      </div>
     </li>
     <% } %>
   <% } %>

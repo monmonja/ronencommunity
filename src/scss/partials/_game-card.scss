@@ -9,6 +9,19 @@
   gap: 12px;
 }
 
+.featured {
+  flex: 0 0 100%;
+
+  .game-card {
+    @include min-768 {
+      min-width: 750px;
+      max-width: 0;
+    }
+
+    margin: auto;
+  }
+}
+
 .game-card {
   display: flex;
   flex-direction: column;
@@ -17,6 +30,12 @@
   min-width: 360px;
   max-width: 460px;
   position: relative;
+
+  &.featured {
+    min-width: 720px;
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
 
   &:hover {
     border-color: color-mix(in oklab,oklch(76.5% .177 163.223) 40%,transparent);
