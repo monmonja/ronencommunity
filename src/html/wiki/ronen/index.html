@@ -1,7 +1,25 @@
-<h1>Ronen Wiki</h1>
-<h2 class="header-title">Where to start?</h2>
+<ul class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li>Wiki</li>
+  <li>Ronen</li>
+  <li class="other-wikies-menu no-before">
+    <label class="mobile-menu">
+      Other Wikis
+      <input type="checkbox" name="mobile-wiki" id="mobile-wiki" />
+    </label>
+    <div class="card">
+      <h3>Other Wikis</h3>
+      <%- include('../../partials/wiki-menu.html') %>
+    </div>
+  </li>
+</ul>
+
+
 <section>
-  <ol>
+  <h2 class="header-title" id="where-to-start">
+    Where to start?
+  </h2>
+  <ol class="styled-counter">
     <li>
       To get started, ensure you have a <a href="https://wallet.roninchain.com/">ronin wallet</a>.
     </li>
@@ -58,14 +76,16 @@
   </ol>
 </section>
 
-<h2 class="header-title">NFT requirements</h2>
-<section id="nft-requirements">
-  <table>
-    <tr>
-      <th></th>
-      <th>Ronen</th>
-      <th>NFT</th>
-    </tr>
+<section >
+  <h2 id="nft-requirements" class="header-title">NFT requirements</h2>
+  <table class="rounded-table highlight-first-column">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Ronen</th>
+        <th>NFT</th>
+      </tr>
+    </thead>
     <tr>
       <td>Basic Miners</td>
       <td>3,000</td>
@@ -89,9 +109,9 @@
   </table>
 </section>
 
-<h2 class="header-title">Upgrading a miner</h2>
-<section id="upgrading-cost">
-  <table>
+<section>
+  <h2 id="upgrading-cost" class="header-title">Upgrading a miner</h2>
+  <table class="rounded-table highlight-first-column item-align-center">
     <thead>
       <tr>
         <th>Level</th>
@@ -117,108 +137,116 @@
       <tr><td>15</td><td>10000</td><td>+4</td></tr>
     </tbody>
   </table>
-  <div class="sub-section">
-    <h2>Total cost to update</h2>
-    Old Total Upgrade Cost (to Level 15): 150,000 RONEN <br />
-    New Total Upgrade Cost (to Level 15): 50,000 RONEN
-  </div>
 </section>
 
-<h2 class="header-title">Multiplier tiers</h2>
-<section id="multiplier-tiers">
-  <table>
-    <tr>
-      <th>Ronen</th>
-      <th>Multiplier</th>
-    </tr>
-    <tr>
-      <td>10,000</td>
-      <td>x1.1</td>
-    </tr>
-    <tr>
-      <td>25,000</td>
-      <td>x1.2</td>
-    </tr>
-    <tr>
-      <td>50,000</td>
-      <td>x1.3</td>
-    </tr>
-    <tr>
-      <td>75,000</td>
-      <td>x1.4</td>
-    </tr>
-    <tr>
-      <td>125,000</td>
-      <td>x1.5</td>
-    </tr>
-    <tr>
-      <td>250,000</td>
-      <td>x1.6</td>
-    </tr>
-    <tr>
-      <td>375,000</td>
-      <td>x1.7</td>
-    </tr>
-    <tr>
-      <td>500,000</td>
-      <td>x1.8</td>
-    </tr>
-    <tr>
-      <td>625,000</td>
-      <td>x1.9</td>
-    </tr>
-    <tr>
-      <td>750,000</td>
-      <td>x2.0</td>
-    </tr>
-    <tr>
-      <td>1,000,000</td>
-      <td>x2.1</td>
-    </tr>
-    <tr>
-      <td>1,250,000</td>
-      <td>x2.2</td>
-    </tr>
-    <tr>
-      <td>1,500,000</td>
-      <td>x2.3</td>
-    </tr>
-    <tr>
-      <td>1,750,000</td>
-      <td>x2.4</td>
-    </tr>
-    <tr>
-      <td>2,000,000</td>
-      <td>x2.5</td>
-    </tr>
-    <tr>
-      <td>3,000,000</td>
-      <td>x2.6</td>
-    </tr>
-    <tr>
-      <td>4,000,000</td>
-      <td>x2.7</td>
-    </tr>
-    <tr>
-      <td>5,000,000</td>
-      <td>x2.8</td>
-    </tr>
-    <tr>
-      <td>7,500,000</td>
-      <td>x2.9</td>
-    </tr>
-    <tr>
-      <td>10,000,000</td>
-      <td>x3.0</td>
-    </tr>
+
+<section>
+  <h2 class="header-title">Total cost to update</h2>
+  <p>
+    Old Total Upgrade Cost (to Level 15): 150,000 RONEN <br />
+    New Total Upgrade Cost (to Level 15): 50,000 RONEN
+  </p>
+</section>
+
+<section>
+  <h2 id="multiplier-tiers" class="header-title">Multiplier tiers</h2>
+  <table class="rounded-table item-align-center">
+    <thead>
+      <tr>
+        <th>Ronen</th>
+        <th>Multiplier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>10,000</td>
+        <td>x1.1</td>
+      </tr>
+      <tr>
+        <td>25,000</td>
+        <td>x1.2</td>
+      </tr>
+      <tr>
+        <td>50,000</td>
+        <td>x1.3</td>
+      </tr>
+      <tr>
+        <td>75,000</td>
+        <td>x1.4</td>
+      </tr>
+      <tr>
+        <td>125,000</td>
+        <td>x1.5</td>
+      </tr>
+      <tr>
+        <td>250,000</td>
+        <td>x1.6</td>
+      </tr>
+      <tr>
+        <td>375,000</td>
+        <td>x1.7</td>
+      </tr>
+      <tr>
+        <td>500,000</td>
+        <td>x1.8</td>
+      </tr>
+      <tr>
+        <td>625,000</td>
+        <td>x1.9</td>
+      </tr>
+      <tr>
+        <td>750,000</td>
+        <td>x2.0</td>
+      </tr>
+      <tr>
+        <td>1,000,000</td>
+        <td>x2.1</td>
+      </tr>
+      <tr>
+        <td>1,250,000</td>
+        <td>x2.2</td>
+      </tr>
+      <tr>
+        <td>1,500,000</td>
+        <td>x2.3</td>
+      </tr>
+      <tr>
+        <td>1,750,000</td>
+        <td>x2.4</td>
+      </tr>
+      <tr>
+        <td>2,000,000</td>
+        <td>x2.5</td>
+      </tr>
+      <tr>
+        <td>3,000,000</td>
+        <td>x2.6</td>
+      </tr>
+      <tr>
+        <td>4,000,000</td>
+        <td>x2.7</td>
+      </tr>
+      <tr>
+        <td>5,000,000</td>
+        <td>x2.8</td>
+      </tr>
+      <tr>
+        <td>7,500,000</td>
+        <td>x2.9</td>
+      </tr>
+      <tr>
+        <td>10,000,000</td>
+        <td>x3.0</td>
+      </tr>
+    </tbody>
   </table>
 </section>
 
 
-<h2 class="header-title">Max Level Hash power Boost</h2>
-<section id="max-level-boost">
+<section>
+  <h2 id="max-level-boost" class="header-title">Max Level Hash power Boost</h2>
   <p>There are the bonus for Level 15 Miners</p><br />
-  <table>
+  <table class="rounded-table highlight-first-column">
     <thead>
       <tr>
         <th>NFT</th>
@@ -246,13 +274,13 @@
   </table>
 </section>
 
-<section id="login-streak">
-  <h2>Login Streak </h2>
-  <table>
+<section>
+  <h2 id="login-streak" class="header-title">Login Streak </h2>
+  <table class="rounded-table highlight-first-column item-align-center">
     <thead>
       <tr>
         <th>Day streak</th>
-        <th>ronen</th>
+        <th>Ronen</th>
         <th>RP</th>
       </tr>
     </thead>
@@ -308,7 +336,7 @@
       <td>50,000</td>
     </tr>
     <tr>
-      <td>More than 10 days</td>
+      <td>> 10 days</td>
       <td>10</td>
       <td>50,000</td>
     </tr>
@@ -316,9 +344,9 @@
   </table>
 </section>
 
-<h2 class="header-title">Miner Marketplace</h2>
-<section id="miner-marketplace">
-  <table>
+<section >
+  <h2 id="miner-marketplace" class="header-title">Miner Marketplace</h2>
+  <table class="rounded-table highlight-first-column">
     <thead>
     <tr>
       <th>NFT</th>
@@ -347,7 +375,7 @@
 </section>
 
 
-<h2 class="header-title">Official documentation</h2>
 <section>
+  <h2 class="header-title">Official documentation</h2>
   <p><a href="https://ronencoin.tech/v/darkpaper.php">Darkpaper</a></p>
 </section>

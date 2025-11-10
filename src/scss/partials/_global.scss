@@ -34,7 +34,7 @@
 }
 
 body {
-  background: oklch(0.178 0.022 253.8);
+  background: $body-bg;
   font-family: 'Newsreader', serif;
   font-optical-sizing: auto;
   font-weight: 400;
@@ -92,23 +92,27 @@ h2.header-title {
   font-family: 'Press Start 2P', serif;
   font-size: 14px;
   color: white;
-  text-align: center;
   padding: 8px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   position: relative;
   text-transform: uppercase;
+  display: inline-block;
 
   &::after {
     content: ' ';
     position: absolute;
-    bottom: -5px;
-    left: 50%;
-    background: $emerald500;
-    width: 64px;
-    height: 4px;
-    transform: translateX(-50%);
+    bottom: -3px;
+    left: 0;
+    background-image: linear-gradient(to right, $emerald500, $border-color);
+    width: 100%;
+    height: 1px;
   }
 
+  .direct-link {
+    svg {
+      width: 1rem;
+    }
+  }
 }
 
 .button {
@@ -149,44 +153,82 @@ table {
 .rounded-table {
   border: 0;
 
-  td,
-  th {
-    border: 1px solid rgb(204, 204, 204);
-    padding: 16px 24px;
-  }
-
-  th {
-    background: rgba(255,255,255,.05) !important;
-  }
-
-  td,
-  th {
-    &:first-child {
-      border-left: 1px solid rgb(204, 204, 204);
-    }
-
-    &:last-child {
-      border-right: 1px solid rgb(204, 204, 204);
+  &.item-align-center {
+    td {
+      text-align: center;
     }
   }
 
-  tr {
-    &:first-child {
-      td,
-      th {
-        &:first-child {
-          border-top-left-radius: 12px;
-        }
+  &.highlight-first-column {
+    tr:nth-child(odd) {
+      td:first-child {
+        position: relative;
 
-        &:last-child {
-          border-top-right-radius: 12px;
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: $table-th-even;
+          pointer-events: none;
         }
       }
     }
 
+    td:first-child {
+      font-weight: 600;
+      background: $table-th-bg !important;
+
+    }
+  }
+
+  th {
+    border: 1px solid $table-border-color;
+    padding: 10px 24px;
+  }
+
+  td {
+    border: 0;
+    padding: 16px 24px;
+  }
+
+  th {
+    background: $table-th-bg !important;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  td,
+  th {
+    &:first-child {
+      border-left: 1px solid $table-border-color;
+    }
+
     &:last-child {
-      td,
-      th {
+      border-right: 1px solid $table-border-color;
+    }
+  }
+
+  thead {
+    tr {
+      &:first-child {
+        th {
+          &:first-child {
+            border-top-left-radius: 6px;
+          }
+
+          &:last-child {
+            border-top-right-radius: 6px;
+          }
+        }
+      }
+    }
+  }
+
+  tbody tr {
+    &:last-child {
+      td {
+        border-bottom: 1px solid $table-border-color;
+
         &:first-child {
           border-bottom-left-radius: 12px;
         }
@@ -196,18 +238,22 @@ table {
         }
       }
     }
+
+    &:nth-child(odd) {
+      td {
+        background: $table-th-even;
+      }
+    }
   }
 }
 
 .login-btn {
   cursor: pointer;
-  background-image:
-    linear-gradient(
-        oklch(0.18 0.16 253.8),
-        oklch(0.1 0.10 263.8)
-    ),
-    linear-gradient(oklch(0 0 0), oklch(0 0 0));
+  background: $table-border-color;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid oklch(79.2% 0.209 151.711deg / 0.3);
   color: white;
+  border-radius: 4px;
 
   display: inline-flex;
   min-height: 40px;
@@ -228,6 +274,10 @@ table {
   border-radius: 4px;
   display: flex;
   gap: 16px;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+
 
   li {
     position: relative;
@@ -245,6 +295,55 @@ table {
         content: '';
         margin: 0;
       }
+    }
+
+    &.no-before {
+      &::before {
+        content: '';
+        margin: 0;
+      }
+    }
+  }
+}
+
+ol.styled-counter {
+  counter-reset: item;
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    position: relative;
+    counter-increment: item;
+    padding-left: 1.4em;
+
+    &::marker {
+      color: transparent;
+    }
+
+    &::before {
+      content: counter(item);
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background-image: linear-gradient(to bottom, $emerald500, $table-border-color);;
+      position: absolute;
+      top: 0;
+      font-size: 11px;
+      padding-top: 2px;
+      left: -14px;
+      display: block;
+      text-align: center;
+      color: white;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: -5px;
+      width: 2px;
+      height: calc(100% - 35px);
+      background-image: linear-gradient(to top, $emerald500, $table-border-color);
     }
   }
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= selectedWiki[0].toUpperCase() + selectedWiki.slice(1).toLowerCase() %> Wiki - Ronen Community</title>
-  <link rel="stylesheet" href="/css/wiki-<%= config.distVersion %>.css">
+  <%- inlineCSS('wiki-' + config.distVersion) %>
   <link rel="icon" href="/img/favicon.ico" sizes="32x32"/>
   <%- include('../partials/analytics.html') %>
 </head>
@@ -13,16 +13,7 @@
   <%- include('../partials/top-menu.html') %>
   <%- include('../partials/ads-top-banner.html') %>
   <div class="page-content">
-    <div class="aside">
-      <label class="mobile-menu">
-        Other Wikis
-        <input type="checkbox" name="mobile-wiki" id="mobile-wiki" />
-      </label>
-      <div class="card">
-        <h3>Other Wikis</h3>
-        <%- include('../partials/wiki-menu.html') %>
-      </div>
-    </div>
+
     <div id="content">
       <%- include(content) %>
     </div>

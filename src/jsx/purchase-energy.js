@@ -32,7 +32,10 @@ const PurchaseEnergy = () => {
       // Call your verification logic once the transaction is confirmed
       console.log("✅ Transaction confirmed:", receipt.transactionHash);
       window.verifyEnergyTx(receipt.transactionHash, 'abstract')
-        .then(() => console.log("Energy verified"))
+        .then(() => {
+          alert('Thank you for purchasing energy! You will be redirected back.');
+          history.go(-1);
+        })
         .catch((err) => console.error("Verification failed:", err));
     }
   }, [isSuccess, receipt]);
@@ -58,16 +61,17 @@ const PurchaseEnergy = () => {
           <td>
             Buy {config.energy} for {config.eth} ETH
             <br />
+            <br />
 
 
             {!address && (
-              <button onClick={() => login()}>
+              <button className="abstract-button login-btn" onClick={() => login()}>
                 {status === "disconnected" ? "Connect to wallet first" : status}
               </button>
             )}
 
             {address && (
-              <button onClick={handleSend} disabled={isPending || status !== "connected"}>
+              <button className="abstract-button login-btn" onClick={handleSend} disabled={isPending || status !== "connected"}>
                 {isPending
                   ? "Awaiting wallet..."
                   : isWaiting

@@ -12,7 +12,7 @@
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 3;
+  z-index: 11;
 
   &.open {
     #mobile-links {
@@ -50,7 +50,9 @@
     z-index: 2;
 
     .button {
-      border: 1px solid white;
+      background: $table-border-color;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      border: 1px solid oklch(79.2% 0.209 151.711deg / 0.3);
       font-family: 'Newsreader', serif;
       border-radius: 6px;
       color: white;

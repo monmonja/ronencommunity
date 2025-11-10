@@ -33,4 +33,12 @@ export function initWikiMenu (): void {
       }
     });
   }
+
+  document.querySelectorAll('.header-title').forEach((element) => {
+    if (element.hasAttribute('id')) {
+      element.innerHTML = `<a href="#${element.getAttribute('id')}" class="direct-link">
+    <svg viewBox="0 0 22 23" focusable="false" class="header--tag__icon"><path stroke="currentColor" fill="none" d="M9 12.3a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M13 10.3a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </a>` + element.innerHTML;
+    }
+  });
 }

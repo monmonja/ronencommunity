@@ -44,49 +44,6 @@
       z-index: 1;
     }
 
-    .mobile-menu {
-      display: block;
-      background: color-mix(in oklab, oklch(20.8% .042 265.755) 80%, transparent);
-      backdrop-filter: blur(8px);
-      color: white;
-      padding: 12px 24px;
-      border-top: 2px solid color-mix(in oklab, $border-color 20%, transparent);
-      cursor: pointer;
-
-      @include min-768 {
-        display: none;
-      }
-    }
-
-    #mobile-wiki {
-      position: absolute;
-      left: -10000px;
-    }
-
-    &:has(#mobile-wiki:checked) {
-      height: 400px;
-
-      @include min-768 {
-        height: auto;
-      }
-
-      .card {
-        max-height: 1000px;
-      }
-    }
-
-    .card {
-      @include max-767 {
-        overflow: hidden;
-        max-height: 0;
-
-        border-radius: 0;
-        border: 0;
-        padding-bottom: 0;
-        padding-top: 0;
-      }
-    }
-
     h3 {
       margin-bottom: 12px;
       font-family: 'Press Start 2P', serif;
@@ -136,16 +93,7 @@
   }
 
   section {
-    padding: 24px;
-    border-radius: 6px;
-    background-image: linear-gradient(
-        to right bottom,
-        color-mix(in oklab, oklch(20.8% .042 265.755) 80%, transparent) 0%,
-        color-mix(in oklab, oklch(27.9% .041 260.031) 60%, transparent) 100%
-    );
-    backdrop-filter: blur(8px);
-    border: 2px solid color-mix(in oklab, $border-color 20%, transparent);
-    margin-bottom: 32px;
+    margin-bottom: calc(24px + 1rem);
   }
 
   ol {
@@ -183,4 +131,54 @@ h2 {
 
 .rp-info {
   font-size: 70%;
+}
+
+.other-wikies-menu {
+  flex: 1;
+  text-align: right;
+  position: relative;
+
+  .mobile-menu {
+    display: inline-block;
+    background: color-mix(in oklab, oklch(20.8% .042 265.755) 80%, transparent);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 6px 12px 4px;
+    cursor: pointer;
+    background: $table-border-color;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid oklch(79.2% 0.209 151.711deg / 0.3);
+    border-radius: 6px;
+  }
+
+
+  #mobile-wiki {
+    position: absolute;
+    left: -10000px;
+  }
+
+  &:has(#mobile-wiki:checked) {
+    .card {
+      max-height: 1000px;
+      display: block;
+    }
+  }
+
+  .card {
+    display: none;
+    position: absolute;
+    right: 0;
+    z-index: 99;
+    background: $body-bg;
+
+    @include max-767 {
+      overflow: hidden;
+      max-height: 0;
+      width: 300px;
+    }
+
+    li::before {
+      display: none;
+    }
+  }
 }

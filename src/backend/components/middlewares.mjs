@@ -8,6 +8,7 @@ import geoip from "geoip-country";
 import {logError} from "./logger.mjs";
 import Games from "../models/games.mjs";
 import Admin from "../models/admin.mjs";
+import { inlineCSS } from "./ejs-helpers.js";
 
 // Middleware to check if wallet is logged in
 export function requireWalletSession(req, res, next) {
@@ -83,6 +84,7 @@ export function ejsVariablesMiddleware(req, res, next) {
   res.locals.wallet = req.session.wallet || null;
   res.locals.config = config || {};
   res.locals.nonce = crypto.randomBytes(16).toString("hex");
+  res.locals.inlineCSS = inlineCSS;
 
   next();
 }
