@@ -8,6 +8,7 @@ const rateLimiter = new RateLimiterMemory({
 });
 
 export function rateLimiterMiddleware(req, res, next) {
+  return next();
   const remoteAddress = requestIP.getClientIp(req) || req.ip;
 
   rateLimiter.consume(remoteAddress, 2) // Consume 2 points

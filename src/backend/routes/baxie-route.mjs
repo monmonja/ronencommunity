@@ -5,10 +5,11 @@ import WalletsModel from "../models/wallets-model.mjs";
 import {makeBaxie} from "../games/baxies/baxie-utilities.mjs";
 import NftModel from "../models/nft-model.mjs";
 import {logError} from "../components/logger.mjs";
+import {breedOne} from "../components/baxie-breeding.mjs";
 
-export function initWalletRoutes(app) {
+export function initBaxieRoutes(app) {
   app.get(
-    "/list/baxie-info/:tokenId",
+    "/baxie/info/:tokenId",
     param("tokenId")
       .matches(/^[0-9]+$/)
       .withMessage("Invalid token Id"),
@@ -46,7 +47,7 @@ export function initWalletRoutes(app) {
     });
 
   app.get(
-    "/list/baxies/:sync",
+    "/baxies/:sync",
     param("sync")
       .isBoolean()
       .withMessage("Invalid force"),
@@ -103,9 +104,61 @@ export function initWalletRoutes(app) {
         res.json(walletNft);
       } catch (error) {
         logError({
-          message: "Error in /list/baxies/:sync",
+          message: "Error in /baxies/:sync",
           auditData: error,
         });
       }
+    });
+
+
+  app.get(
+    "/baxie/breed/:male/:female",
+    param("sync")
+      .isBoolean()
+      .withMessage("Invalid force"),
+    rateLimiterMiddleware,
+    requireWalletSession,
+    noCacheMiddleware,
+    cookieCheckMiddleware,
+    async (req, res) => {
+      const network = req.session.wallet.network;
+// Define your parents
+      let male = await NftModel.findById({
+        nftTokenId: "baxies",
+        network: network,
+        nftId: req.params.male
+      });
+      const parentMale = {
+        gender: 'male',
+        parts: {},
+      }
+      for (const row of male.data.attributes) {
+        if (row.trait_type === 'Class') {
+          parentMale.parts.Body = row.value;
+        } else if (['Tail', 'Ears', 'Mouth', 'Eyes', 'Forehead'].includes(row.trait_type)) {
+          parentMale.parts[row.trait_type] = row.value;
+        }
+      }
+
+      let female = await NftModel.findById({
+        nftTokenId: "baxies",
+        network: network,
+        nftId: req.params.female
+      });
+      const parentFemale = {
+        gender: 'female',
+        parts: {},
+      }
+      for (const row of female.data.attributes) {
+        if (row.trait_type === 'Class') {
+          parentFemale.parts.Body = row.value;
+        } else if (['Tail', 'Ears', 'Mouth', 'Eyes', 'Forehead'].includes(row.trait_type)) {
+          parentFemale.parts[row.trait_type] = row.value;
+        }
+      }
+
+// Breed with default settings (70% parents, 25% variation, 5% mutation, 0.5% mystic)
+      console.log(parentMale, parentFemale)
+      res.json(breedOne(parentMale, parentFemale));
     });
 }

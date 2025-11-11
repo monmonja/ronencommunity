@@ -98,7 +98,7 @@ export default class ToolSelection extends Phaser.Scene {
               .slice(0, 3);
 
             // background task to fetch baxies
-            fetch('/list/baxies/false')
+            fetch('/baxies/false')
               .then((res) => res.json())
               .then((results) => {
                 this.registry.set(constants.registry.baxies, results);
@@ -133,7 +133,14 @@ export default class ToolSelection extends Phaser.Scene {
       imageKey: 'under-construction',
       description: 'Breed your baxie and what you can breed. This tool is still in development',
       onPointerDown: () => {
-        // this.scene.start("SyncMenuScene");
+        // fetch('/baxies/false')
+        //   .then((res) => res.json())
+        //   .then((results) => {
+        //     this.registry.set(constants.registry.baxies, results);
+        //
+        //     this.scene.start("BreedingScene");
+        //   });
+
       }
     });
   }
