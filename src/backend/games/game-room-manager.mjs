@@ -1,6 +1,7 @@
 import GameMovesModel from "../models/game-moves-model.mjs";
 import GameRoomsModel from "../models/game-rooms-model.mjs";
 import {getUtcNow} from "../utils/date-utils.mjs";
+import {GameModes} from "../../../games/common/baxie/baxie-simulation.mjs";
 
 const RECONNECT_TIMEOUT = 60000; // 60 seconds
 const BATCH_FLUSH_INTERVAL = 5000; // Flush every 5 seconds
@@ -68,8 +69,15 @@ export default class GameRoomManager {
    * @returns {Promise<GameRoom>}
    */
   static async createRoom({ address, game, vsCPU = false, gameMode, creator, maxPlayers = 2 } = {}) {
-    const shortHand = address ? address.slice(0, 4) + "-" + address.slice(-4) : "";
-    const roomId = `${game.gameRoomSlug}-${shortHand}-${Math.random().toString(36).substring(2, 10)}`;
+    const shortHand = address ? address.slice(-4) : "";
+    const gameModeShort = gameMode === GameModes.autoBattler  ? 'auto' : gameMode;
+    const now = new Date();
+
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const yy = String(now.getFullYear()).slice(-2);
+
+    const roomId = `${game.gameRoomSlug}-${gameModeShort}-d${mm}${dd}${yy}-${shortHand}-${Math.random().toString(36).substring(2, 8)}`;
 
     // check if address already has a room
     for (const existingRoomId in GameRoomManager.rooms) {
