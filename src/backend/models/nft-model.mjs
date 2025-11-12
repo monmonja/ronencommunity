@@ -10,7 +10,7 @@ export default class NftModel {
     const mongoDbConnection = await getConnection();
 
     await mongoDbConnection.db().collection(config.mongo.table.nfts).updateOne(
-      { nftTokenId, network: "ronin", nftId }, // match criteria
+      { nftTokenId, network, nftId }, // match criteria
       {
         $setOnInsert: {
           address,

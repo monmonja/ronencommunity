@@ -21,7 +21,7 @@ export default class WalletsModel {
     }
 
     await mongoDbConnection.db().collection(config.mongo.table.wallets).updateOne(
-      { address: address.toLowerCase(), network: "ronin" }, // match criteria
+      { address: address.toLowerCase(), network }, // match criteria
       {
         $setOnInsert: {
           network,
